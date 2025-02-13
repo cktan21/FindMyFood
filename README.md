@@ -36,18 +36,27 @@ Shadcn <br>
 ### Programming Languages
 - Python <br>
 - JavaScript <br>
+- Go <br>
 
 ### Frameworks
 - Flask or FastAPI <br>
 - Express.js <br>
+- Gin <br>
+
+### Developer Tools
+- Docker
+- Kubernetes(?)
+- Github CI/CD Pipelines
 
 ### Storage
 - Firebase (NoSQL) <br>
 - Supabase (SQL) <br>
-- Redis(?) (Memory SQL) <br>
+- MongoDB (NoSQL)
+- Redis (Cache/Memory SQL) <br>
 
 ### API
-- To be decided
+- OpenAI
+- Google Maps
 
 ### API Gateway
 - Kong
