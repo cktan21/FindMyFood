@@ -6,6 +6,34 @@ Node Package Manager (npm) <br>
 Github Desktop (If you prefer else CLI) <br>
 Docker <br>
 
+## File Structure
+```bash
+.
+├── backend
+│   └── services
+│       ├── complex
+│       │   ├── order-food
+│       │   └── reccomend-food
+│       └── simple
+│           ├── chatgpt
+│           │   ├── api
+│           │   ├── model
+│           │   └── util
+│           ├── menu
+│           ├── order
+│           ├── payment
+│           └── reccomendation
+└── frontend
+    ├── public
+    └── src
+        ├── assets
+        ├── components
+        │   ├── blocks
+        │   └── ui
+        ├── lib
+        └── pages
+```
+
 ## Instructions
 
 Switch to your branch before starting to code <br>
