@@ -7,9 +7,7 @@ const openai = new OpenAI({
     apiKey: OPENAI_API_KEY
 });
 
-async function generateFoodReccomendation(
-    foodHistory
-) {
+async function generateFoodReccomendation(foodHistory) {
     try {
         // const completion = await openai.chat.completions.create({
         // messages: [
