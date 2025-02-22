@@ -70,8 +70,9 @@ Switch to your branch before starting to code <br>
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" alt="Golang" width="80"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Expressjs.png" alt="Golang" width="100"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/FastAPI_logo.svg" alt="Golang" width="120"/></a>&nbsp;&nbsp;
+<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Flask_logo.svg" alt="Golang" width="120"/></a>&nbsp;&nbsp;
 <br>
-<i>Gin · Node.js · Express · FastAPI</i>
+<i>Gin · Node.js · Express · FastAPI · Flask</i>
 </p>
 <br>
 
