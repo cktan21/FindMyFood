@@ -1,3 +1,4 @@
+import os
 from google.cloud import firestore
 from flask import Flask, request, jsonify
 from photo import get_photo_by_id
@@ -34,4 +35,5 @@ def get_menu(restraunt):
     else:
         return jsonify({"error": "Restraunt not found"}), 404
 
-app.run(port=5000)
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
