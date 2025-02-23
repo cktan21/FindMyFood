@@ -1,7 +1,24 @@
-To call all restraunts + photo of menu
-/all
+## Instructions
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python api.py
+```
 
-Sample Output
+To deactivate server:
+```bash
+deactivate
+```
+
+<h1>How to use</h1>
+
+>To call all restraunts + photo of menu
+>/all
+
+<h3>Sample Output</h3>
+
+```json
 {
     "Khoons": {
         "Spagetti": {
@@ -14,40 +31,47 @@ Sample Output
             "Peanut": 2
         },
         "photos": [
-            "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Khoons/Khoons1.png",
-            "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Khoons/Khoons2.png"
+            "https://firebasestorage.googleapis.com/v0/b/menu-b8c1f.firebasestorage.app/o/Khoons%2FKhoons1.png?alt=media",
+            "https://firebasestorage.googleapis.com/v0/b/menu-b8c1f.firebasestorage.app/o/Khoons%2FKhoons2.png?alt=media"
         ]
     },
-    "King Kong Curry": {
+    "KingKongCurry": {
         "Curry": {
-            "Cheese Mayo": 6,
-            "Mayo Chicken": 6,
-            "Truffle Mayo": 7,
-            "Wasabi Chicken": 6
+            "CheeseMayo": 6,
+            "SpicyMayo": 5,
+            "TruffleMayo": 8,
+            "WasabiMayo": 6
         },
         "photos": [
-            "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/King%20Kong%20Curry/kkc.png"
+            "https://firebasestorage.googleapis.com/v0/b/menu-b8c1f.firebasestorage.app/o/KingKongCurry%2Fkkc.png?alt=media"
         ]
     }
 }
+```
 
+<br>
+<br>
 
-To call one restraunt
-/restraunt_name
+>To call one restraunt
+>/restraunt_name
 
-Sample Output (/Khoons)
+<h3>Sample Output (/BigBangCurry)</h3>
+
+```json
 {
-    "Spagetti": {
-        "Cabonara": 5,
-        "Tomato ": 6
-    },
-    "Waffles": {
-        "Caramel ": 3,
-        "Chocolate": 2,
-        "Peanut": 2
+    "Curry": {
+        "CheeseMayo": 6,
+        "SpicyMayo": 5,
+        "TruffleMayo": 8,
+        "WasabiMayo": 6
     },
     "photos": [
-        "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Khoons/Khoons1.png",
-        "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Khoons/Khoons2.png"
+        "https://firebasestorage.googleapis.com/v0/b/menu-b8c1f.firebasestorage.app/o/KingKongCurry%2Fkkc.png?alt=media"
     ]
 }
+```
+
+<br>
+<br>
+<h2>NOTE</h2> 
+Ensure that any names should NOT have any spacings
