@@ -15,11 +15,43 @@ async function generateFoodReccomendation(foodHistory, menulisting) {
             role: "system", 
             content: `Give me food recommendations based on the following food order history of this user ${foodHistory}. Generate 5 food suggestions for the user from the menu ${menulisting} and in valid JSON format in the below example:
                 {
-                    "food_option_1": "burger",
-                    "food_option_2": "pasta",
-                    "food_option_3": "rice",
-                    "food_option_4": "sushi",
-                    "food_option_5": "noodles",
+                "Nasi_Lemak_Ayam_Taliwang": {
+                    "Chicken_Dishes": {
+                      "Nasi_Lemak_Ayam_Taliwang": {
+                        "desc": "Signature nasi lemak featuring grilled chicken marinated in traditional Ayam Taliwang spices, served with fragrant coconut rice and accompaniments.",
+                        "price": "$6.50"
+                      },
+                      "Ayam_Penyet": {
+                        "desc": "Smashed fried chicken with sambal and rice.",
+                        "price": "$7.00"
+                      },
+                      "Soto_Ayam": {
+                        "desc": "Spicy turmeric chicken soup with rice.",
+                        "price": "$6.50"
+                      },
+                      "Ayam_Bakar": {
+                        "desc": "Grilled chicken with sweet soy glaze.",
+                        "price": "$7.20"
+                      }
+                    },
+                    "Noodles_and_Rice": {
+                      "Mie_Goreng": {
+                        "desc": "Indonesian fried noodles with egg and vegetables.",
+                        "price": "$5.80"
+                      },
+                      "Bakso": {
+                        "desc": "Beef meatball soup with noodles.",
+                        "price": "$6.00"
+                      },
+                      "Nasi_Goreng": {
+                        "desc": "Fried rice with shrimp paste and chili.",
+                        "price": "$6.30"
+                      },
+                      "Lontong_Sayur": {
+                        "desc": "Compressed rice cakes served with vegetable curry.",
+                        "price": "$5.50"
+                      }
+                    },
                 }`
             }
         ],
