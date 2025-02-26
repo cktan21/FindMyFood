@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
       
       const { foodHistory } = req.body;
   
-      const foodReccomendation = await reccomend.generateWorkout(foodHistory);
+      const foodReccomendation = await reccomend.generateFoodReccomendation(foodHistory);
       console.log("Food Reccomendation generated!");
   
       res.status(200).json({ 

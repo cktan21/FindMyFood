@@ -8,13 +8,13 @@ class SupabaseClient:
         self.client: Client = create_client(self.url, self.key)
 
     def insert_recommendation(self, rec):
-        response = self.client.table("recommendations").insert({
+        response = self.client.table("Recommendations").insert({
             "order_id": rec.order_id,
             "recommendation": rec.recommendation
         }).execute()
         return response
 
-    def fetch_recommendation(self, order_id):
-        response = self.client.table("recommendations").select("*").eq("order_id", order_id).execute()
-        data = response.get("data")
+    def fetch_recommendation(self, id):
+        response = self.client.table("Recommendations").select("*").eq("id", id).execute()
+        data = response.data
         return data[0] if data else None
