@@ -9,8 +9,8 @@ class SupabaseClient:
 
     def insert_recommendation(self, rec):
         response = self.client.table("Recommendations").insert({
-            "order_id": rec.order_id,
-            "recommendation": rec.recommendation
+            "id": rec.id,
+            "reccomendations": rec.recommendations
         }).execute()
         return response
 
