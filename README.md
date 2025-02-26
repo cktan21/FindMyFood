@@ -9,29 +9,47 @@ Docker <br>
 ## File Structure
 ```bash
 .
-├── backend
-│   └── services
-│       ├── complex
-│       │   ├── order-food
-│       │   └── reccomend-food
-│       └── simple
-│           ├── chatgpt
-│           │   ├── api
-│           │   ├── model
-│           │   └── util
-│           ├── menu
-│           ├── order
-│           ├── payment
-│           └── reccomendation
-└── frontend
-    ├── public
-    └── src
-        ├── assets
-        ├── components
-        │   ├── blocks
-        │   └── ui
-        ├── lib
-        └── pages
+├── .gitignore
+├── README.md
+└── services
+    ├── complex
+    │   ├── order-food
+    │   │   └── README.md
+    │   └── reccomend-food
+    │       ├── README.md
+    │       ├── go.mod
+    │       ├── go.sum
+    │       └── main.go
+    └── simple
+        ├── chatgpt
+        │   ├── .env
+        │   ├── .gitignore
+        │   ├── README.md
+        │   ├── api
+        │   ├── index.js
+        │   ├── model
+        │   ├── package-lock.json
+        │   ├── package.json
+        │   └── util
+        ├── menu
+        │   ├── .gitignore
+        │   ├── README.md
+        │   ├── api.py
+        │   ├── firebase_credentials.json
+        │   ├── photo.py
+        │   └── requirements.txt
+        ├── order
+        │   └── README.md
+        ├── payment
+        │   └── README.md
+        └── reccomendation
+            ├── .env
+            ├── .gitignore
+            ├── README.md
+            ├── main.py
+            ├── requirements.txt
+            └── supabaseClient.py
+
 ```
 
 ## Instructions
@@ -53,7 +71,19 @@ Switch to your branch before starting to code <br>
 
 ## Frameworks and Databases Utilised
 
-<p align="center"><strong>Services and UI</strong></p>
+<p align="center"><strong>UI Stack</strong></p>
+<p align="center">
+<a href="https://www.python.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Vitejs-logo.svg" alt="Vite" height="40"/></a>&nbsp;&nbsp;
+<a href="https://www.python.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="Javascript" height="40"/></a>&nbsp;&nbsp;
+<a href="https://www.typescriptlang.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1200px-Typescript_logo_2020.svg.png" alt="Typescript" height="40"/></a>&nbsp;&nbsp;
+<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" width="40"/></a>&nbsp;&nbsp;
+<a href="https://www.python.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg" alt="Tailwind" height="30"/></a>&nbsp;&nbsp;
+<br>
+<i>Vite · Javascript · Typescript · React · Tailwind CSS</i>
+</p>
+<br>
+
+<p align="center"><strong>Microservices Languages</strong></p>
 <p align="center">
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Go_Logo_Blue.svg" alt="Golang" width="80"/></a>&nbsp;&nbsp;
 <a href="https://www.python.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="Javascript" height="40"/></a>&nbsp;&nbsp;
@@ -64,13 +94,13 @@ Switch to your branch before starting to code <br>
 </p>
 <br>
 
-<p align="center"><strong>Frameworks</strong></p>
+<p align="center"><strong>Microservices Frameworks</strong></p>
 <p align="center">
 <a href="https://go.dev/"><img src="https://raw.githubusercontent.com/gin-gonic/logo/master/color.png" alt="Golang" width="40"/></a>&nbsp;&nbsp;
-<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" alt="Golang" width="80"/></a>&nbsp;&nbsp;
+<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" alt="Golang" width="70"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Expressjs.png" alt="Golang" width="100"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/FastAPI_logo.svg" alt="Golang" width="120"/></a>&nbsp;&nbsp;
-<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Flask_logo.svg" alt="Golang" width="120"/></a>&nbsp;&nbsp;
+<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Flask_logo.svg" alt="Golang" width="100"/></a>&nbsp;&nbsp;
 <br>
 <i>Gin · Node.js · Express · FastAPI · Flask</i>
 </p>
@@ -115,8 +145,8 @@ Switch to your branch before starting to code <br>
 <p align="center">
 <a href="https://stripe.com/en-gb-sg"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/1280px-Stripe_Logo%2C_revised_2016.svg.png" alt="Stripe Payment API" height="40"/></a>&nbsp;&nbsp;
 <a href="https://www.docker.com/"><img src="https://www.docker.com/wp-content/uploads/2022/03/horizontal-logo-monochromatic-white.png" alt="Docker" height="30"/></a>&nbsp;&nbsp;
-<a href="https://kubernetes.io/"><img src="https://gcloud.devoteam.com/wp-content/uploads/sites/32/2021/10/kubernetes-logo-1-1.svg" alt="Kubernetes" height="44"/></a>&nbsp;&nbsp;
-<a href="https://kubernetes.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg" alt="Kubernetes" height="44"/></a>&nbsp;&nbsp;
+<a href="https://kubernetes.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/67/Kubernetes_logo.svg" alt="Kubernetes" height="40"/></a>&nbsp;&nbsp;
+<a href="https://kubernetes.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg" alt="Kubernetes" height="40"/></a>&nbsp;&nbsp;
 </p>
 <p align="center">
 <i>Docker Compose · Docker Hub · Kubernetes · OpenAI</i>

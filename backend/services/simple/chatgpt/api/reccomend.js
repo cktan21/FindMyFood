@@ -5,9 +5,9 @@ const reccomend = require('../model/reccomend');
 router.post('/', async (req, res) => {
     try {
       
-      const { foodHistory } = req.body;
+      const { foodHistory, menulisting } = req.body;
   
-      const foodReccomendation = await reccomend.generateWorkout(foodHistory);
+      const foodReccomendation = await reccomend.generateFoodReccomendation(foodHistory, menulisting);
       console.log("Food Reccomendation generated!");
   
       res.status(200).json({ 
