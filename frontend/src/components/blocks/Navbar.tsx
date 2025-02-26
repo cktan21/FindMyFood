@@ -134,8 +134,12 @@ export const Navbar = () => {
           {/* <Button variant="ghost">Book a demo</Button> */}
           <p className="font-semibold text-center">FindMyFood</p>
           <div className="border-r h-6"></div>
-          <Button variant="outline">Sign in</Button>
-          <Button>Get started</Button>
+          <Link to="/login">
+            <Button variant="outline">Sign in</Button>
+          </Link>
+          <Link to="/register">
+            <Button>Get started</Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Toggle */}
