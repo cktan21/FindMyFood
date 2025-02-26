@@ -9,29 +9,47 @@ Docker <br>
 ## File Structure
 ```bash
 .
-├── backend
-│   └── services
-│       ├── complex
-│       │   ├── order-food
-│       │   └── reccomend-food
-│       └── simple
-│           ├── chatgpt
-│           │   ├── api
-│           │   ├── model
-│           │   └── util
-│           ├── menu
-│           ├── order
-│           ├── payment
-│           └── reccomendation
-└── frontend
-    ├── public
-    └── src
-        ├── assets
-        ├── components
-        │   ├── blocks
-        │   └── ui
-        ├── lib
-        └── pages
+├── .gitignore
+├── README.md
+└── services
+    ├── complex
+    │   ├── order-food
+    │   │   └── README.md
+    │   └── reccomend-food
+    │       ├── README.md
+    │       ├── go.mod
+    │       ├── go.sum
+    │       └── main.go
+    └── simple
+        ├── chatgpt
+        │   ├── .env
+        │   ├── .gitignore
+        │   ├── README.md
+        │   ├── api
+        │   ├── index.js
+        │   ├── model
+        │   ├── package-lock.json
+        │   ├── package.json
+        │   └── util
+        ├── menu
+        │   ├── .gitignore
+        │   ├── README.md
+        │   ├── api.py
+        │   ├── firebase_credentials.json
+        │   ├── photo.py
+        │   └── requirements.txt
+        ├── order
+        │   └── README.md
+        ├── payment
+        │   └── README.md
+        └── reccomendation
+            ├── .env
+            ├── .gitignore
+            ├── README.md
+            ├── main.py
+            ├── requirements.txt
+            └── supabaseClient.py
+
 ```
 
 ## Instructions
