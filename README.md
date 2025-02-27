@@ -147,8 +147,9 @@ Switch to your branch before starting to code <br>
 <a href="https://www.docker.com/"><img src="https://www.docker.com/wp-content/uploads/2022/03/horizontal-logo-monochromatic-white.png" alt="Docker" height="30"/></a>&nbsp;&nbsp;
 <a href="https://kubernetes.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/67/Kubernetes_logo.svg" alt="Kubernetes" height="40"/></a>&nbsp;&nbsp;
 <a href="https://kubernetes.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg" alt="Kubernetes" height="40"/></a>&nbsp;&nbsp;
+<a href="https://kubernetes.io/"><img src="http://upload.wikimedia.org/wikipedia/commons/9/96/Socket-io.svg" alt="Socketio" height="40"/></a>&nbsp;&nbsp;
 </p>
 <p align="center">
-<i>Docker Compose · Docker Hub · Kubernetes · OpenAI</i>
+<i>Docker Compose · Docker Hub · Kubernetes · OpenAI · Socket.io</i>
 </p>
 <br>  
