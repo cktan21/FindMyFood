@@ -359,9 +359,113 @@
     },
     "King_Kong_Curry": {
         "Curry": {
-            "Cheese_Mayo" :{
-                "desc" : "A creamy and cheesy mayo blend, adding a rich and indulgent flavor",
-                "price" : "6.00"
+            "Signature_King_Kong_Curry": {
+                "desc": "Rich Japanese curry served with your choice of katsu, beef, or vegetables.",
+                "price": "$10.50"
+            },
+            "Cheese_Curry_Rice": {
+                "desc": "Japanese curry rice topped with melted cheese.",
+                "price": "$9.80"
+            },
+            "Seafood_Curry_Rice": {
+                "desc": "Japanese curry served with fried prawns, squid, and fish fillet.",
+                "price": "$12.50"
+            },
+            "Wagyu_Beef_Curry": {
+                "desc": "Premium Wagyu beef slices served with Japanese curry over rice.",
+                "price": "$16.90"
+            },
+            "Vegetarian_Curry": {
+                "desc": "A plant-based Japanese curry featuring tofu and seasonal vegetables.",
+                "price": "$8.90"
+            },
+            "Chicken_Katsu_Curry": {
+                "desc": "Crispy breaded chicken cutlet with Japanese curry over rice.",
+                "price": "$11.50"
+            },
+            "Omelette_Curry_Rice": {
+                "desc": "Fluffy Japanese omelette served with curry rice.",
+                "price": "$9.50"
+            },
+            "Karaage_Curry_Rice": {
+                "desc": "Japanese-style fried chicken served with curry over rice.",
+                "price": "$10.80"
+            },
+            "Pork_Katsu_Curry": {
+                "desc": "Breaded pork cutlet served with thick Japanese curry.",
+                "price": "$12.30"
+            },
+            "Spicy_Curry_Rice": {
+                "desc": "A bolder, spicier version of our traditional Japanese curry.",
+                "price": "$10.00"
+            }
+        }
+    },
+    "ONALU_Bagel_Haus": {
+        "Bagel": {
+            "Hash Stack Bagel": {
+                "desc": "Bagel sandwich with hashbrown, scrambled eggs, and house-made jam.",
+                "price": "$8.00"
+            },
+            "Kaya Thyme Bagel": {
+                "desc": "A unique twist on traditional kaya toast, featuring kaya and thyme.",
+                "price": "$9.00"
+            },
+            "Somethin’ Fishy Bagel": {
+                "desc": "Bagel filled with Norwegian smoked salmon, scallion cream cheese, and capers.",
+                "price": "$12.00"
+            }
+        }
+    },
+    "Chops": {
+        "Grilled_Meats": {
+            "Grilled_Lamb_Chop": {
+                "desc": "Juicy lamb chops marinated in rosemary and garlic, served with roasted vegetables.",
+                "price": "18.00"
+            },
+            "Grilled_Chicken_Thighs": {
+                "desc": "Herb-marinated chicken thighs grilled to perfection.",
+                "price": "12.00"
+            },
+            "Beef_Steak": {
+                "desc": "Grilled beef steak with a side of mashed potatoes and pepper sauce.",
+                "price": "22.00"
+            }
+        },
+        "Sides": {
+            "Garlic_Butter_Mushrooms": {
+                "desc": "Sautéed mushrooms in garlic butter sauce.",
+                "price": "6.00"
+            },
+            "Truffle_Fries": {
+                "desc": "Crispy fries tossed in truffle oil with parmesan cheese.",
+                "price": "8.00"
+            }
+        }
+    },
+    "Turks_Kebab": {
+        "Kebabs": {
+            "Chicken_Shish_Kebab": {
+                "desc": "Grilled chicken skewers marinated in Turkish spices, served with rice and salad.",
+                "price": "10.00"
+            },
+            "Lamb_Doner_Kebab": {
+                "desc": "Thinly sliced lamb doner wrapped in flatbread with lettuce, tomatoes, and yogurt sauce.",
+                "price": "9.00"
+            },
+            "Mixed_Grill_Platter": {
+                "desc": "A platter of grilled chicken, lamb, and beef kebabs with sides.",
+                "price": "18.00"
+            }
+        },
+        "Sides": {
+            "Hummus": {
+                "desc": "Creamy chickpea dip served with pita bread.",
+                "price": "5.00"
+            },
+            "Tabbouleh": {
+                "desc": "Fresh parsley salad with bulgur, tomatoes, and lemon dressing.",
+                "price": "6.00"
             }
         }
     }
