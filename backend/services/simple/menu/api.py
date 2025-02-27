@@ -1,7 +1,7 @@
 import os
 from google.cloud import firestore
 from flask import Flask, request, jsonify
-from photo import get_photo_by_id
+from ESD_Team8.backend.services.simple.menu.Archive.photo import get_photo_by_id
 
 # Initialize Firestore using credentials
 db = firestore.Client.from_service_account_json("firebase_credentials.json")

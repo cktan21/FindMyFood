@@ -19,4 +19,4 @@ def get_photo_by_id(name):
     return listie[1:]
 
 
-# print(get_photo_by_id('King Kong Curry'))
+print(get_photo_by_id('King Kong Curry'))
