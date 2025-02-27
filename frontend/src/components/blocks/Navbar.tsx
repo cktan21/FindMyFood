@@ -138,7 +138,7 @@ export const Navbar = () => {
             <Button variant="outline">Sign in</Button>
           </Link>
           <Link to="/register">
-            <Button>Get started</Button>
+            <Button className="bg-gradient-to-r from-blue-600 via-blue-400 to-purple-500">Get started</Button>
           </Link>
         </div>
 

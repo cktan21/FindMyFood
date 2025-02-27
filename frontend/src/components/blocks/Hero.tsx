@@ -26,7 +26,7 @@ export default function Hero() {
                 </p>
               </div>
               <div className="mt-8 gap-3 flex justify-center">
-                <Button size={"lg"}>Get started</Button>
+                <Button size={"lg"} className="bg-gradient-to-r from-blue-600 via-blue-400 to-purple-500">Get started</Button>
                 <Button size={"lg"} variant={"outline"}>
                   Learn more
                 </Button>
