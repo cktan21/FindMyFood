@@ -64,6 +64,10 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-4">
             {/* Profile dropdown */}
+            <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+              <ShoppingBag className="mr-2 h-4 w-4" />
+              Cart
+            </Button>
             <div className="relative" ref={menuRef}>
               <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleMenu}>
                 <User className="h-5 w-5" />
@@ -71,6 +75,13 @@ export default function HomePage() {
               </Button>
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <Link to="/profile">
+                    <button
+                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                    >
+                      Profile
+                    </button>
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
@@ -80,10 +91,6 @@ export default function HomePage() {
                 </div>
               )}
             </div>
-            <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              Cart
-            </Button>
           </div>
         </div>
       </header>
