@@ -78,8 +78,9 @@ Switch to your branch before starting to code <br>
 <a href="https://www.typescriptlang.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1200px-Typescript_logo_2020.svg.png" alt="Typescript" height="40"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" width="40"/></a>&nbsp;&nbsp;
 <a href="https://www.python.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg" alt="Tailwind" height="30"/></a>&nbsp;&nbsp;
+<a href="https://www.postgresql.org/"><img src="https://www.vectorlogo.zone/logos/supabase/supabase-icon.svg" alt="Supabase" height="40"/></a>&nbsp;&nbsp;
 <br>
-<i>Vite · Javascript · Typescript · React · Tailwind CSS</i>
+<i>Vite · Javascript · Typescript · React · Tailwind CSS · Supabase Auth</i>
 </p>
 <br>
 
