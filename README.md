@@ -6,52 +6,6 @@ Node Package Manager (npm) <br>
 Github Desktop (If you prefer else CLI) <br>
 Docker <br>
 
-## File Structure
-```bash
-.
-├── .gitignore
-├── README.md
-└── services
-    ├── complex
-    │   ├── order-food
-    │   │   └── README.md
-    │   └── reccomend-food
-    │       ├── README.md
-    │       ├── go.mod
-    │       ├── go.sum
-    │       └── main.go
-    └── simple
-        ├── chatgpt
-        │   ├── .env
-        │   ├── .gitignore
-        │   ├── README.md
-        │   ├── api
-        │   ├── index.js
-        │   ├── model
-        │   ├── package-lock.json
-        │   ├── package.json
-        │   └── util
-        ├── menu
-        │   ├── .gitignore
-        │   ├── README.md
-        │   ├── api.py
-        │   ├── firebase_credentials.json
-        │   ├── photo.py
-        │   └── requirements.txt
-        ├── order
-        │   └── README.md
-        ├── payment
-        │   └── README.md
-        └── reccomendation
-            ├── .env
-            ├── .gitignore
-            ├── README.md
-            ├── main.py
-            ├── requirements.txt
-            └── supabaseClient.py
-
-```
-
 ## Instructions
 
 Switch to your branch before starting to code <br>
@@ -68,6 +22,9 @@ Switch to your branch before starting to code <br>
   npm i
   npm run dev
 ```
+
+## Technical Architecture Diagram
+<img width="1215" alt="Screenshot 2025-02-26 at 3 45 25 PM" src="https://github.com/user-attachments/assets/08b19898-28a8-41dd-bc39-0f422d8eaa6d" />
 
 ## Frameworks and Databases Utilised
 
