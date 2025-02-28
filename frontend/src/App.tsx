@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart';
+import Restaurants from './pages/Restaurants';
 import './App.css'
 
 const App = () => {
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/restaurants" element={<Restaurants />} />
         </Routes>
       </div>
     </AuthProvider>
