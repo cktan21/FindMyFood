@@ -177,7 +177,7 @@ export default function HomePage() {
                 </div>
                 <div className="hidden md:block">
                   <img
-                    src="/placeholder.svg?height=300&width=400"
+                    src="/TestImage.jpg"
                     width="400"
                     height="300"
                     alt="Food delivery"
