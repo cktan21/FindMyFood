@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { useRestaurants } from "@/context/RestaurantsContext";
 import {
   Search,
   Star,
@@ -22,47 +22,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import LoadingScreen from "@/components/blocks/LoadingScreen";
 
-interface Restaurant {
-  id: string;
-  name: string;
-  rating?: number;
-  reviews?: number;
-  cuisine?: string[];
-  priceRange?: string;
-  deliveryTime?: string;
-  distance?: number;
-  featured?: boolean;
-  image?: string;
-  logo_url?: string[];
-}
-
 export default function RestaurantsPage() {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [displayCount, setDisplayCount] = useState(8);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    async function fetchRestaurants() {
-      try {
-        const res = await axios.get("http://127.0.0.1:5001/all");
-        const data = res.data;
-        const restaurantsArray: Restaurant[] = Object.entries(data).map(
-          ([id, restaurant]) => {
-            const { id: _, ...restaurantData } = restaurant as Restaurant;
-            return { id, ...restaurantData };
-          }
-        );
-        console.log(restaurantsArray);
-        setRestaurants(restaurantsArray);
-      } catch (error) {
-        console.error("Error fetching restaurants:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchRestaurants();
-  }, []);
+    const { restaurants, loading } = useRestaurants();
+    const [displayCount, setDisplayCount] = useState(8);
+    const [searchQuery, setSearchQuery] = useState("");
 
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 8);
@@ -227,11 +190,6 @@ export default function RestaurantsPage() {
                         height={200}
                         className="aspect-video object-cover"
                       />
-                      {restaurant.featured && (
-                        <Badge className="absolute left-2 top-2 bg-gradient-to-r from-blue-500 to-purple-500">
-                          Featured
-                        </Badge>
-                      )}
                     </div>
                   </CardHeader>
                   <CardContent className="grid gap-2.5 p-4">
@@ -246,16 +204,6 @@ export default function RestaurantsPage() {
                         {restaurant.rating}
                       </Badge>
                     </div>
-                    <div className="flex flex-wrap gap-1">
-                      {(restaurant.cuisine || []).map((type) => (
-                        <Badge key={type} variant="outline" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                      <Badge variant="outline" className="text-xs">
-                        {restaurant.priceRange}
-                      </Badge>
-                    </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
@@ -265,7 +213,6 @@ export default function RestaurantsPage() {
                         <MapPin className="h-3 w-3" />
                         {restaurant.distance} km
                       </div>
-                      <div>{restaurant.reviews} reviews</div>
                     </div>
                   </CardContent>
                 </Card>
