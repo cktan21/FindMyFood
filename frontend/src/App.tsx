@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 import './App.css'
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </AuthProvider>

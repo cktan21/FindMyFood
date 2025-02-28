@@ -15,7 +15,55 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Always call hooks unconditionally.
+  useEffect(() => {
+    // Only run when the user is logged in and not loading
+    if (!isLoggedIn || loading) return;
+
+    const checkAndInsertProfile = async () => {
+      // Get the authenticated user details
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error("Error fetching user:", authError);
+        return;
+      }
+
+      const user = userData?.user;
+      if (!user) {
+        console.log("No user is logged in.");
+        return;
+      }
+
+      // Check if a profile exists in your "User" table
+      const { data: profileData, error: profileError } = await supabase
+        .from("User")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        return;
+      }
+
+      if (!profileData) {
+        const { error: insertError } = await supabase.from("User").insert({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name,
+        });
+        if (insertError) {
+          console.error("Error inserting profile:", insertError);
+        } else {
+          console.log("Profile created successfully");
+        }
+      } else {
+        console.log("Profile already exists:", profileData);
+      }
+    };
+
+    checkAndInsertProfile();
+  }, [isLoggedIn, loading]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -26,7 +74,6 @@ export default function HomePage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Early returns for loading or not logged in.
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -75,6 +122,13 @@ export default function HomePage() {
               </Button>
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <Link to="/home">
+                    <button
+                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                    >
+                      Home
+                    </button>
+                  </Link>
                   <Link to="/profile">
                     <button
                       className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
