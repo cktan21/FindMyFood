@@ -121,7 +121,8 @@ Switch to your branch before starting to code <br>
 <a href="https://redis.com/"><img src="https://redis.com/wp-content/themes/wpx/assets/images/logo-redis.svg?auto=webp&quality=85,75&width=120" alt="Redis" width="88"/></a>&nbsp;&nbsp;
 <a href="https://aws.amazon.com/s3/"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/AmazonWebservices_Logo.svg" alt="S3" height="40"/></a>&nbsp;&nbsp; -->
 <a href="https://www.postgresql.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/37/Firebase_Logo.svg" alt="Firebase" height="40"/></a>&nbsp;&nbsp;
-<a href="https://www.postgresql.org/"><img src="https://www.vectorlogo.zone/logos/supabase/supabase-ar21~bgwhite.svg" alt="Supabase" height="60"/></a>&nbsp;&nbsp;
+<a href="https://www.postgresql.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="Firebase" height="30"/></a>&nbsp;&nbsp;
+<a href="https://www.postgresql.org/"><img src="https://www.vectorlogo.zone/logos/supabase/supabase-ar21~bgwhite.svg" alt="Supabase" height="65"/></a>&nbsp;&nbsp;
 <br>
 <!-- <i>postgreSQL · Redis · S3</i> -->
 <i>Firebase · Supabase</i>
