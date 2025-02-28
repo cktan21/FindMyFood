@@ -38,4 +38,4 @@ def get_menu(restraunt):
         return jsonify({"error": "Restraunt not found"}), 404
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5001)))
+    app.run(debug=True, host="127.0.0.1", port=int(os.getenv("PORT", 5001)))

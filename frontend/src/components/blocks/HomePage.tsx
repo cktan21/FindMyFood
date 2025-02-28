@@ -48,7 +48,7 @@ export default function HomePage() {
     async function fetchFeaturedRestaurants() {
       try {
         // Adjust the URL as needed (production URL or environment variable)
-        const res = await axios.get("http://172.20.10.3:5001/all");
+        const res = await axios.get("http://127.0.0.1:5001/all");
         const data = res.data;
         // Convert the returned object into an array of restaurants
         const restaurantsArray: Restaurant[] = Object.entries(data).map(

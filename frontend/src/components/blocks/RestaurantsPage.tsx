@@ -45,7 +45,7 @@ export default function RestaurantsPage() {
   useEffect(() => {
     async function fetchRestaurants() {
       try {
-        const res = await axios.get("http://172.20.10.3:5001/all");
+        const res = await axios.get("http://127.0.0.1:5001/all");
         const data = res.data;
         const restaurantsArray: Restaurant[] = Object.entries(data).map(
           ([id, restaurant]) => {
