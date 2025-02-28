@@ -159,10 +159,12 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              Cart
-            </Button>
+            <Link to="/cart">
+              <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Cart
+              </Button>
+            </Link>
             <div className="relative" ref={menuRef}>
               <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleMenu}>
                 <User className="h-5 w-5" />
