@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
 
 interface Restaurant {
   id: string;
@@ -282,7 +283,7 @@ export default function HomePage() {
               </div>
               <TabsContent value="featured" className="mt-6 space-y-8">
                 {restaurantsLoading ? (
-                  <div>Loading restaurants...</div>
+                  <LoadingScreen />
                 ) : (
                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {featuredRestaurants.slice(0, displayCount).map((restaurant) => (

@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
 
 export default function ProfilePage() {
     const { isLoggedIn, loading } = useAuth();
@@ -72,11 +73,11 @@ export default function ProfilePage() {
   }, []);
 
   if (loadingProfile) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (!isLoggedIn) {
