@@ -176,7 +176,7 @@ export default function RestaurantsPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
             {filteredRestaurants.slice(0, displayCount).map((restaurant) => (
               <Link 
-                to={`/product/?restaurant=${restaurant.id}`} 
+                to={`/shop/?shop=${restaurant.id}`} 
                 key={restaurant.id} 
                 className="overflow-hidden"
               >

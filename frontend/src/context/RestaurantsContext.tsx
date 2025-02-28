@@ -11,6 +11,7 @@ export interface Restaurant {
   photos?: string[];
   distance?: string;
   logo_url?: string[];
+  [key: string]: any;
 }
 
 interface RestaurantsContextProps {
