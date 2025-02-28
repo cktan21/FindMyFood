@@ -125,7 +125,7 @@ Switch to your branch before starting to code <br>
 <a href="https://www.postgresql.org/"><img src="https://www.vectorlogo.zone/logos/supabase/supabase-ar21~bgwhite.svg" alt="Supabase" height="65"/></a>&nbsp;&nbsp;
 <br>
 <!-- <i>postgreSQL · Redis · S3</i> -->
-<i>Firebase · Supabase</i>
+<i>Firebase · Google Cloud Storage · Supabase</i>
 </p>
 <br> 
 
