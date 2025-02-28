@@ -1,0 +1,287 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import {
+  Search,
+  Star,
+  Clock,
+  ChevronDown,
+  SlidersHorizontal,
+  MapPin,
+  ChevronLeft
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import LoadingScreen from "@/components/blocks/LoadingScreen";
+
+interface Restaurant {
+  id: string;
+  name: string;
+  rating?: number;
+  reviews?: number;
+  cuisine?: string[];
+  priceRange?: string;
+  deliveryTime?: string;
+  distance?: number;
+  featured?: boolean;
+  image?: string;
+  logo_url?: string[];
+}
+
+export default function RestaurantsPage() {
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [displayCount, setDisplayCount] = useState(8);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    async function fetchRestaurants() {
+      try {
+        const res = await axios.get("http://172.20.10.3:5001/all");
+        const data = res.data;
+        const restaurantsArray: Restaurant[] = Object.entries(data).map(
+          ([id, restaurant]) => {
+            const { id: _, ...restaurantData } = restaurant as Restaurant;
+            return { id, ...restaurantData };
+          }
+        );
+        console.log(restaurantsArray);
+        setRestaurants(restaurantsArray);
+      } catch (error) {
+        console.error("Error fetching restaurants:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRestaurants();
+  }, []);
+
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => prev + 8);
+  };
+
+  const filteredRestaurants = restaurants.filter((restaurant) =>
+    restaurant.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/home"
+              className="flex items-center gap-2 text-sm font-medium hover:text-blue-600 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Continue Shopping
+            </Link>
+          </div>
+          <div className="flex flex-1 items-center gap-2">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search restaurants, cuisines, or dishes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full md:w-[300px] lg:w-[450px]"
+            />
+          </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-[400px]">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
+              <div className="grid gap-6 py-6">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Sort By</h3>
+                  <Select defaultValue="recommended">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select sorting" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recommended">Recommended</SelectItem>
+                      <SelectItem value="rating">Rating</SelectItem>
+                      <SelectItem value="delivery-time">Delivery Time</SelectItem>
+                      <SelectItem value="distance">Distance</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Price Range</h3>
+                  <div className="flex items-center gap-4">
+                    <Button variant="outline" size="sm">$</Button>
+                    <Button variant="outline" size="sm">$$</Button>
+                    <Button variant="outline" size="sm">$$$</Button>
+                    <Button variant="outline" size="sm">$$$$</Button>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Dietary</h3>
+                  <div className="grid gap-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="vegetarian">Vegetarian</Label>
+                      <Switch id="vegetarian" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="vegan">Vegan</Label>
+                      <Switch id="vegan" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="gluten-free">Gluten Free</Label>
+                      <Switch id="gluten-free" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Maximum Delivery Time</h3>
+                  <Slider defaultValue={[45]} max={60} step={5} />
+                  <div className="text-sm text-muted-foreground">Up to 45 minutes</div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Rating</h3>
+                  <div className="flex items-center gap-4">
+                    {[4.5, 4.0, 3.5, 3.0].map((rating) => (
+                      <Button key={rating} variant="outline" size="sm" className="gap-1">
+                        <Star className="h-4 w-4 fill-primary text-primary" />
+                        {rating}+
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1">Reset</Button>
+                <Button className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                  Apply Filters
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <Select defaultValue="recommended">
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recommended">Recommended</SelectItem>
+              <SelectItem value="rating">Rating</SelectItem>
+              <SelectItem value="delivery-time">Delivery Time</SelectItem>
+              <SelectItem value="distance">Distance</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </header>
+      <main className="flex-1">
+        <div className="container py-6">
+          <div className="mb-6 overflow-x-auto">
+            <div className="flex gap-2 min-w-max px-4">
+              {["All", "Pizza", "Burgers", "Sushi", "Chinese", "Italian", "Mexican", "Indian", "Thai", "Desserts"].map(
+                (category) => (
+                  <Button
+                    key={category}
+                    variant={category === "All" ? "default" : "outline"}
+                    className={
+                      category === "All"
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                        : ""
+                    }
+                  >
+                    {category}
+                  </Button>
+                )
+              )}
+            </div>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
+            {filteredRestaurants.slice(0, displayCount).map((restaurant) => (
+              <Link 
+                to={`/restaurants/${restaurant.id}`} 
+                key={restaurant.id} 
+                className="overflow-hidden"
+              >
+                <Card>
+                  <CardHeader className="p-0">
+                    <div className="relative">
+                      <img
+                        src={restaurant.logo_url?.[0] || "/placeholder.svg"}
+                        alt={restaurant.name}
+                        width={300}
+                        height={200}
+                        className="aspect-video object-cover"
+                      />
+                      {restaurant.featured && (
+                        <Badge className="absolute left-2 top-2 bg-gradient-to-r from-blue-500 to-purple-500">
+                          Featured
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="grid gap-2.5 p-4">
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold">
+                        <span className="text-sm text-muted-foreground">
+                          {restaurant.id}
+                        </span>
+                      </h3>
+                      <Badge variant="secondary" className="flex gap-1">
+                        <Star className="h-3 w-3 fill-primary text-primary" />
+                        {restaurant.rating}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {(restaurant.cuisine || []).map((type) => (
+                        <Badge key={type} variant="outline" className="text-xs">
+                          {type}
+                        </Badge>
+                      ))}
+                      <Badge variant="outline" className="text-xs">
+                        {restaurant.priceRange}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {restaurant.deliveryTime} mins
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {restaurant.distance} km
+                      </div>
+                      <div>{restaurant.reviews} reviews</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+          {displayCount < filteredRestaurants.length && (
+            <div className="flex justify-center mt-8">
+              <Button variant="outline" size="lg" onClick={handleLoadMore}>
+                Load More
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}

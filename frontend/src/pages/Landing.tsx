@@ -1,13 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import Hero from "@/components/blocks/Hero";
+import { Navbar } from "@/components/blocks/Navbar";
+import { Footer } from "@/components/blocks/Footer";
+import { About } from "@/components/blocks/About";
+import { Feature } from "@/components/blocks/Feature";
+import Team from "@/components/blocks/Team";
 
 const Landing: React.FC = () => {
   return (
     <>
-      <div>
-        <Button>If you see this button means frontend is working!</Button>
+      <Navbar />
+      <Hero />
+      <div id="about">
+        <About />
       </div>
+      <Feature />
+      <Team />
+      <Footer />
     </>
   );
 };
