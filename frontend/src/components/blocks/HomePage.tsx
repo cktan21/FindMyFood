@@ -1,13 +1,49 @@
-import { Link } from "react-router-dom"
-import { Search, ShoppingBag, User, ChevronRight, Star, Clock, MapPin } from "lucide-react"
+import { useState, useRef, useEffect } from "react";
+import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/supabaseClient";
+import { Search, ShoppingBag, User, ChevronRight, Star, Clock, MapPin } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HomePage() {
+  const { isLoggedIn, loading } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Always call hooks unconditionally.
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Early returns for loading or not logged in.
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" />;
+  }
+
+  // Handlers (declared after hooks, safe now since hooks were called already).
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -27,10 +63,23 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Account</span>
-            </Button>
+            {/* Profile dropdown */}
+            <div className="relative" ref={menuRef}>
+              <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleMenu}>
+                <User className="h-5 w-5" />
+                <span className="sr-only">Account</span>
+              </Button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
             <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
               <ShoppingBag className="mr-2 h-4 w-4" />
               Cart
@@ -300,59 +349,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* <section className="w-full border-t py-8 md:py-12">
-          <div className="container flex flex-col items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Download Our App</h2>
-              <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl">
-                Get the full experience on your phone. Order food, track delivery, and more.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:bg-black/90">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="M12 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5.5" />
-                  <path d="M16 3v4" />
-                  <path d="M8 3v4" />
-                  <path d="M3 11h18" />
-                  <path d="M19 16v6" />
-                  <path d="M22 19l-3-3-3 3" />
-                </svg>
-                App Store
-              </Button>
-              <Button className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:bg-black/90">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="M3 9h.01M21 9h.01M3 15h.01M21 15h.01M12 3v18" />
-                  <path d="M3 3v18h18V3z" />
-                </svg>
-                Google Play
-              </Button>
-            </div>
-          </div>
-        </section> */}
       </main>
       <footer className="w-full border-t bg-background py-6">
         <div className="container px-4 md:px-6">
@@ -491,7 +487,7 @@ export default function HomePage() {
             © {new Date().getFullYear()} FoodExpress. All rights reserved.
           </div>
         </div>
-        </footer>
-      </div>
-  )
+      </footer>
+    </div>
+  );
 }
