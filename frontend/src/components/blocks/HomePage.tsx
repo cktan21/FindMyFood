@@ -215,12 +215,14 @@ export default function HomePage() {
                     >
                       Order Now
                     </Button>
-                    <Button
-                      size="lg"
-                      className="bg-transparent border-2 border-white text-white font-semibold hover:bg-white hover:text-blue-600 transition-colors"
-                    >
-                      View Restaurants
-                    </Button>
+                    <Link to="/restaurants">
+                      <Button
+                        size="lg"
+                        className="bg-transparent border-2 border-white text-white font-semibold hover:bg-white hover:text-blue-600 transition-colors"
+                      >
+                        View Restaurants
+                      </Button>
+                    </Link>
                   </div>
                 </div>
                 <div className="hidden md:block">

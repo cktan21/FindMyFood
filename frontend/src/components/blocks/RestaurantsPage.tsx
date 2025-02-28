@@ -40,13 +40,13 @@ export default function RestaurantsPage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [displayCount, setDisplayCount] = useState(8);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchRestaurants() {
       try {
         const res = await axios.get("http://172.20.10.3:5001/all");
         const data = res.data;
-        // If your API returns an object where keys are restaurant IDs, convert it to an array:
         const restaurantsArray: Restaurant[] = Object.entries(data).map(
           ([id, restaurant]) => {
             const { id: _, ...restaurantData } = restaurant as Restaurant;
@@ -68,6 +68,10 @@ export default function RestaurantsPage() {
     setDisplayCount((prev) => prev + 8);
   };
 
+  const filteredRestaurants = restaurants.filter((restaurant) =>
+    restaurant.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -76,7 +80,7 @@ export default function RestaurantsPage() {
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center gap-4">
-        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <Link
               to="/home"
               className="flex items-center gap-2 text-sm font-medium hover:text-blue-600 transition-colors"
@@ -90,6 +94,8 @@ export default function RestaurantsPage() {
             <Input
               type="search"
               placeholder="Search restaurants, cuisines, or dishes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full md:w-[300px] lg:w-[450px]"
             />
           </div>
@@ -205,7 +211,7 @@ export default function RestaurantsPage() {
             </div>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
-            {restaurants.slice(0, displayCount).map((restaurant) => (
+            {filteredRestaurants.slice(0, displayCount).map((restaurant) => (
               <Link 
                 to={`/restaurants/${restaurant.id}`} 
                 key={restaurant.id} 
@@ -266,7 +272,7 @@ export default function RestaurantsPage() {
               </Link>
             ))}
           </div>
-          {displayCount < restaurants.length && (
+          {displayCount < filteredRestaurants.length && (
             <div className="flex justify-center mt-8">
               <Button variant="outline" size="lg" onClick={handleLoadMore}>
                 Load More
