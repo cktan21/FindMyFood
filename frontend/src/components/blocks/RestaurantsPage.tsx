@@ -49,7 +49,7 @@ export default function RestaurantsPage() {
               className="flex items-center gap-2 text-sm font-medium hover:text-blue-600 transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
-              Continue Shopping
+              Home
             </Link>
           </div>
           <div className="flex flex-1 items-center gap-2">
@@ -176,7 +176,7 @@ export default function RestaurantsPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
             {filteredRestaurants.slice(0, displayCount).map((restaurant) => (
               <Link 
-                to={`/restaurants/${restaurant.id}`} 
+                to={`/product/?restaurant=${restaurant.id}`} 
                 key={restaurant.id} 
                 className="overflow-hidden"
               >
