@@ -9,7 +9,7 @@ load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'sk_test_51Qx6gxPKANpo94LY2n7mtLJ0MTRXMdsOeoO7OfmIqKHFsqHrcmuGjmxtJf4KAT98QGCyQbz2Od3LnYhkSC2UrTue00GD9Dpy6Q'  # Replace with a secure key in production
+app.config['SECRET_KEY'] = 'STRIPE_SECRET_KEY'  
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 # Load food data from JSON file
