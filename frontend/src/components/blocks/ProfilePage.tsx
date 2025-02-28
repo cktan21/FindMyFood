@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
-import { CreditCard, Home, MapPin, Package, LogOut, ShoppingBag, User } from "lucide-react";
+import { CreditCard, Home, MapPin, Package, LogOut, ShoppingBag, User, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -95,15 +95,27 @@ export default function ProfilePage() {
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
         {/* Header */}
-        <div className="border-b">
-          <div className="container mx-auto flex h-16 items-center gap-4 px-4 justify-between">
-            <h1 className="text-lg font-semibold">Profile Settings</h1>
-            <div className="flex items-center gap-4">
-            {/* Profile dropdown */}
-            <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              Cart
-            </Button>
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/home"
+              className="flex items-center gap-2 text-sm font-medium hover:text-blue-600 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Continue Shopping
+            </Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-semibold">Profile</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/cart">
+              <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Cart
+              </Button>
+            </Link>
             <div className="relative" ref={menuRef}>
               <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleMenu}>
                 <User className="h-5 w-5" />
@@ -112,16 +124,12 @@ export default function ProfilePage() {
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                   <Link to="/home">
-                    <button
-                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                    >
+                    <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
                       Home
                     </button>
                   </Link>
                   <Link to="/profile">
-                    <button
-                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                    >
+                    <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
                       Profile
                     </button>
                   </Link>
@@ -135,8 +143,8 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-          </div>
         </div>
+      </header>
         {/* Responsive layout: sidebar + main content on md+; only main content on mobile */}
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] gap-8 py-8 px-4">
           {/* Sidebar with profile summary only (nav removed) */}
