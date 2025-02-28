@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Define a type for Restaurant objects
 interface Restaurant {
   id: string;
   name: string;
@@ -97,6 +96,7 @@ export default function HomePage() {
           id: user.id,
           email: user.email,
           name: user.user_metadata?.name,
+          role: user.user_metadata?.role
         });
         if (insertError) {
           console.error("Error inserting profile:", insertError);

@@ -223,28 +223,6 @@ export default function CartPage() {
                 </Button>
               </CardFooter>
             </Card>
-            {/* <Card>
-              <CardHeader>
-                <CardTitle>Delivery Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Delivery Address</div>
-                  <div className="rounded-lg border p-3">
-                    <div className="font-medium">Home</div>
-                    <div className="text-sm text-muted-foreground">123 Main Street, Apt 4B</div>
-                    <div className="text-sm text-muted-foreground">New York, NY 10001</div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Estimated Delivery Time</div>
-                  <div className="rounded-lg border p-3">
-                    <div className="font-medium">25-35 minutes</div>
-                    <div className="text-sm text-muted-foreground">Your order will arrive by 3:45 PM</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card> */}
           </div>
         </div>
       </main>
