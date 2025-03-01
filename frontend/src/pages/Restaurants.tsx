@@ -1,14 +1,14 @@
-import HomePage from "@/components/blocks/HomePage";
+import RestaurantsPage from "@/components/blocks/RestaurantsPage";
 import { RestaurantsProvider } from "@/context/RestaurantsContext";
 
-const Home: React.FC = () => {
+const Restaurants: React.FC = () => {
   return (
     <>
       <RestaurantsProvider>
-       <HomePage />
+        <RestaurantsPage />
       </RestaurantsProvider>
     </>
   );
 };
 
-export default Home;
+export default Restaurants;
