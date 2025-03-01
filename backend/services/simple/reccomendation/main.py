@@ -2,8 +2,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict
 from supabaseClient import SupabaseClient
-import os
 from dotenv import load_dotenv
+import os
+import uvicorn
 
 load_dotenv()
 
@@ -31,3 +32,6 @@ def get_recommendation(id: int):
     if not recommendation:
         raise HTTPException(status_code=404, detail="Recommendation not found.")
     return recommendation
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

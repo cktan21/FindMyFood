@@ -13,8 +13,8 @@ Switch to your branch before starting to code <br>
 1. Open a terminal and run the following command <b>(Leave this out first)</b>:
 ```bash
   cd backend
-  npm i
-  npm run start
+  docker-compose up -d --build
+  docker-compose down
 ```
 2. Open another terminal and run the following command:
 ```bash
