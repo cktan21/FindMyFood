@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useRestaurants } from "@/context/RestaurantsContext";
 import { supabase } from "@/supabaseClient";
-import axios from "axios";
 import {
   Search,
   ShoppingBag,
@@ -20,54 +20,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
 
-interface Restaurant {
-  id: string;
-  name: string;
-  rating?: number;
-  deliveryTime?: string;
-  deliveryFee?: string;
-  tags?: string[];
-  photos?: string[];
-  distance?: string;
-  logo_url?: string[];
-}
-
 export default function HomePage() {
   const { isLoggedIn, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  // State for featured restaurants with proper type
-  const [featuredRestaurants, setFeaturedRestaurants] = useState<Restaurant[]>([]);
-  const [restaurantsLoading, setRestaurantsLoading] = useState(true);
-  // New state for tracking how many restaurants to display
+  const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants();
   const [displayCount, setDisplayCount] = useState(8);
-
-  // Fetch featured restaurants using axios
-  useEffect(() => {
-    async function fetchFeaturedRestaurants() {
-      try {
-        // Adjust the URL as needed (production URL or environment variable)
-        const res = await axios.get("http://172.20.10.3:5001/all");
-        const data = res.data;
-        // Convert the returned object into an array of restaurants
-        const restaurantsArray: Restaurant[] = Object.entries(data).map(
-          ([id, restaurant]) => {
-            // Remove the "id" property from the restaurant object if it exists
-            const { id: _, ...restaurantData } = restaurant as Restaurant;
-            return { id, ...restaurantData };
-          }
-        );
-        console.log(restaurantsArray);
-        setFeaturedRestaurants(restaurantsArray);
-      } catch (error) {
-        console.error("Error fetching featured restaurants:", error);
-      } finally {
-        setRestaurantsLoading(false);
-      }
-    }
-    fetchFeaturedRestaurants();
-  }, []);
 
   useEffect(() => {
     if (!isLoggedIn || loading) return;
@@ -121,9 +79,6 @@ export default function HomePage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
   if (!isLoggedIn) {
     return <Navigate to="/login" />;
   }
@@ -136,7 +91,6 @@ export default function HomePage() {
     await supabase.auth.signOut();
   };
 
-  // Handler to load more restaurants
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 8);
   };

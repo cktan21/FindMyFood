@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  chatgpt:
+    build: ./services/simple/chatgpt
+    container_name: chatgpt
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./services/simple/chatgpt/.env
+
+  menu:
+    build: ./services/simple/menu
+    container_name: menu
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./services/simple/menu/firebase_credentials.json:/app/firebase_credentials.json
+
+  reccomendation:
+    build: ./services/simple/reccomendation
+    container_name: reccomendation
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./services/simple/reccomendation/.env

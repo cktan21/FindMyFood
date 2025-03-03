@@ -6,52 +6,6 @@ Node Package Manager (npm) <br>
 Github Desktop (If you prefer else CLI) <br>
 Docker <br>
 
-## File Structure
-```bash
-.
-├── .gitignore
-├── README.md
-└── services
-    ├── complex
-    │   ├── order-food
-    │   │   └── README.md
-    │   └── reccomend-food
-    │       ├── README.md
-    │       ├── go.mod
-    │       ├── go.sum
-    │       └── main.go
-    └── simple
-        ├── chatgpt
-        │   ├── .env
-        │   ├── .gitignore
-        │   ├── README.md
-        │   ├── api
-        │   ├── index.js
-        │   ├── model
-        │   ├── package-lock.json
-        │   ├── package.json
-        │   └── util
-        ├── menu
-        │   ├── .gitignore
-        │   ├── README.md
-        │   ├── api.py
-        │   ├── firebase_credentials.json
-        │   ├── photo.py
-        │   └── requirements.txt
-        ├── order
-        │   └── README.md
-        ├── payment
-        │   └── README.md
-        └── reccomendation
-            ├── .env
-            ├── .gitignore
-            ├── README.md
-            ├── main.py
-            ├── requirements.txt
-            └── supabaseClient.py
-
-```
-
 ## Instructions
 
 Switch to your branch before starting to code <br>
@@ -59,8 +13,8 @@ Switch to your branch before starting to code <br>
 1. Open a terminal and run the following command <b>(Leave this out first)</b>:
 ```bash
   cd backend
-  npm i
-  npm run start
+  docker-compose up -d --build
+  docker-compose down
 ```
 2. Open another terminal and run the following command:
 ```bash
@@ -68,6 +22,9 @@ Switch to your branch before starting to code <br>
   npm i
   npm run dev
 ```
+
+## Technical Architecture Diagram
+<img width="1215" alt="Screenshot 2025-02-26 at 3 45 25 PM" src="https://github.com/user-attachments/assets/08b19898-28a8-41dd-bc39-0f422d8eaa6d" />
 
 ## Frameworks and Databases Utilised
 
@@ -78,8 +35,9 @@ Switch to your branch before starting to code <br>
 <a href="https://www.typescriptlang.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1200px-Typescript_logo_2020.svg.png" alt="Typescript" height="40"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" width="40"/></a>&nbsp;&nbsp;
 <a href="https://www.python.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg" alt="Tailwind" height="30"/></a>&nbsp;&nbsp;
+<a href="https://www.postgresql.org/"><img src="https://www.vectorlogo.zone/logos/supabase/supabase-icon.svg" alt="Supabase" height="40"/></a>&nbsp;&nbsp;
 <br>
-<i>Vite · Javascript · Typescript · React · Tailwind CSS</i>
+<i>Vite · Javascript · Typescript · React · Tailwind CSS · Supabase Auth</i>
 </p>
 <br>
 
@@ -120,10 +78,11 @@ Switch to your branch before starting to code <br>
 <a href="https://redis.com/"><img src="https://redis.com/wp-content/themes/wpx/assets/images/logo-redis.svg?auto=webp&quality=85,75&width=120" alt="Redis" width="88"/></a>&nbsp;&nbsp;
 <a href="https://aws.amazon.com/s3/"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/AmazonWebservices_Logo.svg" alt="S3" height="40"/></a>&nbsp;&nbsp; -->
 <a href="https://www.postgresql.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/37/Firebase_Logo.svg" alt="Firebase" height="40"/></a>&nbsp;&nbsp;
-<a href="https://www.postgresql.org/"><img src="https://www.vectorlogo.zone/logos/supabase/supabase-ar21~bgwhite.svg" alt="Supabase" height="60"/></a>&nbsp;&nbsp;
+<a href="https://www.postgresql.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="Firebase" height="30"/></a>&nbsp;&nbsp;
+<a href="https://www.postgresql.org/"><img src="https://www.vectorlogo.zone/logos/supabase/supabase-ar21~bgwhite.svg" alt="Supabase" height="65"/></a>&nbsp;&nbsp;
 <br>
 <!-- <i>postgreSQL · Redis · S3</i> -->
-<i>Firebase · Supabase</i>
+<i>Firebase · Google Cloud Storage · Supabase</i>
 </p>
 <br> 
 
