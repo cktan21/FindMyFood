@@ -1,7 +1,10 @@
 ## Instructions
 ```bash
-npm install amqplib
-npm install socket.io socket.io-client # install both client side and server side libaries
+cd backend/services/simple/notification/rabbitmq
+docker compose up -d
+cd backend/services/simple/notification
+npm i
+node socket.io/server.js
 # node sender.js if you want to test if it's working
 node router.js #receives the message sent to rabbit mq and sends it directlty to socket.io
 ```
@@ -11,4 +14,3 @@ To deactivate server:
 ctlr 'c' 
 ```
 
-<h2>NOTE</h2> 
