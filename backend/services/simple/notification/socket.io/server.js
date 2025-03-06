@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// Start the server
+// Start the server on port 3300
 server.listen(3300, () => {
-    console.log("🚀 Socket.IO server running on port 3000");
+    console.log("🚀 Socket.IO server running on port 3300");
 });
