@@ -22,7 +22,7 @@ func main() {
 
 	router.GET("/retrievereccomendations/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		apiURL := fmt.Sprintf("http://127.0.0.1:8002/recommendation/%s", id)
+		apiURL := fmt.Sprintf("http://reccomendation:8000/recommendation/%s", id)
 		fmt.Println("Calling FastAPI:", apiURL)
 
 		resp, err := http.Get(apiURL)
@@ -50,7 +50,7 @@ func main() {
 	})
 
 	router.GET("/retrievemenu", func(c *gin.Context) {
-		apiURL := "http://127.0.0.1:5001/all"
+		apiURL := "http://menu:5001/all"
 		fmt.Println("Calling FastAPI:", apiURL)
 
 		resp, err := http.Get(apiURL)

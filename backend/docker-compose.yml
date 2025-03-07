@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  reccomend-food:
+    build: ./services/complex/reccomend-food
+    container_name: reccomend-food
+    ports:
+      - "8080:8080"
+    depends_on:
+      - reccomendation
+      - menu
+  
   chatgpt:
     build: ./services/simple/chatgpt
     container_name: chatgpt
