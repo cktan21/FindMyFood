@@ -23,7 +23,34 @@ func main() {
 	router.GET("/retrievereccomendations/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		apiURL := fmt.Sprintf("http://127.0.0.1:8002/recommendation/%s", id)
+		fmt.Println("Calling FastAPI:", apiURL)
 
+		resp, err := http.Get(apiURL)
+		if err != nil {
+			fmt.Println("Error calling FastAPI:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer resp.Body.Close()
+
+		body, readErr := ioutil.ReadAll(resp.Body)
+		if readErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response"})
+			return
+		}
+
+		var responseData map[string]interface{}
+		jsonErr := json.Unmarshal(body, &responseData)
+		if jsonErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid JSON response"})
+			return
+		}
+
+		c.JSON(http.StatusOK, responseData)
+	})
+
+	router.GET("/retrievemenu", func(c *gin.Context) {
+		apiURL := "http://127.0.0.1:5001/all"
 		fmt.Println("Calling FastAPI:", apiURL)
 
 		resp, err := http.Get(apiURL)
