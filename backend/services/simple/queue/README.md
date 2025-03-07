@@ -1,5 +1,9 @@
 ## Instructions
 ```bash
+npm install -g deno #install deno
+deno add jsr:@hono/hono
+
+
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -131,5 +135,6 @@ deactivate
 
 <br>
 <br>
-<h2>NOTE</h2> 
-Ensure that any names should NOT have any spacings
+<h2>NOTE to self</h2> 
+consider just compiling it to binary and dockerising that
+"deno run -A --watch main.ts"  //-A bypass manual authorisations --watch allows for automatic restarts
