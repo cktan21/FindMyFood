@@ -1,3 +1,4 @@
+
 # ESD_Team8
 
 ## Prerequisite
@@ -48,7 +49,7 @@ Switch to your branch before starting to code <br>
 <a href="https://www.typescriptlang.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1200px-Typescript_logo_2020.svg.png" alt="Typescript" height="40"/></a>&nbsp;&nbsp;
 <a href="https://www.python.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1024px-Python-logo-notext.svg.png" alt="Python" height="40"/></a>&nbsp;&nbsp;
 <br>
-<i>Golang · Typescript · Javascript · Python</i>
+<i>Golang · Javascript · Typescript · Python</i>
 </p>
 <br>
 
@@ -57,10 +58,12 @@ Switch to your branch before starting to code <br>
 <a href="https://go.dev/"><img src="https://raw.githubusercontent.com/gin-gonic/logo/master/color.png" alt="Golang" width="40"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" alt="Golang" width="70"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Expressjs.png" alt="Golang" width="100"/></a>&nbsp;&nbsp;
+<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Deno_2021.svg" alt="Golang" width="50"/></a>&nbsp;&nbsp;
+<a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/60/Hono-logo.svg" alt="Golang" width="50"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/FastAPI_logo.svg" alt="Golang" width="120"/></a>&nbsp;&nbsp;
 <a href="https://go.dev/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Flask_logo.svg" alt="Golang" width="100"/></a>&nbsp;&nbsp;
 <br>
-<i>Gin · Node.js · Express · FastAPI · Flask</i>
+<i>Gin · Node.js · Express · Deno · Hono · FastAPI · Flask</i>
 </p>
 <br>
 
