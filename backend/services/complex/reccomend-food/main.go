@@ -43,7 +43,7 @@ func main() {
 
 	router.GET("/reccomendation/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		apiURL := fmt.Sprintf("http://reccomendation:8000/recommendation/%s", id)
+		apiURL := fmt.Sprintf("http://reccomendation:4000/recommendation/%s", id)
 		fmt.Println("Calling FastAPI:", apiURL)
 
 		data, err := fetchAPIData(apiURL)

@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  # kong:
+  #   image: kong/kong-gateway:latest
+  #   container_name: kong
+  #   environment:
+  #     KONG_DATABASE: "off"
+  #     KONG_DECLARATIVE_CONFIG: "/etc/kong/kong.yml"
+  #   volumes:
+  #     - ./kong/kong.yml:/etc/kong/kong.yml
+  #   ports:
+  #     - "8001:8000" 
+  #     - "8443:8443"
+  #     - "8002:8001"
+  #     - "8444:8444"
+  #   restart: always
+
   reccomend-food:
     build: ./services/complex/reccomend-food
     container_name: reccomend-food
@@ -30,6 +45,6 @@ services:
     build: ./services/simple/reccomendation
     container_name: reccomendation
     ports:
-      - "8000:8000"
+      - "4000:4000"
     env_file:
       - ./services/simple/reccomendation/.env
