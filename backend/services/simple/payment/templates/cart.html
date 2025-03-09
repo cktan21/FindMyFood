@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+    <h1 class="mb-4">Your Cart</h1>
+    {% if cart %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Restaurant</th>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                    <tr>
+                        <td>{{ item['restaurant'].replace('_', ' ') }}</td>
+                        <td>{{ item['item_name'].replace('_', ' ') }}</td>
+                        <td>${{ "%.2f" % item['price'] }}</td>
+                        <td>{{ item['quantity'] }}</td>
+                        <td>${{ "%.2f" % (item['price'] * item['quantity']) }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('remove_from_cart') }}">
+                                <input type="hidden" name="item_key" value="{{ item['restaurant'] }}|{{ item['category'] }}|{{ item['item_name'] }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Total: ${{ "%.2f" % total }}</h3>
+        <form method="POST" action="{{ url_for('checkout') }}">
+            <button type="submit" class="btn btn-success">Proceed to Checkout</button>
+        </form>
+    {% else %}
+        <p>Your cart is empty. <a href="{{ url_for('menu') }}">Browse the menu</a> to add items.</p>
+    {% endif %}
+{% endblock %}
