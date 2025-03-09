@@ -1,45 +1,30 @@
 ## Instructions
 ```bash
-curl -fsSL https://deno.land/x/install/install.sh | sh #install deno
-cd backend/services/simple/queue
-deno add jsr:@hono/hono
+#To Run 
+queue.exe
 
-deno run -A main.ts
+#Optionally (ONLY if you haven't started socket.io yet)
+cd backend/utils/socket.io
+node server.js
 ```
 
 To deactivate server:
 ```bash
-deactivate
-```
-
-<h1>Expected input</h1>
-
-<h4>Adding Queue (MF buy the food)</h4>
-
-```json
-{
-    "food" : "Grilled_Teriyaki_Chicken_Donburi",
-    "restraunt" : "Bricklane",
-    "id": "Kendrick",
-    "role": "Personal"
-}
-```
-
-<h4>Deleting Queue (mf finsih the food)</h4>
-
-```json
-{
-    "food" : "Grilled_Teriyaki_Chicken_Donburi",
-    "restraunt" : "Bricklane",
-    "qid": "1",
-    "role": "Chef"
-}
+ctlr c
 ```
 
 <h1>How to Use</h1>
 
->To call all restraunts + photo of menu
->/all
+<h2>Get All Queues</h2>
+
+>http://localhost:8008//qStatus OR http://127.0.0.1:8008/qStatus
+>GET Request
+
+>console
+
+```bash 
+Queue Data Succesfully Sent 🚀🚀🚀🚀
+```
 
 <h3>Sample Output</h3>
 
@@ -101,63 +86,111 @@ deactivate
 }
 ```
 
-<br>
-<br>
+<h2>Adding Queue (User bought the food)</h2>
 
->To call one restraunt
->/restraunt_name
+>http://localhost:8008/dump OR http://127.0.0.1:8008/dump
+>POST Request
 
-<h3>Sample Output (/Bricklane)</h3>
+<h3>Expected Payload</h3>
 
 ```json
 {
-    "Fusion_Bowls": { //category of the item 
-        "Grilled_Teriyaki_Chicken_Donburi": { // item itself
-            "desc": "Rice bowl featuring grilled teriyaki chicken slices.", // description of the item
-            "photo": "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/items/Grilled_Teriyaki_Chicken_Donburi.jpg", // photo url of the item
-            "price": 6.9
-        },
-        "Kimchi_Carbonara": {
-            "desc": "Spicy kimchi + creamy pasta.",
-            "photo": "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/items/Kimchi_Carbonara.jpg",
-            "price": 9.5
-        },
-        "Torched_NZ_Ribeye_Beef_Cubes_Donburi": {
-            "desc": "Rice bowl topped with torched New Zealand ribeye beef cubes.",
-            "photo": "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/items/Torched_NZ_Ribeye_Beef_Cubes_Donburi.jpg",
-            "price": 10.9
+    "food" : "Grilled_Teriyaki_Chicken_Donburi",
+    "restaurant" : "Bricklane",
+    "id": "Kendrick", // this refer to user id 
+    "role": "Personal"
+}
+```
+
+<h3>Expected Output</h3>
+
+>console print
+
+```json
+{
+    "message": "Added (➕) Queue to Bricklane",
+    "data": [
+        {
+            "id": 16,
+            "food": "Grilled_Teriyaki_Chicken_Donburi",
+            "user_id": "Kendrick",
+            "time": "2025-03-09T16:35:46.943265"
         }
-    },
-    "Snacks": {
-        "Bulgogi_Tacos": {
-            "desc": "Korean beef in crispy tacos.",
-            "photo": "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/items/Bulgogi_Tacos.jpg",
-            "price": 8.0
-        },
-        "Korean_Fried_Chicken": {
-            "desc": "Crispy fried chicken with spicy gochujang glaze.",
-            "photo": "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/items/Korean_Fried_Chicken.jpg",
-            "price": 7.5
-        },
-        "Torched_Mentaiko_Fries": {
-            "desc": "Fries topped with torched mentaiko sauce, ideal for sharing.",
-            "photo": "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/items/Torched_Mentaiko_Fries.jpg",
-            "price": 8.9
-        }
-    },
-    "logo_url": [
-        "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/logo/BricklaneLOGO.jpg" // logo url to be used on the clickable icon
-    ],
-    "menu_url": [
-        "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/menu/Bricklane1.png", // menu picture url to be used to display picture of the menu
-        "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/menu/Bricklane2.png",
-        "https://storage.googleapis.com/menu-b8c1f.firebasestorage.app/Bricklane/menu/Bricklane3.png"
     ]
 }
 ```
 
+>socket.io(server.js) data received
+
+```json
+{
+    "restaurant": "Bricklane",
+    "data": [
+        {
+            "id": 16,
+            "food": "Grilled_Teriyaki_Chicken_Donburi",
+            "user_id": "Kendrick",
+            "time": "2025-03-09T16:35:46.943265"
+        }
+    ],
+    "type": "queue"
+}
+```
+
+
+<h2>Deleting Queue (Store finished cooking)</h2>
+
+>http://localhost:8008/dump OR http://127.0.0.1:8008/dump
+>POST Request
+
+<h3>Expected Payload</h3>
+
+```json
+{
+    "food" : "Grilled_Teriyaki_Chicken_Donburi",
+    "restaurant" : "Bricklane",
+    "id": "1", //this refers to queue id btw pls don't confuse
+    "role": "Store"
+}
+```
+
+<h3>Expected Output</h3>
+
+>console print
+
+```json
+{
+    "message": "Deleted (➖) Queue from Bricklane",
+    "data": [
+        {
+            "id": 8,
+            "food": "Grilled_Teriyaki_Chicken_Donburi",
+            "user_id": "Kendrick",
+            "time": "2025-03-09T16:08:09.483586"
+        }
+    ]
+}
+```
+
+>socket.io(server.js) data received
+
+```json
+{
+    "restaurant": "Bricklane",
+    "data": [
+        {
+            "id": 8,
+            "food": "Grilled_Teriyaki_Chicken_Donburi",
+            "user_id": "Kendrick",
+            "time": "2025-03-09T16:08:09.483586"
+        }
+    ],
+    "type": "queue"
+}
+```
+
+
 <br>
 <br>
-<h2>NOTE to self</h2> 
-consider just compiling it to binary and dockerising that
-"deno run -A --watch main.ts"  //-A bypass manual authorisations --watch allows for automatic restarts
+<h2>NOTE</h2> 
+- Ensure an .env file with the credentials is located in the same file as the executable
