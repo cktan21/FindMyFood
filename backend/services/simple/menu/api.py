@@ -11,7 +11,7 @@ CORS(app, origins=["http://localhost:5173"])
 # check if alive
 @app.route('/', methods=['GET'])
 def test():
-    return 'alive'
+    return 'alive (AW yeah 😎😎)'
 
 # Get all the menues
 @app.route("/all", methods=['GET'])

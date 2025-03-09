@@ -1,13 +1,10 @@
 ## Instructions
 ```bash
-npm install -g deno #install deno
+curl -fsSL https://deno.land/x/install/install.sh | sh #install deno
+cd backend/services/simple/queue
 deno add jsr:@hono/hono
 
-
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python api.py
+deno run -A main.ts
 ```
 
 To deactivate server:
@@ -17,12 +14,25 @@ deactivate
 
 <h1>Expected input</h1>
 
+<h4>Adding Queue (MF buy the food)</h4>
+
 ```json
 {
     "food" : "Grilled_Teriyaki_Chicken_Donburi",
     "restraunt" : "Bricklane",
-    "user_id": "Kendrick",
-    "time" : "2025-01-10T08:15:16"
+    "id": "Kendrick",
+    "role": "Personal"
+}
+```
+
+<h4>Deleting Queue (mf finsih the food)</h4>
+
+```json
+{
+    "food" : "Grilled_Teriyaki_Chicken_Donburi",
+    "restraunt" : "Bricklane",
+    "qid": "1",
+    "role": "Chef"
 }
 ```
 
@@ -35,46 +45,59 @@ deactivate
 
 ```json
 {
-    "Bricklane": [
-        {
-            "food" : "Grilled_Teriyaki_Chicken_Donburi",
-            "user_id": "Kendrick",
-            "time" : "2025-01-10T08:15:16" //YYYY-MM-DDTHH:MM:SS
-        },
-        {
-            "food" : "Torched_Mentaiko_Fries",
-            "user_id": "Jun Wei",
-            "time" : "2025-01-10T09:10:01"
-        },
-        {
-            "food" : "Kimchi_Carbonara",
-            "user_id": "Dorothy",
-            "time" : "2025-01-10T09:15:10"
-        },
-        {
-            "food" : "Korean_Fried_Chicken",
-            "user_id": "Jason",
-            "time" : "2025-01-10T10:00:30"
-        }
-    ],
-    "Chops": [
-        {
-            "food" : "Grilled_Meats",
-            "user_id": "Sweetha",
-            "time" : "2025-01-10T08:10:00"
-        },
-        {
-            "food" : "Grilled_Lamb_Chop",
-            "user_id": "Lay Foo",
-            "time" : "2025-01-10T11:18:08"
-        },
-        {
-            "food" : "Truffle_Fries",
-            "user_id": "Dory",
-            "time" : "2025-01-10T11:18:58"
-        }
-    ],
-    // continued ...
+    "data": {
+        "Bricklane": [
+            {
+                "id": 2,
+                "food": "Torched_Mentaiko_Fries",
+                "user_id": "Jun Wei",
+                "time": "2025-03-08T15:30:22.992916"
+            },
+            {
+                "id": 3,
+                "food": "Kimchi_Carbonara",
+                "user_id": "Dorothy",
+                "time": "2025-03-08T16:29:22.992916"
+            },
+            {
+                "id": 4,
+                "food": "Korean_Fried_Chicken",
+                "user_id": "Jason",
+                "time": "2025-03-08T16:38:22.992916"
+            }
+        ],
+        "Chops": [
+            {
+                "id": 1,
+                "food": "Grilled_Meats",
+                "user_id": "Sweetha",
+                "time": "2025-03-08T13:34:22.992916"
+            },
+            {
+                "id": 2,
+                "food": "Grilled_Lamb_Chop",
+                "user_id": "Lay Foo",
+                "time": "2025-03-08T13:35:10.992916"
+            },
+            {
+                "id": 3,
+                "food": "Truffle_Fries",
+                "user_id": "Dory",
+                "time": "2025-03-08T13:35:18.992916"
+            }
+        ],
+        "Daijoubu": [],
+        "Ima_Sushi": [],
+        "Khoon_Coffeehouse_Express": [],
+        "King_Kong_Curry": [],
+        "Kuro_Kare": [],
+        "Nasi_Lemak_Ayam_Taliwang": [],
+        "ONALU_Bagel_Haus": [],
+        "Park_s_Kitchen": [],
+        "Pasta_Express": [],
+        "Supergreen": [],
+        "Turks_Kebab": []
+    }
 }
 ```
 

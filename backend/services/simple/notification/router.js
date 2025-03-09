@@ -54,16 +54,16 @@ setInterval(
         if (messages_arr.length>0){
             console.log("Current messages:", messages_arr); // Always log array elements
 
-            // Send data to socket.io
+            // Send data to socket.io basically your js emit and on soome action EVENT LISTENERS LA
             socket.emit(
-                "sendMessage", 
+                "sendNotif", 
                 { 
                     user: "Notification", message: messages_arr
                 }
             );
             
             // receive message comfirmation
-            socket.on("receiveMessage", (data) => {
+            socket.on("receivedNotif", (data) => {
                 console.log("📩 Sever has Received Message:", data);
             });
         }
