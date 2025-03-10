@@ -38,6 +38,24 @@ services:
       - "8003:8003"
       - "8004:8004"
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    networks:
+      - esd-net
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks:
+      - esd-net
+    ports:
+      - "1010:3000"
+
   reccomend-food:
     build: ./services/complex/reccomend-food
     container_name: reccomend-food
