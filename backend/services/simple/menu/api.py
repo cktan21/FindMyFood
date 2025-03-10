@@ -1,4 +1,3 @@
-import os
 from google.cloud import firestore
 from flask import Flask, request, jsonify
 from flask_cors import CORS

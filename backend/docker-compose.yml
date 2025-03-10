@@ -96,3 +96,19 @@ services:
       - "4000:4000"
     env_file:
       - ./services/simple/reccomendation/.env
+
+#   rabbitmq:
+#     image: rabbitmq:3-management #docker image with tag3 management 
+#     hostname: foodapp-rabbit # RabbitMQ stores data based on what it calls the "Node Name", which defaults to the hostname. We specify a hostname explicitly to keep track of our data.
+#     restart: always #always restarts container when it stops 
+#     ports:
+#       - "5672:5672" #RbbitMQ Client Connection
+#       - "15672:15672" #RabbitMQ Management Website
+#     volumes: 
+#         #Bind the volume ‘rabbitmq_data’ defined above to the container’s path ‘/var/lib/rabbitmq’ to persist RabbitMQ’s data across container recreation events.
+#         #Keeps all of the data in one storage bin even after mutiple restart instances 
+#       - rabbitmq_data:/var/lib/rabbitmq 
+#     networks:
+#       - esd-net #atttach network block to esd.net
+
+

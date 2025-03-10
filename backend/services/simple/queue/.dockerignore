@@ -3,5 +3,3 @@ node_modules
 .git
 .gitignore
 __pycache__/
-firebase_credentials.json
-bin

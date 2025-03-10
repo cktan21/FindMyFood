@@ -1,18 +1,17 @@
-# Use Scratch Image --> static binaries that have no external dependencies
-FROM scratch
+# Dockerised deno from 
+FROM denoland/deno:alpine AS builder
 
 # Set working directory
-WORKDIR /queue
+WORKDIR /app
 
-# # Copy and install dependencies
-# COPY requirements.txt ./
-# RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the application
+# Copy your source code
 COPY . .
 
-# Expose port 8008
+# Compile the main app so that it doesn't need to be compiled each startup/entry.
+RUN deno cache main.js
+
+# Expose the application port
 EXPOSE 8008
 
 # Run the application
-CMD ["queue.exe"]
+CMD ["deno", "run", "-A", "main.js"]
