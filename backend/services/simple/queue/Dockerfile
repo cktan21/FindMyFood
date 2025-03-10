@@ -1,5 +1,5 @@
 # Dockerised deno from 
-FROM denoland/deno:alpine AS builder
+FROM denoland/deno:2.2.3
 
 # Set working directory
 WORKDIR /app
