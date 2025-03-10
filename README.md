@@ -102,6 +102,14 @@ Switch to your branch before starting to code <br>
 <a href="https://grpc.io/"><img src="https://grpc.io/img/logos/grpc-icon-color.png" alt="gRPC" height="60"/></a>&nbsp;&nbsp;
 <a href="https://restfulapi.net/"><img src="https://keenethics.com/wp-content/uploads/2022/01/rest-api-1.svg" alt="REST API" height="40"/></a>
 </p> 
+<br>
+
+<p align="center"><strong>DevOps and Site Reliability</strong></p>
+<p align="center">
+<a href="https://grpc.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a1/Grafana_logo.svg" alt="Grafana" height="60"/></a>&nbsp;&nbsp;
+<a href="https://grpc.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg" alt="Prometheus" height="60"/></a>&nbsp;&nbsp;
+</p> 
+<br>
 
 <p align="center"><strong>Other Technologies</strong></p>
 <p align="center">
