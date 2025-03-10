@@ -71,7 +71,7 @@ Switch to your branch before starting to code <br>
 <p align="center">
 <a href="https://konghq.com/"><img src="https://konghq.com/wp-content/uploads/2018/08/kong-combination-mark-color-256px.png" alt="Kong API Gateway" width="88"/></a>
 <br>
-<i>CORS · Rate Limit Plugin · Custom Authentication Plugin</i>
+<i>CORS · Rate Limit Plugin · Custom Authentication Plugin · Prometheus</i>
 </p>
 <br>  
 
