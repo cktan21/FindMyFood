@@ -65,6 +65,15 @@ Switch to your branch before starting to code <br>
 </p>
 <br>
 
+<p align="center"><strong>Runtimes</strong></p>
+<p align="center">
+<a href="https://nodejs.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" alt="Node.js" width="70"/></a>&nbsp;&nbsp;
+<a href="https://deno.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Deno_2021.svg" alt="Deno" width="50"/></a>&nbsp;&nbsp;
+<br>
+<i>Node.js · Deno</i>
+</p>
+<br> 
+
 <p align="center"><strong>API Gateway</strong></p>
 <p align="center">
 <a href="https://konghq.com/"><img src="https://konghq.com/wp-content/uploads/2018/08/kong-combination-mark-color-256px.png" alt="Kong API Gateway" width="88"/></a>
@@ -88,15 +97,6 @@ Switch to your branch before starting to code <br>
 <a href="https://www.rabbitmq.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/2560px-RabbitMQ_logo.svg.png" alt="RabbitMQ" width="100"/></a>
 <br>
 <i>rabbitMQ</i>
-</p>
-<br> 
-
-<p align="center"><strong>Runtimes</strong></p>
-<p align="center">
-<a href="https://nodejs.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" alt="Node.js" width="70"/></a>&nbsp;&nbsp;
-<a href="https://deno.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Deno_2021.svg" alt="Deno" width="50"/></a>&nbsp;&nbsp;
-<br>
-<i>Node.js · Deno</i>
 </p>
 <br> 
 
