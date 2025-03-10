@@ -26,3 +26,29 @@ services:
       - name: reccomend-food-route
         paths:
           - /reccomend-food
+
+plugins:
+  - name: rate-limiting
+    config:
+      minute: 100
+      policy: local
+      
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - HEAD
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Access-Control-Allow-Origin
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
