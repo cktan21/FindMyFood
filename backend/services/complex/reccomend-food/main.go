@@ -57,7 +57,21 @@ func main() {
 
 	router.GET("/menu", func(c *gin.Context) {
 		apiURL := "http://menu:5001/all"
-		fmt.Println("Calling FastAPI:", apiURL)
+		fmt.Println("Calling Flask:", apiURL)
+
+		data, err := fetchAPIData(apiURL)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, data)
+	})
+
+	router.GET("/menu/:restaurant", func(c *gin.Context) {
+		restaurant := c.Param("restaurant")
+		apiURL := fmt.Sprintf("http://menu:5001/%s", restaurant)
+		fmt.Println("Calling Flask:", apiURL)
 
 		data, err := fetchAPIData(apiURL)
 		if err != nil {
