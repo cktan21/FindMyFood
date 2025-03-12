@@ -127,6 +127,6 @@ Switch to your branch before starting to code <br>
 <a href="https://socket.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Socket-io.svg" alt="Socket.io" height="40"/></a>&nbsp;&nbsp;
 </p>
 <p align="center">
-<i>Docker Compose · Docker Hub · Kubernetes · OpenAI · Socket.io</i>
+<i>StripeAPI · Docker Compose · Docker Hub · Kubernetes · OpenAI · Socket.io</i>
 </p>
 <br> 

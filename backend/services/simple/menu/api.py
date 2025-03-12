@@ -1,4 +1,3 @@
-import os
 from google.cloud import firestore
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -35,4 +34,4 @@ def get_menu(restraunt):
         return jsonify({"error": "Restraunt not found"}), 404
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5000)

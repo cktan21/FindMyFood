@@ -1,8 +1,8 @@
-version: '3.8'
-
 volumes:
   pgdata:
     name: esd_pgdata 
+  rabbitmq_data:
+    name: esd_rabbitmq_data
 
 networks:
   esd-net:
@@ -104,3 +104,48 @@ services:
       - "4000:4000"
     env_file:
       - ./services/simple/reccomendation/.env
+
+  queue:
+    build: ./services/simple/queue
+    container_name: queue
+    networks:
+      - esd-net
+    ports:
+      - "8008:5000"
+    env_file:
+      - ./services/simple/queue/.env
+
+  socketio:
+    build: ./socket.io
+    container_name: socket.io
+    networks:
+      - esd-net
+    ports:
+      - "3300:3300"
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: foodapp-rabbit
+    restart: always
+    ports:
+      - "5672:5672"  # RabbitMQ Client Connection
+      - "15672:15672"  # RabbitMQ Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - esd-net
+
+  rabbitmq-setup:
+    build: ./rabbitmq
+    container_name: amqp-setup
+    depends_on:
+      - rabbitmq
+    networks:
+      - esd-net
+
+

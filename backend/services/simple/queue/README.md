@@ -1,16 +1,29 @@
 ## Instructions
 ```bash
-#To Run 
-queue.exe
+#Installation
+curl -fsSL https://deno.land/x/install/install.sh | sh #install deno for mac 
+#OR
+iwr https://deno.land/x/install/install.ps1 -useb | iex #install deno for windows(open on powershell)
 
-#Optionally (ONLY if you haven't started socket.io yet)
-cd backend/utils/socket.io
+#Optionally
+cd 
 node server.js
+
+cd backend/services/simple/queue
+deno add jsr:@hono/hono
+
+#Running the Thing 
+deno run -A --watch main.js #-A allows for all perms | --watch watches for any changes and restarts the server accordingly 
 ```
 
 To deactivate server:
 ```bash
 ctlr c
+```
+
+Compiled with 
+```bash
+deno compile -A -o runme main.js #very surpised it worked so well LOL
 ```
 
 <h1>How to Use</h1>
@@ -192,5 +205,5 @@ Queue Data Succesfully Sent 🚀🚀🚀🚀
 
 <br>
 <br>
-<h2>NOTE</h2> 
-- Ensure an .env file with the credentials is located in the same file as the executable
+<h2>NOTE to self</h2> 
+- See for restraunt if want to send it with the first word captialised or not

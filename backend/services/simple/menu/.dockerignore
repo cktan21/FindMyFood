@@ -4,3 +4,6 @@ node_modules
 .gitignore
 __pycache__/
 firebase_credentials.json
+Upload Scripts
+Data
+Archive

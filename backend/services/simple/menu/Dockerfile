@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application, including firebase_credentials.json
 COPY . .
 
-EXPOSE 5000
+EXPOSE 5001
 
 # Run the application
 CMD ["python", "api.py"]
