@@ -96,27 +96,34 @@ func main() {
 		c.JSON(http.StatusOK, data)
 	})
 
-	router.POST("/chatgpt", func(c *gin.Context) {
-		id := c.Query("id") // Assuming the ID is passed as a query parameter
+	router.POST("/chatgpt/:id", func(c *gin.Context) {
+		id := c.Param("id")
 		if id == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing ID parameter"})
 			return
 		}
-
+	
+		orderHistoryData, err := fetchAPIData(fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/orderhistory?userId=%s", id))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch order history"})
+			return
+		}
+	
 		menuData, err := fetchAPIData("http://menu:5001/all")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch menu"})
 			return
 		}
-
-		recommendationData, err := fetchAPIData(fmt.Sprintf("http://reccomendation:8000/recommendation/%s", id))
+	
+		recommendationData, err := fetchAPIData(fmt.Sprintf("http://reccomendation:4000/recommendation/%s", id))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch recommendation"})
 			return
 		}
 
 		requestData := map[string]interface{}{
-			"menu":           menuData,
+			"foodHistory":  orderHistoryData,
+			"menulisting":           menuData,
 			"recommendation": recommendationData,
 		}
 
@@ -128,30 +135,29 @@ func main() {
 
 		apiURL := "http://chatgpt:3000/reccomend"
 		fmt.Println("Calling FastAPI:", apiURL)
-
+	
 		resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(requestBody))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		defer resp.Body.Close()
-
+	
 		body, readErr := ioutil.ReadAll(resp.Body)
 		if readErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response"})
 			return
 		}
-
+	
 		var responseData map[string]interface{}
 		jsonErr := json.Unmarshal(body, &responseData)
 		if jsonErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid JSON response"})
 			return
 		}
-
+	
 		c.JSON(http.StatusOK, responseData)
-	})
+	})	
 
-	// Run the server on port 8080
-	router.Run(":8080") // http://localhost:8080/
+	router.Run(":8080")
 }
