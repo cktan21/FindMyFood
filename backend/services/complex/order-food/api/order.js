@@ -2,6 +2,21 @@ const express = require('express');
 const router = express.Router();
 const order = require('../model/order');
 
+router.get('/', async (req, res) => {
+    try {
+
+        const { OrderId } = req.body;
+
+        const orderitem = await order.getOrder(OrderId)
+        res.status(200).json({ 
+            message: orderitem
+          });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.get('/history', async (req, res) => {
     try {
 

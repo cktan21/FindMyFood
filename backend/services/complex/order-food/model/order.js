@@ -1,6 +1,21 @@
 require('dotenv').config();
 const axios = require("axios");
 
+async function getOrder(OrderId) {
+
+    try {
+
+        const response = await axios.get(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?OrderId=${OrderId}`);
+
+        return response.data;
+        
+    } catch (error) {
+        console.error("Error getting order history:", error.response ? error.response.data : error.message);
+        throw error;
+    }
+    
+}
+
 async function getOrderHistory(userId) {
 
     try {
@@ -36,6 +51,7 @@ async function makeOrder(userId, orderDetails) {
 }
 
 module.exports = {
+    getOrder,
     getOrderHistory,
     makeOrder
 };
