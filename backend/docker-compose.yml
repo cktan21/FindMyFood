@@ -56,6 +56,14 @@ services:
     ports:
       - "1010:3000"
 
+  complete-order:
+    build: ./services/complex/complete-order
+    container_name: complete-order
+    networks:
+      - esd-net
+    ports:
+      - "7070:7070"
+
   reccomend-food:
     build: ./services/complex/reccomend-food
     container_name: reccomend-food
