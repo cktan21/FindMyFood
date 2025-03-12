@@ -55,7 +55,6 @@ export default function ShopPage() {
     return <div>No shop specified in the URL.</div>;
   }
 
-  // Look up restaurant using the `id` field (which contains the restaurant name)
   const restaurant = restaurants.find(
     (r) => r.id?.toLowerCase() === shopParam.toLowerCase()
   );
@@ -129,17 +128,17 @@ export default function ShopPage() {
       {/* Restaurant Cover and Info */}
       <div className="relative">
         <div className="h-[200px] overflow-hidden">
-          <img
-            src={
-              restaurant.photos && restaurant.photos[0]
-                ? restaurant.photos[0]
-                : "/placeholder.svg?height=400&width=1200"
-            }
-            alt="Restaurant cover"
-            width="1200"
-            height="400"
-            className="w-full object-cover"
-          />
+        <img
+          src={
+            restaurant.menu_url && restaurant.menu_url[0]
+              ? restaurant.menu_url[0]
+              : "/placeholder.svg?height=400&width=1200"
+          }
+          alt="Restaurant cover"
+          width="1200"
+          height="400"
+          className="w-full object-cover"
+        />
         </div>
         <div className="container relative -mt-16 px-4">
           <Card>
@@ -202,34 +201,6 @@ export default function ShopPage() {
       {/* Main Content: Menu Items */}
       <main className="flex-1">
         <div className="container py-8 px-4">
-          {/* Menu Category Filters (static example) */}
-          {/* <div className="mb-8 overflow-x-auto">
-            <div className="flex gap-2 min-w-max">
-              {[
-                "All",
-                "Popular",
-                "Burgers",
-                "Sides",
-                "Drinks",
-                "Desserts",
-                "Combos",
-                "Special Offers",
-              ].map((category) => (
-                <Button
-                  key={category}
-                  variant={category === "All" ? "default" : "outline"}
-                  className={
-                    category === "All"
-                      ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                      : ""
-                  }
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          </div> */}
-          {/* Render each menu section dynamically by filtering out non-menu keys */}
           <div className="space-y-8">
             {Object.keys(restaurant)
               .filter(
@@ -250,60 +221,49 @@ export default function ShopPage() {
                     {category.replace(/_/g, " ")}
                   </h2>
                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {Object.keys(restaurant[category]).map((itemKey) => {
-                      const item = restaurant[category][itemKey];
-                      return (
-                        <Card key={itemKey} className="overflow-hidden">
-                          <Link
-                            to={`/product/${itemKey
-                              .toLowerCase()
-                              .replace(/\s+/g, "-")}`}
-                          >
-                            <CardHeader className="p-0">
-                              <div className="relative">
-                                <img
-                                  src={
-                                    restaurant.photos && restaurant.photos[0]
-                                      ? restaurant.photos[0]
-                                      : "/placeholder.svg"
-                                  }
-                                  alt={itemKey}
-                                  width="300"
-                                  height="200"
-                                  className="aspect-[3/2] w-full object-cover"
-                                />
+                    {Object.entries(restaurant[category]).map(([itemKey, item]: any) => (
+                      <Card key={itemKey} className="overflow-hidden">
+                        <Link to={`/product/${itemKey.toLowerCase().replace(/\s+/g, "-")}`}>
+                          <CardHeader className="p-0">
+                            <div className="relative">
+                              <img
+                                src={item.photo || "/placeholder.svg"}
+                                alt={itemKey}
+                                width="300"
+                                height="200"
+                                className="aspect-[3/2] w-full object-cover"
+                              />
+                            </div>
+                          </CardHeader>
+                          <CardContent className="grid gap-2.5 p-4">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="space-y-1">
+                                <h3 className="font-semibold">
+                                  {itemKey.replace(/_/g, " ")}
+                                </h3>
+                                <p className="line-clamp-2 text-sm text-muted-foreground">
+                                  {item.desc}
+                                </p>
                               </div>
-                            </CardHeader>
-                            <CardContent className="grid gap-2.5 p-4">
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="space-y-1">
-                                  <h3 className="font-semibold">
-                                    {itemKey.replace(/_/g, " ")}
-                                  </h3>
-                                  <p className="line-clamp-2 text-sm text-muted-foreground">
-                                    {item.desc}
-                                  </p>
-                                </div>
-                                <Button
-                                  size="icon"
-                                  className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                  <span className="sr-only">Add to cart</span>
-                                </Button>
-                              </div>
-                              <div className="font-semibold">${item.price}</div>
-                            </CardContent>
-                          </Link>
-                        </Card>
-                      );
-                    })}
+                              <Button
+                                size="icon"
+                                className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                              >
+                                <Plus className="h-4 w-4" />
+                                <span className="sr-only">Add to cart</span>
+                              </Button>
+                            </div>
+                            <div className="font-semibold">${item.price}</div>
+                          </CardContent>
+                        </Link>
+                      </Card>
+                    ))}
                   </div>
                 </div>
               ))}
           </div>
         </div>
-      </main>
+      </main>    
     </div>
   );
 }

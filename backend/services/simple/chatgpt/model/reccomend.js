@@ -7,13 +7,13 @@ const openai = new OpenAI({
     apiKey: OPENAI_API_KEY
 });
 
-async function generateFoodReccomendation(foodHistory, menulisting) {
+async function generateFoodReccomendation(foodHistory, menulisting, reccomendationHistory) {
     try {
         const completion = await openai.chat.completions.create({
         messages: [
             { 
             role: "system", 
-            content: `Give me food recommendations based on the following food order history of this user ${foodHistory}. Generate only 5 food suggestions for the user from the menu ${menulisting} and in valid JSON format in the below example
+            content: `Give me food recommendations based on the following food order history of this user ${foodHistory} and also based on the past reccomendations ${reccomendationHistory}. Generate only 5 food suggestions for the user from the menu ${menulisting} and in valid JSON format in the below example
                       and the food suggestions can come from various restaurants as long as total there are 5 suggestions:
                 {
                 "Nasi_Lemak_Ayam_Taliwang": {

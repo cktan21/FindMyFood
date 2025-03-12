@@ -33,7 +33,7 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
         setRestaurants(JSON.parse(cachedData));
         setLoading(false);
         // Optionally, re-fetch in the background to update stale data
-        // fetchAndUpdateRestaurants();
+        fetchAndUpdateRestaurants();
         return;
       }
       try {
@@ -52,6 +52,24 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
       } finally {
         setLoading(false);
       }
+
+      async function fetchAndUpdateRestaurants() {
+        try {
+          const res = await axios.get("http://127.0.0.1:5001/all");
+          const data = res.data;
+          const restaurantsArray: Restaurant[] = Object.entries(data).map(
+            ([id, restaurant]) => {
+              const { id: _, ...restaurantData } = restaurant as Restaurant;
+              return { id, ...restaurantData };
+            }
+          );
+          setRestaurants(restaurantsArray);
+          localStorage.setItem("restaurants", JSON.stringify(restaurantsArray));
+        } catch (error) {
+          console.error("Error updating restaurants:", error);
+        }
+      }
+      
     }
     fetchRestaurants();
   }, []);

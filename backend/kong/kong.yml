@@ -8,24 +8,34 @@ services:
       - name: chatgpt-route
         paths:
           - /chatgpt
+          
   - name: menu-service
     url: http://menu:5001
     routes:
       - name: menu-route
         paths:
           - /menu
+
   - name: reccomendation-service
     url: http://reccomendation:4000
     routes:
       - name: reccomendation-route
         paths:
           - /reccomendation
+
   - name: reccomend-food-service
     url: http://reccomend-food:8080
     routes:
       - name: reccomend-food-route
         paths:
           - /reccomend-food
+
+  - name: order-food-service
+    url: http://order-food:8090
+    routes:
+      - name: order-food-route
+        paths:
+          - /order-food
 
 plugins:
   - name: rate-limiting
