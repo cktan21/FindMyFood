@@ -121,4 +121,4 @@ socket.on("Qdeleted", (d) => {
 });
 
 // changed from 8008 -> 5000 in order to serve in docker properly 
-Deno.serve({ hostname: "0.0.0.0", port: 5000 }, app.fetch);
+Deno.serve({ hostname: "0.0.0.0", port: 8008 }, app.fetch);
