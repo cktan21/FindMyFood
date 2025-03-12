@@ -47,12 +47,27 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/', async (req, res) => {
+router.put('/cancel', async (req, res) => {
     try {
 
         const { orderId } = req.body;
 
         const response = await order.cancelOrder(orderId)
+        res.status(200).json({ 
+            message: response
+          });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put('/complete', async (req, res) => {
+    try {
+
+        const { orderId } = req.body;
+
+        const response = await order.completeOrder(orderId)
         res.status(200).json({ 
             message: response
           });
