@@ -8,7 +8,7 @@ services:
       - name: chatgpt-route
         paths:
           - /chatgpt
-          
+
   - name: menu-service
     url: http://menu:5001
     routes:
@@ -36,6 +36,13 @@ services:
       - name: order-food-route
         paths:
           - /order-food
+  
+  - name: complete-order-service
+    url: http://complete-order:7070
+    routes:
+      - name: complete-order-route
+        paths:
+          - /complete-order
 
 plugins:
   - name: rate-limiting
