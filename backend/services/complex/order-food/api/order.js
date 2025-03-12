@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const order = require('../model/order');
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
 
-        const healthcheck = await order.healthcheck()
+        const { userId, orderDetails } = req.body;
+
+        const orderstatus = await order.makeorder(userId, orderDetails)
         res.status(200).json({ 
-            message: healthcheck
+            message: orderstatus
           });
         
     } catch (error) {
