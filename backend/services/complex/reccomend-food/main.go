@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func fetchAPIData(apiURL string) (map[string]interface{}, error) {
+func fetchAPIData(apiURL string) (interface{}, error) {
 	resp, err := http.Get(apiURL)
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func fetchAPIData(apiURL string) (map[string]interface{}, error) {
 		return nil, readErr
 	}
 
-	var responseData map[string]interface{}
+	var responseData interface{}
 	jsonErr := json.Unmarshal(body, &responseData)
 	if jsonErr != nil {
 		return nil, jsonErr
@@ -39,6 +39,20 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World! Gin server is running 🚀",
 		})
+	})
+
+	router.GET("/order/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		apiURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/orderhistory?userId=%s", id)
+		fmt.Println("Calling Outsystems:", apiURL)
+
+		data, err := fetchAPIData(apiURL)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, data)
 	})
 
 	router.GET("/reccomendation/:id", func(c *gin.Context) {
