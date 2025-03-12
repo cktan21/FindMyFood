@@ -97,6 +97,17 @@ services:
     env_file:
       - ./services/simple/reccomendation/.env
 
+  queue:
+    build: ./services/simple/queue
+    container_name: queue
+    networks:
+      - esd-net
+    ports:
+      - "8008:5000"
+    env_file:
+      - ./services/simple/queue/.env
+    
+
 #   rabbitmq:
 #     image: rabbitmq:3-management #docker image with tag3 management 
 #     hostname: foodapp-rabbit # RabbitMQ stores data based on what it calls the "Node Name", which defaults to the hostname. We specify a hostname explicitly to keep track of our data.
