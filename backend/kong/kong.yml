@@ -23,6 +23,13 @@ services:
         paths:
           - /reccomendation
 
+  - name: queue-service
+    url: http://queue:8008
+    routes:
+      - name: queue-route
+        paths:
+          - /queue
+
   - name: reccomend-food-service
     url: http://reccomend-food:8080
     routes:
