@@ -91,7 +91,7 @@ services:
     networks:
       - esd-net
     ports:
-      - "5001:5000"
+      - "5001:5001"
     volumes:
       - ./services/simple/menu/firebase_credentials.json:/app/firebase_credentials.json
 
@@ -111,7 +111,7 @@ services:
     networks:
       - esd-net
     ports:
-      - "8008:5000"
+      - "8008:8008" #Make sure your ports are the same future self => if you serve it on 8008 it will serve on the :8008
     env_file:
       - ./services/simple/queue/.env
 
