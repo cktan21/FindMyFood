@@ -50,10 +50,26 @@ async function makeOrder(userId, orderDetails) {
     }
 }
 
+async function cancelOrder(orderId) {
+
+    try {
+
+        const response = await axios.put(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/cancel?orderId=${orderId}`);
+
+        return response.data;
+        
+    } catch (error) {
+        console.error("Error getting order history:", error.response ? error.response.data : error.message);
+        throw error;
+    }
+    
+}
+
 module.exports = {
     getOrder,
     getOrderHistory,
-    makeOrder
+    makeOrder,
+    cancelOrder
 };
 
 
