@@ -6,7 +6,8 @@ A standalone script to create exchanges and queues on RabbitMQ.
 
 import pika
 
-amqp_host = "localhost"
+# amqp_host = "localhost"
+amqp_host = "rabbitmq"  # Use "rabbitmq" if running inside Docker
 amqp_port = 5672
 exchange_name = "main"
 exchange_type = "topic"

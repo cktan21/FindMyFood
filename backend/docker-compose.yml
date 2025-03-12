@@ -1,8 +1,8 @@
-version: '3.8'
-
 volumes:
   pgdata:
     name: esd_pgdata 
+  rabbitmq_data:
+    name: esd_rabbitmq_data
 
 networks:
   esd-net:
@@ -106,20 +106,38 @@ services:
       - "8008:5000"
     env_file:
       - ./services/simple/queue/.env
-    
 
-#   rabbitmq:
-#     image: rabbitmq:3-management #docker image with tag3 management 
-#     hostname: foodapp-rabbit # RabbitMQ stores data based on what it calls the "Node Name", which defaults to the hostname. We specify a hostname explicitly to keep track of our data.
-#     restart: always #always restarts container when it stops 
-#     ports:
-#       - "5672:5672" #RbbitMQ Client Connection
-#       - "15672:15672" #RabbitMQ Management Website
-#     volumes: 
-#         #Bind the volume ‘rabbitmq_data’ defined above to the container’s path ‘/var/lib/rabbitmq’ to persist RabbitMQ’s data across container recreation events.
-#         #Keeps all of the data in one storage bin even after mutiple restart instances 
-#       - rabbitmq_data:/var/lib/rabbitmq 
-#     networks:
-#       - esd-net #atttach network block to esd.net
+  socketio:
+    build: ./socket.io
+    container_name: socket.io
+    networks:
+      - esd-net
+    ports:
+      - "3300:3300"
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: foodapp-rabbit
+    restart: always
+    ports:
+      - "5672:5672"  # RabbitMQ Client Connection
+      - "15672:15672"  # RabbitMQ Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - esd-net
+
+  rabbitmq-setup:
+    build: ./rabbitmq
+    container_name: amqp-setup
+    depends_on:
+      - rabbitmq
+    networks:
+      - esd-net
 
 

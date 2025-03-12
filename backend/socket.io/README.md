@@ -1,5 +1,5 @@
 ## Instructions
 ```bash
 npm i
-npm run start
+node run socket.js
 ```
