@@ -1,0 +1,37 @@
+firebase_credentials.json
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Dependency directories
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+uvicorn.log
+
+# Environment variables
+.env
+.env.*
+
+# IDE files
+.vscode/
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Supabase
+.supabase/
+
+# Test cache
+.pytest_cache/
+tempCodeRunnerFile.py

@@ -1,0 +1,79 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: chatgpt-service
+    url: http://chatgpt:3000
+    routes:
+      - name: chatgpt-route
+        paths:
+          - /chatgpt
+          
+  - name: menu-service
+    url: http://menu:5001
+    routes:
+      - name: menu-route
+        paths:
+          - /menu
+
+  - name: reccomendation-service
+    url: http://reccomendation:4000
+    routes:
+      - name: reccomendation-route
+        paths:
+          - /reccomendation
+
+  - name: reccomend-food-service
+    url: http://reccomend-food:8080
+    routes:
+      - name: reccomend-food-route
+        paths:
+          - /reccomend-food
+
+  - name: order-food-service
+    url: http://order-food:8090
+    routes:
+      - name: order-food-route
+        paths:
+          - /order-food
+
+plugins:
+  - name: rate-limiting
+    config:
+      minute: 100
+      policy: local
+
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - HEAD
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Access-Control-Allow-Origin
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+
+  - name: prometheus
+    enabled: true
+    protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+    config:
+      ai_metrics: false
+      bandwidth_metrics: false
+      latency_metrics: false
+      per_consumer: false
+      status_code_metrics: false
+      upstream_health_metrics: false

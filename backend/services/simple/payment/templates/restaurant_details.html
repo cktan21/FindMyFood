@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ restaurant.replace('_', ' ') }}{% endblock %}
+{% block content %}
+    <h1 class="mb-4">{{ restaurant.replace('_', ' ') }}</h1>
+    {% for category, items in categories.items() %}
+        <h2>{{ category.replace('_', ' ') }}</h2>
+        <div class="row">
+            {% for item_name, details in items.items() %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item_name.replace('_', ' ') }}</h5>
+                            <p class="card-text">{{ details['desc'] }}</p>
+                            <p class="card-text"><strong>{{ details['price'] }}</strong></p>
+                            <form method="POST" action="{{ url_for('add_to_cart') }}">
+                                <input type="hidden" name="restaurant" value="{{ restaurant }}">
+                                <input type="hidden" name="category" value="{{ category }}">
+                                <input type="hidden" name="item_name" value="{{ item_name }}">
+                                <button type="submit" class="btn btn-primary">Add to Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endblock %}

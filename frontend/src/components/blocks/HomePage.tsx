@@ -1,13 +1,100 @@
-import { Link } from "react-router-dom"
-import { Search, ShoppingBag, User, ChevronRight, Star, Clock, MapPin } from "lucide-react"
+import { useState, useRef, useEffect } from "react";
+import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { useRestaurants } from "@/context/RestaurantsContext";
+import { supabase } from "@/supabaseClient";
+import {
+  Search,
+  ShoppingBag,
+  User,
+  ChevronRight,
+  Star,
+  Clock,
+  MapPin,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
 
 export default function HomePage() {
+  const { isLoggedIn, loading } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants();
+  const [displayCount, setDisplayCount] = useState(8);
+
+  useEffect(() => {
+    if (!isLoggedIn || loading) return;
+
+    const checkAndInsertProfile = async () => {
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error("Error fetching user:", authError);
+        return;
+      }
+      const user = userData?.user;
+      if (!user) {
+        console.log("No user is logged in.");
+        return;
+      }
+      const { data: profileData, error: profileError } = await supabase
+        .from("User")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        return;
+      }
+      if (!profileData) {
+        const { error: insertError } = await supabase.from("User").insert({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name,
+          role: user.user_metadata?.role
+        });
+        if (insertError) {
+          console.error("Error inserting profile:", insertError);
+        } else {
+          console.log("Profile created successfully");
+        }
+      } else {
+        console.log("Profile already exists:", profileData);
+      }
+    };
+    checkAndInsertProfile();
+  }, [isLoggedIn, loading]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" />;
+  }
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => prev + 8);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -27,18 +114,43 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Account</span>
-            </Button>
-            <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              Cart
-            </Button>
+            <Link to="/cart">
+              <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Cart
+              </Button>
+            </Link>
+            <div className="relative" ref={menuRef}>
+              <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleMenu}>
+                <User className="h-5 w-5" />
+                <span className="sr-only">Account</span>
+              </Button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <Link to="/home">
+                    <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                      Home
+                    </button>
+                  </Link>
+                  <Link to="/profile">
+                    <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                      Profile
+                    </button>
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
       <main className="flex-1">
+        {/* Other sections remain unchanged */}
         <section className="w-full py-6 md:py-12 lg:py-16 xl:py-20">
           <div className="container px-4 md:px-6">
             <div className="relative rounded-xl bg-gradient-to-r from-blue-600 via-blue-400 to-purple-500 p-6 text-white shadow-lg md:p-8 lg:p-10">
@@ -57,17 +169,19 @@ export default function HomePage() {
                     >
                       Order Now
                     </Button>
-                    <Button
-                      size="lg"
-                      className="bg-transparent border-2 border-white text-white font-semibold hover:bg-white hover:text-blue-600 transition-colors"
-                    >
-                      View Restaurants
-                    </Button>
+                    <Link to="/restaurants">
+                      <Button
+                        size="lg"
+                        className="bg-transparent border-2 border-white text-white font-semibold hover:bg-white hover:text-blue-600 transition-colors"
+                      >
+                        View Restaurants
+                      </Button>
+                    </Link>
                   </div>
                 </div>
                 <div className="hidden md:block">
                   <img
-                    src="/placeholder.svg?height=300&width=400"
+                    src="/TestImage.jpg"
                     width="400"
                     height="300"
                     alt="Food delivery"
@@ -112,7 +226,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
         <section className="w-full py-8 md:py-12">
           <div className="container px-4 md:px-6">
             <Tabs defaultValue="featured" className="w-full">
@@ -125,104 +238,77 @@ export default function HomePage() {
                 </TabsList>
               </div>
               <TabsContent value="featured" className="mt-6 space-y-8">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {[
-                    {
-                      name: "Burger Palace",
-                      image: "/placeholder.svg?height=200&width=300",
-                      rating: 4.8,
-                      deliveryTime: "15-25 min",
-                      deliveryFee: "$2.99",
-                      tags: ["Burgers", "Fast Food"],
-                    },
-                    {
-                      name: "Pizza Heaven",
-                      image: "/placeholder.svg?height=200&width=300",
-                      rating: 4.6,
-                      deliveryTime: "20-30 min",
-                      deliveryFee: "$1.99",
-                      tags: ["Pizza", "Italian"],
-                    },
-                    {
-                      name: "Sushi World",
-                      image: "/placeholder.svg?height=200&width=300",
-                      rating: 4.9,
-                      deliveryTime: "25-35 min",
-                      deliveryFee: "$3.99",
-                      tags: ["Japanese", "Sushi"],
-                    },
-                    {
-                      name: "Taco Fiesta",
-                      image: "/placeholder.svg?height=200&width=300",
-                      rating: 4.7,
-                      deliveryTime: "15-25 min",
-                      deliveryFee: "$2.49",
-                      tags: ["Mexican", "Tacos"],
-                    },
-                  ].map((restaurant) => (
-                    <Card key={restaurant.name} className="overflow-hidden">
-                      <div className="relative">
-                        <img
-                          src={restaurant.image || "/placeholder.svg"}
-                          alt={restaurant.name}
-                          width="300"
-                          height="200"
-                          className="aspect-video w-full object-cover"
-                        />
-                        <div className="absolute right-2 top-2">
-                          <Badge className="bg-white text-black hover:bg-white/90">
-                            <Star className="mr-1 h-3 w-3 fill-purple-500 text-purple-500" />
-                            {restaurant.rating}
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
-                          <h3 className="font-bold">{restaurant.name}</h3>
-                          <div className="flex flex-wrap gap-1">
-                            {restaurant.tags.map((tag) => (
-                              <Badge key={tag} variant="secondary" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <div className="flex items-center">
-                              <Clock className="mr-1 h-3 w-3" />
-                              {restaurant.deliveryTime}
-                            </div>
-                            <div className="flex items-center">
-                              <MapPin className="mr-1 h-3 w-3" />
-                              1.2 km
-                            </div>
-                            <div>{restaurant.deliveryFee}</div>
+                {restaurantsLoading ? (
+                  <LoadingScreen />
+                ) : (
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {featuredRestaurants.slice(0, displayCount).map((restaurant) => (
+                      <Card key={restaurant.id} className="overflow-hidden">
+                        <div className="relative">
+                          <img
+                            src={restaurant.logo_url?.[0] || "/placeholder.svg"}
+                            alt={restaurant.name}
+                            width="300"
+                            height="200"
+                            className="aspect-video w-full object-cover"
+                          />
+                          <div className="absolute right-2 top-2">
+                            <Badge className="bg-white text-black hover:bg-white/90">
+                              <Star className="mr-1 h-3 w-3 fill-purple-500 text-purple-500" />
+                              {restaurant.rating || "N/A"}
+                            </Badge>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                <div className="flex justify-center">
-                  <Button variant="outline" className="gap-1">
-                    Load More
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
+                        <CardContent className="p-4">
+                          <div className="space-y-2">
+                            <h3 className="font-bold">{restaurant.name}</h3>
+                            <div className="flex flex-wrap gap-1">
+                              {(restaurant.tags || []).map((tag) => (
+                                <Badge key={tag} variant="secondary" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                              <div className="flex items-center">
+                                <Clock className="mr-1 h-3 w-3" />
+                                {restaurant.deliveryTime || "N/A"}
+                              </div>
+                              <div className="flex items-center">
+                                <MapPin className="mr-1 h-3 w-3" />
+                                {restaurant.distance || "1.2 km"}
+                              </div>
+                              <div>{restaurant.deliveryFee || "$0.00"}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+                {/* Show Load More button only if there are more restaurants to load */}
+                {displayCount < featuredRestaurants.length && (
+                  <div className="flex justify-center">
+                    <Button variant="outline" className="gap-1" onClick={handleLoadMore}>
+                      Load More
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
               <TabsContent value="popular" className="mt-6">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {/* Similar restaurant cards would go here */}
+                  {/* Populate popular restaurants similarly */}
                 </div>
               </TabsContent>
               <TabsContent value="new" className="mt-6">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {/* Similar restaurant cards would go here */}
+                  {/* Populate new restaurants similarly */}
                 </div>
               </TabsContent>
             </Tabs>
           </div>
         </section>
-
         <section className="w-full bg-muted/50 py-8 md:py-12">
           <div className="container px-4 md:px-6">
             <h2 className="text-2xl font-bold tracking-tight">Today's Special Offers</h2>
@@ -300,59 +386,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* <section className="w-full border-t py-8 md:py-12">
-          <div className="container flex flex-col items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Download Our App</h2>
-              <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl">
-                Get the full experience on your phone. Order food, track delivery, and more.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:bg-black/90">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="M12 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5.5" />
-                  <path d="M16 3v4" />
-                  <path d="M8 3v4" />
-                  <path d="M3 11h18" />
-                  <path d="M19 16v6" />
-                  <path d="M22 19l-3-3-3 3" />
-                </svg>
-                App Store
-              </Button>
-              <Button className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:bg-black/90">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="M3 9h.01M21 9h.01M3 15h.01M21 15h.01M12 3v18" />
-                  <path d="M3 3v18h18V3z" />
-                </svg>
-                Google Play
-              </Button>
-            </div>
-          </div>
-        </section> */}
+        {/* Other sections remain unchanged */}
       </main>
       <footer className="w-full border-t bg-background py-6">
         <div className="container px-4 md:px-6">
@@ -491,7 +525,8 @@ export default function HomePage() {
             © {new Date().getFullYear()} FoodExpress. All rights reserved.
           </div>
         </div>
-        </footer>
-      </div>
-  )
+        {/* Footer code remains unchanged */}
+      </footer>
+    </div>
+  );
 }

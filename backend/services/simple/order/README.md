@@ -1,11 +1,10 @@
-<<<<<<< Updated upstream
-=======
 ## Instructions
 
 ### Get Order History
 ```bash
 https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/orderhistory?userId={userId}
 ```
+
 where userId is Users table UUID, this returns array of jsons with status of the reciept number
 
 Sample Output:
@@ -15,6 +14,7 @@ Sample Output:
 
 ### Get Order
 ```bash
+
 https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?RecieptNo={RecieptNo}
 ```
 
@@ -28,6 +28,7 @@ Sample Output:
     "Dish": "Chicken Rice",
     "Quantity": 1
 }]
+
 ```
 
 ### Post Order
@@ -42,10 +43,12 @@ Body JSON:
   "Dish": "Chicken Rice",
   "Quantity": 0,
   "RecieptNo" : "ORD123"
+
 }
 ```
 
 where userId is Users table UUID
+
 -this needs to be run n times, where n is the number of restaurant-dishes pairs in any given reciept
 
 ### Put Cancel Order
@@ -66,4 +69,5 @@ where  RecieptNo = GetOrderHistory("InProgressId")
 
 
 
->>>>>>> Stashed changes
+
+
