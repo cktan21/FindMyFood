@@ -61,7 +61,7 @@ Switch to your branch before starting to code <br>
 <a href="https://fastapi.tiangolo.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/FastAPI_logo.svg" alt="FastAPI" width="120"/></a>&nbsp;&nbsp;
 <a href="https://flask.palletsprojects.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Flask_logo.svg" alt="Flask" width="100"/></a>&nbsp;&nbsp;
 <br>
-<i>Gin · Express · Hono · FastAPI · Flask · pika</i>
+<i>Gin · Express · Hono · FastAPI · Flask</i>
 </p>
 <br>
 
