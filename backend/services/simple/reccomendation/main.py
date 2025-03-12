@@ -30,7 +30,7 @@ def create_recommendation(rec: Recommendation):
 def get_recommendation(id: int):
     recommendation = supabase.fetch_recommendation(id)
     if not recommendation:
-        raise HTTPException(status_code=404, detail="Recommendation not found.")
+        return {}
     return recommendation
 
 if __name__ == "__main__":

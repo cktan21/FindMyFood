@@ -67,6 +67,14 @@ services:
       - reccomendation
       - menu
   
+  order-food:
+    build: ./services/complex/order-food
+    container_name: order-food
+    networks:
+      - esd-net
+    ports:
+      - "8090:8090"
+  
   chatgpt:
     build: ./services/simple/chatgpt
     container_name: chatgpt
