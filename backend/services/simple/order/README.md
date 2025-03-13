@@ -4,7 +4,8 @@
 ```bash
 https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/orderhistory?userId={userId}
 ```
-where userId is Users table UUID, this returns array of jsons
+
+where userId is Users table UUID, this returns array of jsons with status of the reciept number
 
 Sample Output:
 ```bash
@@ -13,19 +14,21 @@ Sample Output:
 
 ### Get Order
 ```bash
-https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?OrderId={OrderId}
+
+https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?RecieptNo={RecieptNo}
 ```
 
-where OrderId = GetOrderHistory(CancelledId), this returns json
+where RecieptNo = GetOrderHistory("CancelledId") or GetOrderHistory("InProgressId") or GetOrderHistory("FinishedId"), this returns json
 
 Sample Output:
 ```bash
-{
+[{
     "OrderId": 13,
     "Restaurant": "Ayam Taliwang",
     "Dish": "Chicken Rice",
     "Quantity": 1
-}
+}]
+
 ```
 
 ### Post Order
@@ -38,25 +41,33 @@ Body JSON:
 {
   "Restaurant": "Ayam Taliwang",
   "Dish": "Chicken Rice",
-  "Quantity": 0
+  "Quantity": 0,
+  "RecieptNo" : "ORD123"
+
 }
 ```
 
 where userId is Users table UUID
 
+-this needs to be run n times, where n is the number of restaurant-dishes pairs in any given reciept
+
 ### Put Cancel Order
 ```bash
-https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/cancel?orderId={orderId}
+https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/cancel?RecieptNo={RecieptNo}
 ```
 
-where orderId = GetOrderHistory(CancelledId)
+where RecieptNo = GetOrderHistory("InProgressId")
+-this needs to be run n times, where n is the number of restaurant-dishes pairs in any given reciept
 
 ### Put Complete Order
 ```bash
-https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?orderId={orderId}
+https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo={RecieptNo}
 ```
 
-where orderId = GetOrderHistory(CancelledId)
+where  RecieptNo = GetOrderHistory("InProgressId")
+-this needs to be run n times, where n is the number of restaurant-dishes pairs in any given reciept
+
+
 
 
 
