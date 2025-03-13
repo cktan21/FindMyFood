@@ -1,6 +1,6 @@
 volumes:
   pgdata:
-    name: esd_pgdata 
+    name: esd_pgdata
   rabbitmq_data:
     name: esd_rabbitmq_data
 
@@ -74,7 +74,7 @@ services:
     depends_on:
       - reccomendation
       - menu
-  
+
   order-food:
     build: ./services/complex/order-food
     container_name: order-food
@@ -82,7 +82,7 @@ services:
       - esd-net
     ports:
       - "8090:8090"
-  
+
   chatgpt:
     build: ./services/simple/chatgpt
     container_name: chatgpt
@@ -133,8 +133,8 @@ services:
     hostname: foodapp-rabbit
     restart: always
     ports:
-      - "5672:5672"  # RabbitMQ Client Connection
-      - "15672:15672"  # RabbitMQ Management UI
+      - "5672:5672" # RabbitMQ Client Connection
+      - "15672:15672" # RabbitMQ Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -156,8 +156,10 @@ services:
     ports:
       - "3300:3300"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_started # or service_healthy if you implement health checks
+      rabbitmq-setup:
+        condition: service_completed_successfully
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
-
 
