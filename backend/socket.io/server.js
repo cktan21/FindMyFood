@@ -70,7 +70,7 @@ async function startServer() {
             console.log("📩 Message received:", data);
 
             //Do smth with the data add to kong or smth
-            sendToKong("/notifications", data); // Forward to Kong
+            sendToKong("/notifications", {data: data, type: 'notification'}); // Forward to Kong
             // // Send data back to RabbitMQ that data has been received
             // io.emit("receivedNotif", data);
         });

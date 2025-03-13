@@ -95,9 +95,13 @@ Queue Data Succesfully Sent 🚀🚀🚀🚀
         "Pasta_Express": [],
         "Supergreen": [],
         "Turks_Kebab": []
-    }
+    },
+    "type": "queue"
 }
 ```
+<h4>NOTE</h4> 
+- Queue will send the above output automatically to queue every 20000ms or 0.33min
+- Add/Deletion of queue will result in 
 
 <h2>Adding Queue (User bought the food)</h2>
 
@@ -111,7 +115,7 @@ Queue Data Succesfully Sent 🚀🚀🚀🚀
     "food" : "Grilled_Teriyaki_Chicken_Donburi",
     "restaurant" : "Bricklane",
     "id": "Kendrick", // this refer to user id 
-    "role": "Personal"
+    "action": "add"
 }
 ```
 
@@ -163,7 +167,7 @@ Queue Data Succesfully Sent 🚀🚀🚀🚀
     "food" : "Grilled_Teriyaki_Chicken_Donburi",
     "restaurant" : "Bricklane",
     "id": "1", //this refers to queue id btw pls don't confuse
-    "role": "Store"
+    "action": "delete"
 }
 ```
 

@@ -65,12 +65,11 @@ app.get("/", (c) => {
 app.get("/qStatus", async (c) => {
 
     try {
-
         // if smth is async ya need to add the await so it actually waits and not immdiiately runs
         let allq = await qstatus()
 
         // Return success response
-        return c.json(allq, 200);
+        return c.json({data: allq, type: "queue"}, 200);
     } catch (error) {
         // Return error response
         console.error("Request failed:", error);
@@ -80,9 +79,9 @@ app.get("/qStatus", async (c) => {
 
 
 app.post("/dump", async (c) => {
-    const { food, restaurant, id, role } = await c.req.json();
+    const { food, restaurant, id, action } = await c.req.json();
     // if data is recceived from the 
-    if (role == "Personal") {
+    if (action == "add") {
 
         // Insert data into Supabase
         const { data: insertedData, error } = await supabase
@@ -106,9 +105,9 @@ app.post("/dump", async (c) => {
         return c.json({ message: `Added (➕) Queue to ${restaurant}`, data: insertedData });
     }
 
-    console.log(role)
+    console.log(action)
     // if data is received from the client => order is doner => gotta delete the order from db
-    if (role == "Store") {
+    if (action == "delete") {
         // Delete data from Supabase
         const { data: deletedData, error } = await supabase
             .from(restaurant.toLowerCase())
@@ -131,11 +130,11 @@ app.post("/dump", async (c) => {
     return c.json({ error: "Invalid action" }, 400);
 });
 
-//Send data of all queue every 2000ms 
+//Send data of all queue every 20000ms or 0.33 of a min
 // just like with jn you gotta put async otherwise it won't wait for the function LOL
 setInterval(async () => {
     qstatus()
-}, 2000);
+}, 20000);
 
 // receive comfirmation from socket.io that add order has received
 socket.on("receivedAllQueue", (a) => {

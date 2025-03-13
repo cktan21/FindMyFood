@@ -23,12 +23,12 @@ services:
         paths:
           - /reccomendation
 
-  # - name: queue-service
-  #   url: http://queue:8008
-  #   routes:
-  #     - name: queue-route
-  #       paths:
-  #         - /queue
+  - name: queue-service
+    url: http://queue:8008
+    routes:
+      - name: queue-route
+        paths:
+          - /queue
 
   - name: reccomend-food-service
     url: http://reccomend-food:8080
@@ -51,8 +51,7 @@ services:
         paths:
           - /complete-order
 
-
-  - name: notification-service
+  - name: notification-send
     url: http://notification-ms:5000 #http://frontend:3000 
     routes:
       - name: notification-route
@@ -60,7 +59,7 @@ services:
           - /notifications
         methods: [POST]
 
-  - name: queue-service
+  - name: queue-send
     url: http://queue-ms:6000 #http://frontend:3000 This needs to be sent to the frontend LOL
     routes:
       - name: queue-add-route
