@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Server } from "socket.io";
 import http from "http";
 import amqp from "amqplib";
@@ -25,6 +26,19 @@ async function connectRabbitMQ() {
     }
 }
 
+const KONG_URL = process.env.KONG_URL || "http://localhost:8000"; // Kong API Gateway URL
+
+async function sendToKong(endpoint, payload) {
+    try {
+        const response = await axios.post(`${KONG_URL}${endpoint}`, payload, {
+            headers: { "Content-Type": "application/json" }
+        });
+        console.log(`✅ Sent to Kong: ${endpoint}`, response.data);
+    } catch (error) {
+        console.error(`❌ Failed to send to Kong: ${endpoint}`, error.response?.data || error.message);
+    }
+}
+
 async function startServer() {
     const channel = await connectRabbitMQ();
     if (!channel) return;
@@ -40,7 +54,7 @@ async function startServer() {
             //Show what you received
             console.log("📥 Received from RabbitMQ:", messageData);
 
-            // Emit the received message to all clients listening on 
+            // Emit the received message to all clients listening on notifcation
             io.emit("notification", messageData);
 
             // Acknowledge the message
@@ -52,11 +66,11 @@ async function startServer() {
         console.log("⚡ Client connected:", socket.id);
 
         // Receive data from RabbitMQ about the notifications
-        socket.on("sendNotif", (data) => {
+        socket.on("notification", (data) => {
             console.log("📩 Message received:", data);
 
             //Do smth with the data add to kong or smth
-
+            sendToKong("/notifications", data); // Forward to Kong
             // // Send data back to RabbitMQ that data has been received
             // io.emit("receivedNotif", data);
         });
@@ -66,9 +80,10 @@ async function startServer() {
             console.log("📩 addQueue Message received:", message);
 
             //Do smth with this data connect to kong or smth
+            sendToKong("/queue/all", message); // Forward to Kong
 
             // Send data back to Queue MS to comfirm message added
-            io.emit("receivedAllQueue", message);
+            // io.emit("receivedAllQueue", message);
         })
 
         // Receive data from added Queue
@@ -76,9 +91,10 @@ async function startServer() {
             console.log("📩 addQueue Message received:", message);
 
             //Do smth with this data connect to kong or smth
+            sendToKong("/queue/add", message); // Forward to Kong
 
             // Send data back to Queue MS to comfirm message added
-            io.emit("QAdded", message);
+            // io.emit("QAdded", message);
         })
 
         // Receive data from what to delete Queue
@@ -86,9 +102,10 @@ async function startServer() {
             console.log("📩 Message received:", message);
 
             //Do smth with this data connect to kong or smth
+            sendToKong("/queue/delete", message); // Forward to Kong
 
             // Send data back to Queue MS to comfirm message added
-            io.emit("Qdeleted", message);
+            // io.emit("Qdeleted", message);
         })
     });
 
