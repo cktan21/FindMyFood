@@ -2,6 +2,13 @@ _format_version: "3.0"
 _transform: true
 
 services:
+  - name: queue-service
+    url: http://queue:8008
+    routes:
+      - name: queue-route
+        paths:
+          - /queue
+  
   - name: chatgpt-service
     url: http://chatgpt:3000
     routes:
@@ -23,13 +30,6 @@ services:
         paths:
           - /reccomendation
 
-  - name: queue-service
-    url: http://queue:8008
-    routes:
-      - name: queue-route
-        paths:
-          - /queue
-
   - name: reccomend-food-service
     url: http://reccomend-food:8080
     routes:
@@ -43,7 +43,7 @@ services:
       - name: order-food-route
         paths:
           - /order-food
-  
+
   - name: complete-order-service
     url: http://complete-order:7070
     routes:
@@ -52,7 +52,7 @@ services:
           - /complete-order
 
   - name: notification-send
-    url: http://notification-ms:5000 #http://frontend:3000 
+    url: http://notification-ms:5000 #http://frontend:3000
     routes:
       - name: notification-route
         paths:
