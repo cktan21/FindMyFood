@@ -112,8 +112,12 @@ services:
       - esd-net
     ports:
       - "8008:8008" #Make sure your ports are the same future self => if you serve it on 8008 it will serve on the :8008
+    depends_on:
+      - socketio
     env_file:
       - ./services/simple/queue/.env
+    environment:
+      - SOCKET_IO_URL=http://socketio:3300 # Use the container name instead of localhost
 
   rabbitmq:
     image: rabbitmq:3-management

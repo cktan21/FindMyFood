@@ -15,23 +15,17 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseKey = Deno.env.get("SUPABASE_KEY");
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-//connecting to socket.io on port 3300
-const socket = io("http://localhost:3300", {
+//connecting to socket.io via docker else if not abalible on localhost port 3300
+const socket = io(Deno.env.get("SOCKET_IO_URL") || "http://localhost:3300", {
     reconnection: true, // Enable automatic reconnection
 });
 
 //Create API framework
 const app = new Hono();
 
-//Check service is alive 
-app.get("/", (c) => {
-    return c.text('alive (AW yeah 😎😎)');
-});
-
-// Manually gets the data from the file upon being called (consider just sending to a websocket directly)
-app.get("/qStatus", async (c) => {
+// Basically get the Qstatus
+async function qstatus() {
     const holder = {};
-
     try {
         const { data, error } = await supabase.rpc('get_all_tables');
 
@@ -48,16 +42,40 @@ app.get("/qStatus", async (c) => {
             if (error) throw new Error(`Supabase error [${key}]: ${error.message}`);
             holder[key] = tableData;
         }
+
+        socket.emit("allQueue", {data: holder, type: 'queue'});
         // Make sure the data has been successfully sent
         console.log('Queue Data Succesfully Sent 🚀🚀🚀🚀')
+
+        return holder
+    } catch (error) {
+        // Return error response
+        console.error("Request failed:", error);
+        // return c.json({ error: error.message }, 500);
+    }
+}
+
+
+//Check service is alive 
+app.get("/", (c) => {
+    return c.text('alive (AW yeah 😎😎)');
+});
+
+// Manually gets the data from the file upon being called (get all the queue )
+app.get("/qStatus", async (c) => {
+
+    try {
+
+        // if smth is async ya need to add the await so it actually waits and not immdiiately runs
+        let allq = await qstatus()
+
         // Return success response
-        return c.json(holder, 200);
+        return c.json(allq, 200);
     } catch (error) {
         // Return error response
         console.error("Request failed:", error);
         return c.json({ error: error.message }, 500);
     }
-
 });
 
 
@@ -107,7 +125,21 @@ app.post("/dump", async (c) => {
         return c.json({ message: `Deleted (➖) Queue from ${restaurant}` , data: deletedData });
     }
 
+    // Send all queue
+    qstatus()
+
     return c.json({ error: "Invalid action" }, 400);
+});
+
+//Send data of all queue every 2000ms 
+// just like with jn you gotta put async otherwise it won't wait for the function LOL
+setInterval(async () => {
+    qstatus()
+}, 2000);
+
+// receive comfirmation from socket.io that add order has received
+socket.on("receivedAllQueue", (a) => {
+    console.log("📩 Sever has Received Added Data:", a);
 });
 
 // receive comfirmation from socket.io that add order has received

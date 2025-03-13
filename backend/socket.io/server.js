@@ -61,6 +61,16 @@ async function startServer() {
             // io.emit("receivedNotif", data);
         });
 
+        // Receive data of all the queuen
+        socket.on("allQueue", (message) => {
+            console.log("📩 addQueue Message received:", message);
+
+            //Do smth with this data connect to kong or smth
+
+            // Send data back to Queue MS to comfirm message added
+            io.emit("receivedAllQueue", message);
+        })
+
         // Receive data from added Queue
         socket.on("addQueue", (message) => {
             console.log("📩 addQueue Message received:", message);
