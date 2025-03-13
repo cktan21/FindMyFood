@@ -115,18 +115,6 @@ services:
     env_file:
       - ./services/simple/queue/.env
 
-  socketio:
-    build: ./socket.io
-    container_name: socket.io
-    networks:
-      - esd-net
-    ports:
-      - "3300:3300"
-    depends_on:
-      - rabbitmq
-    environment:
-      - RABBITMQ_URL=amqp://rabbitmq:5672
-
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -147,5 +135,17 @@ services:
       - rabbitmq
     networks:
       - esd-net
+
+  socketio:
+    build: ./socket.io
+    container_name: socket.io
+    networks:
+      - esd-net
+    ports:
+      - "3300:3300"
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
 
 

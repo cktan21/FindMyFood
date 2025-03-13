@@ -10,8 +10,8 @@ const io = new Server(server, {
 // // for local testing
 // const RABBITMQ_URL = "amqp://localhost:5672"; 
 
-// RabbitMQ hostname from Docker Compose
-const RABBITMQ_URL = "amqp://rabbitmq"; 
+// Uses env variable from rabbitmq if avaliable, otherwise use localhost
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost:5672"; 
 
 async function connectRabbitMQ() {
     try {
