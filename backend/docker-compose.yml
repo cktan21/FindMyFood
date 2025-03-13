@@ -164,9 +164,10 @@ services:
       - "3300:3300"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_started # Checks if service started + running properly
       rabbitmq-setup:
-        condition: service_completed_successfully
+        condition: service_completed_successfully #check if service has completed
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
+      - KONG_URL=http://kong:8000
 
