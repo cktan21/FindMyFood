@@ -125,7 +125,7 @@ services:
     env_file:
       - ./services/simple/queue/.env
     environment:
-      - SOCKET_IO_URL=http://socketio:3300 # Use the container name instead of localhost
+      - SOCKET_IO_URL=http://socketio:3300
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -139,12 +139,19 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - esd-net
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
 
   rabbitmq-setup:
     build: ./rabbitmq
     container_name: amqp-setup
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - esd-net
 
