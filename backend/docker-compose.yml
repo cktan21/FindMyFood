@@ -1,6 +1,6 @@
 volumes:
   pgdata:
-    name: esd_pgdata 
+    name: esd_pgdata
   rabbitmq_data:
     name: esd_rabbitmq_data
 
@@ -74,7 +74,7 @@ services:
     depends_on:
       - reccomendation
       - menu
-  
+
   order-food:
     build: ./services/complex/order-food
     container_name: order-food
@@ -82,7 +82,7 @@ services:
       - esd-net
     ports:
       - "8090:8090"
-  
+
   chatgpt:
     build: ./services/simple/chatgpt
     container_name: chatgpt
@@ -120,20 +120,12 @@ services:
       - esd-net
     ports:
       - "8008:8008" #Make sure your ports are the same future self => if you serve it on 8008 it will serve on the :8008
+    depends_on:
+      - socketio
     env_file:
       - ./services/simple/queue/.env
-
-  socketio:
-    build: ./socket.io
-    container_name: socket.io
-    networks:
-      - esd-net
-    ports:
-      - "3300:3300"
-    depends_on:
-      - rabbitmq
     environment:
-      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - SOCKET_IO_URL=http://socketio:3300 # Use the container name instead of localhost
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -141,8 +133,8 @@ services:
     hostname: foodapp-rabbit
     restart: always
     ports:
-      - "5672:5672"  # RabbitMQ Client Connection
-      - "15672:15672"  # RabbitMQ Management UI
+      - "5672:5672" # RabbitMQ Client Connection
+      - "15672:15672" # RabbitMQ Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -156,4 +148,18 @@ services:
     networks:
       - esd-net
 
+  socketio:
+    build: ./socket.io
+    container_name: socket.io
+    networks:
+      - esd-net
+    ports:
+      - "3300:3300"
+    depends_on:
+      rabbitmq:
+        condition: service_started # or service_healthy if you implement health checks
+      rabbitmq-setup:
+        condition: service_completed_successfully
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
 

@@ -10,8 +10,8 @@ const io = new Server(server, {
 // // for local testing
 // const RABBITMQ_URL = "amqp://localhost:5672"; 
 
-// RabbitMQ hostname from Docker Compose
-const RABBITMQ_URL = "amqp://rabbitmq"; 
+// Uses env variable from docker if avaliable, otherwise use localhost
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost:5672"; 
 
 async function connectRabbitMQ() {
     try {
@@ -60,6 +60,16 @@ async function startServer() {
             // // Send data back to RabbitMQ that data has been received
             // io.emit("receivedNotif", data);
         });
+
+        // Receive data of all the queuen
+        socket.on("allQueue", (message) => {
+            console.log("📩 addQueue Message received:", message);
+
+            //Do smth with this data connect to kong or smth
+
+            // Send data back to Queue MS to comfirm message added
+            io.emit("receivedAllQueue", message);
+        })
 
         // Receive data from added Queue
         socket.on("addQueue", (message) => {
