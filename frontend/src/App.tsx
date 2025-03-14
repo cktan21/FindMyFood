@@ -11,6 +11,7 @@ import Restaurants from './pages/Restaurants';
 import Shop from './pages/Shop';
 import Product from './pages/Product';
 import Payment from './pages/Payment';
+import ConfirmationPage from './components/blocks/ConfirmationPage';
 import './App.css'
 
 const App = () => {
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Payment />} />
+            <Route path="/confirmation" element={<ConfirmationPage />} />
             <Route path="/restaurants" element={<Restaurants />} />
           </Routes>
         </div>

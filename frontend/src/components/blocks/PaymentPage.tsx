@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { useCart } from "@/hooks/useCart";
 export default function PaymentPage() {
   const { isLoggedIn, loading } = useAuth();
   const { cartItems } = useCart();
+  const navigate = useNavigate();
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.details.price * item.quantity,
@@ -45,21 +46,32 @@ export default function PaymentPage() {
   }
 
   const handlePlaceOrder = () => {
-    // Integrate your payment processing here.
-    // For now, we'll just log the payment info and order details.
-    console.log({
-      cardHolder,
-      cardNumber,
-      cardExpiry,
-      cardCVC,
+    const orderData = {
+      orderNumber: "FE-5678",
+      orderDate: new Date().toLocaleString(),
+      paymentMethod: `Card ending in ${cardNumber.slice(-4)}`,
+      items: cartItems.map((item) => ({
+        name: item.item.replace(/_/g, " "),
+        quantity: item.quantity,
+        price: item.details.price,
+      })),
       subtotal,
       deliveryFee,
       serviceFee,
       tax,
       total,
+    };
+
+    console.log({
+      cardHolder,
+      cardNumber,
+      cardExpiry,
+      cardCVC,
+      ...orderData,
       cartItems,
     });
-    // After processing, redirect to an order confirmation page.
+
+    navigate("/confirmation", { state: { order: orderData } });
   };
 
   return (
