@@ -36,6 +36,7 @@ export default function CartPage() {
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleSignOut = async () => await supabase.auth.signOut();
 
+  // Calculate subtotal and total
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.details.price * item.quantity,
     0
@@ -246,40 +247,44 @@ export default function CartPage() {
               </>
             )}
           </div>
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery Fee</span>
-                  <span className="font-medium">$2.99</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Service Fee</span>
-                  <span className="font-medium">$1.50</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between font-medium">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                  size="lg"
-                >
-                  Proceed to Checkout
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
+          {cartItems.length > 0 && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery Fee</span>
+                    <span className="font-medium">$2.99</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Service Fee</span>
+                    <span className="font-medium">$1.50</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-medium">
+                    <span>Total</span>
+                    <span>${total.toFixed(2)}</span>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Link to="/checkout">
+                    <Button
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                      size="lg"
+                    >
+                      Proceed to Checkout
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            </div>
+          )}
         </div>
       </main>
     </div>
