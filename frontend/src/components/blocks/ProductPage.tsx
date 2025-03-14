@@ -5,6 +5,7 @@ import { useRestaurants } from "@/context/RestaurantsContext";
 import { supabase } from "@/supabaseClient";
 import { ChevronLeft, User, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/hooks/useCart";
 
 export default function ProductPage() {
   const { isLoggedIn, loading: authLoading } = useAuth();
@@ -17,6 +18,8 @@ export default function ProductPage() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -57,6 +60,20 @@ export default function ProductPage() {
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleSignOut = async () => await supabase.auth.signOut();
+
+  const handleAddToCart = () => {
+    addToCart({
+      restaurant: restaurantParam,
+      category: categoryParam,
+      item: itemParam,
+      details: {
+        photo: product.photo || "/placeholder.svg?height=400&width=600",
+        desc: product.desc,
+        price: product.price,
+      },
+      quantity: 1,
+    });
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -138,6 +155,7 @@ export default function ProductPage() {
               </div>
             </div>
             <Button
+              onClick={handleAddToCart}
               className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
               size="lg"
             >
