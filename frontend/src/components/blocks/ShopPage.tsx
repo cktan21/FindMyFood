@@ -40,7 +40,8 @@ export default function ShopPage() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   if (authLoading || restaurantsLoading) {
@@ -64,7 +65,6 @@ export default function ShopPage() {
   }
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
@@ -128,24 +128,23 @@ export default function ShopPage() {
       {/* Restaurant Cover and Info */}
       <div className="relative">
         <div className="h-[200px] overflow-hidden">
-        <img
-          src={
-            restaurant.menu_url && restaurant.menu_url[0]
-              ? restaurant.menu_url[0]
-              : "/placeholder.svg?height=400&width=1200"
-          }
-          alt="Restaurant cover"
-          width="1200"
-          height="400"
-          className="w-full object-cover"
-        />
+          <img
+            src={
+              restaurant.menu_url && restaurant.menu_url[0]
+                ? restaurant.menu_url[0]
+                : "/placeholder.svg?height=400&width=1200"
+            }
+            alt="Restaurant cover"
+            width="1200"
+            height="400"
+            className="w-full object-cover"
+          />
         </div>
         <div className="container relative -mt-16 px-4">
           <Card>
             <CardContent className="p-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  {/* Use the id as the restaurant name */}
                   <h1 className="text-2xl font-bold">{restaurant.id}</h1>
                   <div className="mt-2 flex items-center gap-4">
                     <div className="flex items-center gap-1">
@@ -158,7 +157,6 @@ export default function ShopPage() {
                     <Badge variant="secondary">$$</Badge>
                   </div>
                   <p className="mt-2 text-muted-foreground">
-                    {/* You might want to add additional info here */}
                     No description available
                   </p>
                 </div>
@@ -221,49 +219,53 @@ export default function ShopPage() {
                     {category.replace(/_/g, " ")}
                   </h2>
                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {Object.entries(restaurant[category]).map(([itemKey, item]: any) => (
-                      <Card key={itemKey} className="overflow-hidden">
-                        <Link to={`/product/${itemKey.toLowerCase().replace(/\s+/g, "-")}`}>
-                          <CardHeader className="p-0">
-                            <div className="relative">
-                              <img
-                                src={item.photo || "/placeholder.svg"}
-                                alt={itemKey}
-                                width="300"
-                                height="200"
-                                className="aspect-[3/2] w-full object-cover"
-                              />
-                            </div>
-                          </CardHeader>
-                          <CardContent className="grid gap-2.5 p-4">
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="space-y-1">
-                                <h3 className="font-semibold">
-                                  {itemKey.replace(/_/g, " ")}
-                                </h3>
-                                <p className="line-clamp-2 text-sm text-muted-foreground">
-                                  {item.desc}
-                                </p>
+                    {Object.entries(restaurant[category]).map(
+                      ([itemKey, item]: any) => (
+                        <Card key={itemKey} className="overflow-hidden">
+                          <Link
+                            to={`/product?restaurant=${restaurant.id}&category=${category}&item=${itemKey}`}
+                          >
+                            <CardHeader className="p-0">
+                              <div className="relative">
+                                <img
+                                  src={item.photo || "/placeholder.svg"}
+                                  alt={itemKey}
+                                  width="300"
+                                  height="200"
+                                  className="aspect-[3/2] w-full object-cover"
+                                />
                               </div>
-                              <Button
-                                size="icon"
-                                className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                              >
-                                <Plus className="h-4 w-4" />
-                                <span className="sr-only">Add to cart</span>
-                              </Button>
-                            </div>
-                            <div className="font-semibold">${item.price}</div>
-                          </CardContent>
-                        </Link>
-                      </Card>
-                    ))}
+                            </CardHeader>
+                            <CardContent className="grid gap-2.5 p-4">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="space-y-1">
+                                  <h3 className="font-semibold">
+                                    {itemKey.replace(/_/g, " ")}
+                                  </h3>
+                                  <p className="line-clamp-2 text-sm text-muted-foreground">
+                                    {item.desc}
+                                  </p>
+                                </div>
+                                <Button
+                                  size="icon"
+                                  className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                  <span className="sr-only">Add to cart</span>
+                                </Button>
+                              </div>
+                              <div className="font-semibold">${item.price}</div>
+                            </CardContent>
+                          </Link>
+                        </Card>
+                      )
+                    )}
                   </div>
                 </div>
               ))}
           </div>
         </div>
-      </main>    
+      </main>
     </div>
   );
 }
