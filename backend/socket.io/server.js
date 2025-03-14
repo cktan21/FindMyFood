@@ -8,9 +8,6 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
-// // for local testing
-// const RABBITMQ_URL = "amqp://localhost:5672"; 
-
 // Uses env variable from docker if avaliable, otherwise use localhost
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost:5672"; 
 
@@ -43,8 +40,8 @@ async function startServer() {
     const channel = await connectRabbitMQ();
     if (!channel) return;
 
-    // Consume messages from RabbitMQ
-    channel.consume("Data", (msg) => {
+    // Consume messages from RabbitMQ queue, notifcations
+    channel.consume("notifications", (msg) => {
         console.log("⏳ Checking messages array...");
         if (msg !== null) {
 

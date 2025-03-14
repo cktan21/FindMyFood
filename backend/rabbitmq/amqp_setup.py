@@ -57,10 +57,18 @@ channel = create_exchange(
     exchange_type=exchange_type,
 )
 
+#Creates one queue for notification
 create_queue(
     channel=channel,
     exchange_name=exchange_name,
-    queue_name="Data",
-    routing_key="#.data",
+    queue_name="notifications",
+    routing_key="#.notifications",
 )
 
+# #Creates one queue for queue
+# create_queue(
+#     channel=channel,
+#     exchange_name=exchange_name,
+#     queue_name="queue",
+#     routing_key="#.queue",
+# )
