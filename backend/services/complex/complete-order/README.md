@@ -97,5 +97,5 @@ Queue Data Succesfully Sent 🚀🚀🚀🚀
 
 ### Debugging 
 ```bash
-go get logs #gets all the required modules
+go mod download #gets all the required modules
 ```

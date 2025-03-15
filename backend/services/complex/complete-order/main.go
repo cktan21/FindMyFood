@@ -7,6 +7,9 @@ import (
 	"io"
 	"net/http"
 	"log"
+	"sync"
+	"time"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/streadway/amqp" // RabbitMQ client library
@@ -95,102 +98,141 @@ func main() {
 	// takes in a post req of the json where the user has completed his order and
 	// from the frontend and updates the notifcation + queue + outsystems accordingly
 	server.POST("/done/:id", func(ctx *gin.Context) {
+        id := ctx.Param("id")
 
-		//Outsystems Portion
-		// Takes queue id
-		id := ctx.Param("id")
+        // WaitGroup to synchronize Goroutines
+        var wg sync.WaitGroup
 
-		// updates outsystems complete order endpt
-		outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=%s", id)
+        // Channel to collect errors from Goroutines
+        errChan := make(chan error, 3)
 
-		// this is go version of console.log || print()
-		fmt.Println("Calling Outsystems:", outsysURL)
-		
-		// Create a new PUT request with no payload
-		req, err := http.NewRequest("PUT", outsysURL, nil) // No payload, so body is nil
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create PUT request"})
-			return
-		}
-		defer req.Body.Close()
+        // Goroutine 1: Update OutSystems
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
 
-		ctx.JSON(http.StatusOK, data)
+            outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=%s", id)
+            fmt.Println("Calling Outsystems:", outsysURL)
 
-		// Read the request body
-		body, err := io.ReadAll(ctx.Request.Body)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "failed to read request body"})
-			return
-		}
+            req, err := http.NewRequest("PUT", outsysURL, nil)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to create PUT request: %v", err)
+                return
+            }
 
-		// Queue Portion
-        // Declare the map and parse the JSON & Validates the Json
-        var QueueData map[string]interface{}
-        if err := json.Unmarshal(body, &QueueData); err != nil { //Unmarshall turns the json bytes into a go object and directly input it into the QueueData string
-            ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON payload"})
+            client := &http.Client{Timeout: 10 * time.Second}
+            resp, err := client.Do(req)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to send PUT request: %v", err)
+                return
+            }
+            defer resp.Body.Close()
+
+            if resp.StatusCode != http.StatusOK {
+                errChan <- fmt.Errorf("OutSystems returned status: %s", resp.Status)
+                return
+            }
+
+            fmt.Println("OutSystems updated successfully.")
+        }()
+
+        // Goroutine 2: Process Queue Data
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+
+            body, err := io.ReadAll(ctx.Request.Body)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to read request body: %v", err)
+                return
+            }
+
+            var queueData map[string]interface{}
+            if err := json.Unmarshal(body, &queueData); err != nil {
+                errChan <- fmt.Errorf("invalid JSON payload: %v", err)
+                return
+            }
+
+            queueData["action"] = "add"
+            toQueue, err := json.Marshal(queueData)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to marshal queue data: %v", err)
+                return
+            }
+
+            queueURL := os.Getenv("QUEUE_URL")
+            if queueURL == "" {
+                queueURL = "http://queue:8008/dump"
+            }
+
+            fmt.Println("Calling QueueAPI:", queueURL)
+            resp, err := http.Post(queueURL, "application/json", bytes.NewBuffer(toQueue))
+            if err != nil {
+                errChan <- fmt.Errorf("failed to send data to FastAPI: %v", err)
+                return
+            }
+            defer resp.Body.Close()
+
+            if resp.StatusCode != http.StatusOK {
+                errChan <- fmt.Errorf("QueueAPI returned status: %s", resp.Status)
+                return
+            }
+
+            fmt.Println("Queue data processed successfully.")
+        }()
+
+        // Goroutine 3: Publish to RabbitMQ
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+
+            conn, err := connectToRabbitMQ()
+            if err != nil {
+                errChan <- fmt.Errorf("failed to connect to RabbitMQ: %v", err)
+                return
+            }
+            defer conn.Close()
+
+            rabbitMQData := map[string]interface{}{
+                "message": fmt.Sprintf("Your order %s has been successfully completed", id),
+                "id":      id,
+            }
+
+            toRabbitMQ, err := json.Marshal(rabbitMQData)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to marshal RabbitMQ data: %v", err)
+                return
+            }
+
+            if err := publishToQueue(conn, "notifications", toRabbitMQ); err != nil {
+                errChan <- fmt.Errorf("failed to publish to RabbitMQ: %v", err)
+                return
+            }
+
+            fmt.Println("Notification published to RabbitMQ successfully.")
+        }()
+
+        // Wait for all Goroutines to finish
+        go func() {
+            wg.Wait()
+            close(errChan)
+        }()
+
+        // Collect errors from Goroutines
+        for err := range errChan {
+            log.Println("Error:", err)
+            ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
 
-		// Adds the key 'action' into the request data
-		QueueData["action"] = "add"
-
-		//Turns back into json bytes
-		toQueue, err := json.Marshal(QueueData)
-		if err != nil {
-			log.Fatalf("Failed to bytify rabbitMQ JSON: %v", err)
-		}
-
-		// Create queue url
-		queueURL := "http://queue:8008/dump"
-		fmt.Println("Calling FastAPI:", queueURL)
-
-		resp, err := http.Post(queueURL, "application/json", bytes.NewBuffer(toQueue))
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		defer resp.Body.Close()
-
-		
-        ctx.JSON(http.StatusAccepted, gin.H{
-            "message": "Order request has been queued for processing.",
+        // Return success response
+        ctx.JSON(http.StatusOK, gin.H{
+            "message": "Complete Order processing completed successfully.",
         })
-
-		//RAbbitMQ Portion here
-        // Connect to RabbitMQ
-        conn, err := connectToRabbitMQ()
-        if err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-        defer conn.Close()
-
-		// Create empty map called RabbitMQData
-		RabbitMQData := make(map[string]interface{})
-
-		// Adds key:value pairs
-		RabbitMQData["message"] = fmt.Sprintf("Your order %s has been successfully completed", id) //%s NOT to a variable but to string and points to whatever is after , so in this case id
-		RabbitMQData["id"] = id
-
-		//Error handling
-		toRabbitMQ, err := json.Marshal(RabbitMQData)
-		if err != nil {
-			log.Fatalf("Failed to bytify rabbitMQ JSON: %v", err)
-		}
-
-        // Publish the message to RabbitMQ
-        err = publishToQueue(conn, "notifications", toRabbitMQ)
-        if err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-
     })
 
-
-
-	log.Println("Starting server on :7070")
-    if err := server.Run(":7070"); err != nil { // strings two sentances into one 
+    log.Println("Starting server on :7070")
+    if err := server.Run(":7070"); err != nil {
         log.Fatalf("Failed to start server: %v", err)
     }
 	
