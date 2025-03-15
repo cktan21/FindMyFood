@@ -5,9 +5,9 @@ const order = require('../model/order');
 router.get('/', async (req, res) => {
     try {
 
-        const { OrderId } = req.body;
+        const { RecieptNo } = req.body;
 
-        const orderitem = await order.getOrder(OrderId)
+        const orderitem = await order.getOrder(RecieptNo)
         res.status(200).json({ 
             message: orderitem
           });
@@ -50,9 +50,9 @@ router.post('/', async (req, res) => {
 router.put('/cancel', async (req, res) => {
     try {
 
-        const { orderId } = req.body;
+        const { RecieptNo } = req.body;
 
-        const response = await order.cancelOrder(orderId)
+        const response = await order.cancelOrder(RecieptNo)
         res.status(200).json({ 
             message: response
           });
@@ -65,9 +65,9 @@ router.put('/cancel', async (req, res) => {
 router.put('/complete', async (req, res) => {
     try {
 
-        const { orderId } = req.body;
+        const { RecieptNo } = req.body;
 
-        const response = await order.completeOrder(orderId)
+        const response = await order.completeOrder(RecieptNo)
         res.status(200).json({ 
             message: response
           });

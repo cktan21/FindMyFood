@@ -1,11 +1,11 @@
 require('dotenv').config();
 const axios = require("axios");
 
-async function getOrder(OrderId) {
+async function getOrder(RecieptNo) {
 
     try {
 
-        const response = await axios.get(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?OrderId=${OrderId}`);
+        const response = await axios.get(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?RecieptNo=${RecieptNo}`);
 
         return response.data;
         
@@ -50,11 +50,11 @@ async function makeOrder(userId, orderDetails) {
     }
 }
 
-async function cancelOrder(orderId) {
+async function cancelOrder(RecieptNo) {
 
     try {
 
-        const response = await axios.put(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/cancel?orderId=${orderId}`);
+        const response = await axios.put(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/cancel?RecieptNo=${RecieptNo}`);
 
         return response.data;
         
@@ -65,11 +65,11 @@ async function cancelOrder(orderId) {
     
 }
 
-async function completeOrder(orderId) {
+async function completeOrder(RecieptNo) {
 
     try {
 
-        const response = await axios.put(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?orderId=${orderId}`);
+        const response = await axios.put(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=${RecieptNo}`);
 
         return response.data;
         
