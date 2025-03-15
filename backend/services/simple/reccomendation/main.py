@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Dict
+from pydantic import BaseModel, ConfigDict
+from typing import Dict, Any
 from supabaseClient import SupabaseClient
 from dotenv import load_dotenv
 import os
@@ -12,8 +12,9 @@ app = FastAPI(title="Simplified Recommendation Service")
 supabase = SupabaseClient()
 
 class Recommendation(BaseModel):
-    id: int
-    recommendations: Dict[str, str]
+    id: str
+    recommendations: Dict[str, Any]
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 @app.get("/")
 def read_root():
