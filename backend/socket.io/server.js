@@ -53,6 +53,8 @@ async function startServer() {
 
             // Emit the received message to all clients listening on notifcation
             io.emit("notification", messageData);
+            
+            // sendToKong("/notifications", {data: messageData, type: 'notification'}); // Forward to Kong
 
             // Acknowledge the message
             channel.ack(msg);
