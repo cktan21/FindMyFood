@@ -112,6 +112,16 @@ services:
       - "4000:4000"
     env_file:
       - ./services/simple/reccomendation/.env
+  
+  credit:
+    build: ./services/simple/credit
+    container_name: credit
+    networks:
+      - esd-net
+    ports:
+      - "4040:4040"
+    env_file:
+      - ./services/simple/credit/.env
 
   queue:
     build: ./services/simple/queue
