@@ -25,7 +25,7 @@ Switch to your branch before starting to code <br>
 ```
 
 ## Technical Architecture Diagram
-<img width="1059" alt="Screenshot 2025-03-07 at 12 30 03 AM" src="https://github.com/user-attachments/assets/c180b970-8cb3-4753-bc5d-1ca13eee99c6" />
+<img width="1184" alt="architecture" src="https://github.com/user-attachments/assets/116e5035-9f06-4b8c-b5a0-a25f9349c016" />
 
 ## Frameworks and Databases Utilised
 
