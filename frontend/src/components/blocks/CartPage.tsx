@@ -8,12 +8,15 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
+import axios from "axios";
 
 export default function CartPage() {
-  const { isLoggedIn, loading } = useAuth();
+  const { isLoggedIn, loading, user } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,6 +47,46 @@ export default function CartPage() {
   const deliveryFee = 2.99;
   const serviceFee = 1.50;
   const total = subtotal + deliveryFee + serviceFee;
+
+  const handleCheckout = async () => {
+    setIsProcessing(true);
+    setError(null);
+    
+    // Format cart items to match the expected structure in confirmation page
+    const formattedItems = cartItems.map(item => ({
+      name: item.item.replace(/_/g, " "),
+      quantity: item.quantity,
+      price: item.details.price
+    }));
+    
+    // Store cart data in localStorage before redirecting
+    localStorage.setItem('pendingOrder', JSON.stringify({
+      items: formattedItems,
+      subtotal: subtotal,
+      deliveryFee: deliveryFee,
+      serviceFee: serviceFee,
+      total: total
+    }));
+    
+    try {
+      const response = await axios.post('http://localhost:5002/create-checkout-session', {
+        cartItems,
+        deliveryFee,
+        serviceFee,
+        total,
+        orderId: `ORDER-${Date.now()}`,
+        customerEmail: user?.email || 'guest@example.com',
+        domain: window.location.origin
+      });
+      
+      // Redirect to Stripe Checkout
+      window.location.href = response.data.url;
+    } catch (err) {
+      console.error('Error creating checkout session:', err);
+      setError('Failed to initialize payment. Please try again.');
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -273,14 +316,19 @@ export default function CartPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Link to="/checkout">
-                    <Button
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                      size="lg"
-                    >
-                      Proceed to Checkout
-                    </Button>
-                  </Link>
+                  {error && (
+                    <div className="text-red-500 text-sm mb-2 w-full">
+                      {error}
+                    </div>
+                  )}
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={isProcessing}
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                    size="lg"
+                  >
+                    {isProcessing ? 'Processing...' : 'Proceed to Checkout'}
+                  </Button>
                 </CardFooter>
               </Card>
             </div>

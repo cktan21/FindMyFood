@@ -1,13 +1,105 @@
-import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Check, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import axios from "axios";
+import { useCart } from "@/hooks/useCart";
+
+// Define interfaces for type safety
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface Order {
+  orderNumber: string;
+  orderDate: string;
+  paymentMethod: string;
+  paymentId: string;
+  total: number;
+  items: OrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  serviceFee: number;
+}
 
 export default function ConfirmationPage() {
-  const { state } = useLocation();
-  // The order data should be passed via location.state from PaymentPage
-  const order = state?.order;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const { state } = location;
+  const { clearCart } = useCart();
+
+  useEffect(() => {
+    // Check if we have order data from state
+    if (state?.order) {
+      setOrder(state.order);
+      return;
+    }
+
+    // Otherwise, check for session_id in URL
+    const sessionId = new URLSearchParams(location.search).get('session_id');
+    if (sessionId) {
+      const fetchSessionDetails = async () => {
+        setLoading(true);
+        try {
+          // Get stored order details from localStorage
+          const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
+          
+          const response = await axios.get(`http://localhost:5002/session-status?session_id=${sessionId}`);
+          
+          if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
+            // Create order data using both Stripe response and stored cart data
+            setOrder({
+              orderNumber: `FE-${Date.now().toString().slice(-4)}`,
+              orderDate: new Date().toLocaleString(),
+              paymentMethod: 'Credit Card',
+              paymentId: sessionId,
+              // If items array exists and has proper format, use it; otherwise create a fallback
+              items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
+              subtotal: pendingOrder.subtotal || 0,
+              deliveryFee: pendingOrder.deliveryFee || 2.99,
+              serviceFee: pendingOrder.serviceFee || 1.50,
+              total: response.data.amount_total || 0 // Stripe returns amount in cents
+            });
+            
+            // Clear the pending order from localStorage
+            localStorage.removeItem('pendingOrder');
+            clearCart();
+          } else {
+            setError('Payment was not completed successfully.');
+            setTimeout(() => navigate('/cart'), 3000);
+          }
+        } catch (err) {
+          console.error('Error fetching session details:', err);
+          setError('Failed to verify payment details.');
+          setTimeout(() => navigate('/cart'), 3000);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchSessionDetails();
+    }
+  }, [location, navigate, state]);
+
+  if (loading) {
+    return <div className="flex min-h-screen items-center justify-center">Loading order details...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <p className="text-xl font-semibold text-red-500">{error}</p>
+        <p>Redirecting to cart...</p>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -58,35 +150,38 @@ export default function ConfirmationPage() {
                 <span>{order.paymentMethod}</span>
               </div>
               <Separator />
-              {order.items.map((item: any, index: number) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span>
-                    {item.name} x {item.quantity}
-                  </span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+              {order.items && order.items.length > 0 ? (
+                order.items.map((item: OrderItem, index: number) => (
+                  <div key={index} className="flex justify-between text-sm">
+                    <span>
+                      {item.name || `Item ${index+1}`} x {item.quantity}
+                    </span>
+                    <span>${typeof item.price === 'number' ? (item.price * item.quantity).toFixed(2) : '0.00'}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="flex justify-between text-sm">
+                  <span>Items</span>
+                  <span>${order.subtotal.toFixed(2)}</span>
                 </div>
-              ))}
+              )}
               <Separator />
               <div className="flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span>${order.subtotal.toFixed(2)}</span>
+                <span>${(order.subtotal || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Delivery Fee</span>
-                <span>${order.deliveryFee.toFixed(2)}</span>
+                <span>${(order.deliveryFee || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Service Fee</span>
-                <span>${order.serviceFee.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Tax</span>
-                <span>${order.tax.toFixed(2)}</span>
+                <span>${(order.serviceFee || 0).toFixed(2)}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-medium">
                 <span>Total</span>
-                <span>${order.total.toFixed(2)}</span>
+                <span>${(order.total || 0).toFixed(2)}</span>
               </div>
             </CardContent>
             <CardFooter className="flex justify-center">
