@@ -21,9 +21,7 @@ async function addCredit(uuid, creditAmount) {
 
     const { data, error } = await supabase
     .from(creditTable)
-    .insert([
-        { uuid: uuid, credit: creditAmount,  }
-    ])
+    .upsert({ uuid: uuid, credit: creditAmount }, { onConflict: 'uuid' });
 
     if (error) {
         throw new Error(error.message);
