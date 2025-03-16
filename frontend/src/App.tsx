@@ -22,7 +22,6 @@ const App = () => {
     <AuthProvider>
       <CartProvider>
         <Elements stripe={stripePromise}>
-          <div>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
@@ -35,7 +34,6 @@ const App = () => {
               <Route path="/confirmation" element={<ConfirmationPage />} />
               <Route path="/restaurants" element={<Restaurants />} />
             </Routes>
-          </div>
         </Elements>
       </CartProvider>
     </AuthProvider>

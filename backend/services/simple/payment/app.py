@@ -15,6 +15,10 @@ CORS(app)
 # Configure Stripe
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
+@app.route('/', methods=['GET'])
+def test():
+    return 'alive (AW yeah 😎😎)'
+
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     try:
