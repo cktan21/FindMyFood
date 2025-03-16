@@ -15,8 +15,6 @@ import Product from './pages/Product';
 import ConfirmationPage from './components/blocks/ConfirmationPage';
 import './App.css'
 
-// Load your Stripe publishable key
-// Replace 'pk_test_your_stripe_publishable_key' with your actual publishable key
 const stripePromise = loadStripe('STRIPE_PUBLIC_KEY');
 
 const App = () => {
