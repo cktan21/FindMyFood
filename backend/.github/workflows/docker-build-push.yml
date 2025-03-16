@@ -1,0 +1,30 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and push images
+        run: |
+          # Define services to build and push
+          SERVICES=("complete-order" "reccomend-food" "order-food" "chatgpt" "menu" "reccomendation" "credit" "payment" "queue" "socketio")
+
+          # Loop through each service
+          for SERVICE in "${SERVICES[@]}"; do
+            IMAGE_NAME="my-dockerhub-username/$SERVICE"
+            docker build -t $IMAGE_NAME:latest ./services/complex/$SERVICE || docker build -t $IMAGE_NAME:latest ./services/simple/$SERVICE
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:${{ github.sha }}
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:${{ github.sha }}
+          done
