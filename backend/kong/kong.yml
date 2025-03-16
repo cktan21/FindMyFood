@@ -23,6 +23,20 @@ services:
         paths:
           - /menu
 
+  - name: credit-service
+    url: http://credit:4040
+    routes:
+      - name: credit-route
+        paths:
+          - /credit
+
+  - name: payment-service
+    url: http://payment:5002
+    routes:
+      - name: payment-route
+        paths:
+          - /payment
+
   - name: reccomendation-service
     url: http://reccomendation:4000
     routes:
