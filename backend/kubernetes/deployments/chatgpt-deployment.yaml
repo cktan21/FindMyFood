@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatgpt-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatgpt
+  template:
+    metadata:
+      labels:
+        app: chatgpt
+    spec:
+      containers:
+      - name: chatgpt
+        image: your-dockerhub-username/chatgpt:latest
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: chatgpt-env-config
