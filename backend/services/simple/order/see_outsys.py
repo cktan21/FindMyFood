@@ -10,12 +10,16 @@ CORS(app, origins=["http://localhost:5173"])
 def test():
     return 'alive (AW yeah 😎😎)'
 
-# Get all the menues
-@app.route("/outsys", methods=['GET'])
-def get_menus():
-    holder = {}
-    users_ref = db.collection("Menu").stream()
-    for doc in users_ref:
-        holder[doc.id] = doc.to_dict()
-    # users_list = [{doc.id: doc.to_dict()} for doc in users_ref]
-    return jsonify(holder)
+# Get all order from outsystems
+# @app.route("/outsys", methods=['GET'])
+# def get_menus():
+#     holder = {}
+#     users_ref = db.collection("Menu").stream()
+#     for doc in users_ref:
+#         holder[doc.id] = doc.to_dict()
+#     # users_list = [{doc.id: doc.to_dict()} for doc in users_ref]
+#     return jsonify(holder)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=2100)
