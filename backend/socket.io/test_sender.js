@@ -13,7 +13,7 @@ async function sendMessage(load=1) { //sends a message directltly to the queue '
         const channel = await connection.createChannel();
 
         // Step 3: Define the queue 
-        const queue = 'Data';
+        const queue = 'notifications';
         await channel.assertQueue(queue, { durable: true });
 
         // Step 4: Send a message

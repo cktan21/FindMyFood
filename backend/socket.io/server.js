@@ -8,9 +8,6 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
-// // for local testing
-// const RABBITMQ_URL = "amqp://localhost:5672"; 
-
 // Uses env variable from docker if avaliable, otherwise use localhost
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost:5672"; 
 
@@ -43,19 +40,28 @@ async function startServer() {
     const channel = await connectRabbitMQ();
     if (!channel) return;
 
-    // Consume messages from RabbitMQ
-    channel.consume("Data", (msg) => {
+    // Consume messages from RabbitMQ queue, notifcations
+    channel.consume("notifications", (msg) => {
         console.log("⏳ Checking messages array...");
         if (msg !== null) {
-
-            // Takes in message assumed to be a string
-            const messageData = msg.content.toString();
+            
+            // Parse the message content as JSON
+            let messageData;
+            try {
+                messageData = JSON.parse(msg.content.toString());
+            } catch (error) {
+                console.error("❌ Failed to parse JSON:", error.message);
+                channel.ack(msg); // Acknowledge the message even if parsing fails
+                return;
+            }
 
             //Show what you received
             console.log("📥 Received from RabbitMQ:", messageData);
 
             // Emit the received message to all clients listening on notifcation
             io.emit("notification", messageData);
+            
+            // sendToKong("/notifications", {data: messageData, type: 'notification'}); // Forward to Kong
 
             // Acknowledge the message
             channel.ack(msg);
@@ -70,7 +76,7 @@ async function startServer() {
             console.log("📩 Message received:", data);
 
             //Do smth with the data add to kong or smth
-            sendToKong("/notifications", {data: data, type: 'notification'}); // Forward to Kong
+            sendToKong("/notifications", data); // Forward to Kong
             // // Send data back to RabbitMQ that data has been received
             // io.emit("receivedNotif", data);
         });

@@ -20,7 +20,7 @@ RUN go mod tidy && go mod download
 COPY . .
 
 # Build the Go application
-RUN go build -o reccomend-food .
+RUN go build -o complete-order .
 
 # Use a minimal image for the final container
 FROM alpine:latest
@@ -32,10 +32,10 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 # Copy the built application from the builder stage
-COPY --from=builder /app/reccomend-food .
+COPY --from=builder /app/complete-order .
 
 # Expose the port
 EXPOSE 7070
 
 # Run the application
-CMD ["./reccomend-food"]
+CMD ["./complete-order"]
