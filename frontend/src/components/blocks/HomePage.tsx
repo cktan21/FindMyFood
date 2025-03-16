@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useRestaurants } from "@/context/RestaurantsContext";
 import { supabase } from "@/supabaseClient";
@@ -26,6 +26,7 @@ export default function HomePage() {
   const menuRef = useRef<HTMLDivElement>(null);
   const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants();
   const [displayCount, setDisplayCount] = useState(8);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoggedIn || loading) return;
@@ -65,6 +66,11 @@ export default function HomePage() {
       } else {
         console.log("Profile already exists:", profileData);
       }
+
+      if (user.user_metadata?.role === "Business") {
+        navigate("/business-home");
+      }
+
     };
     checkAndInsertProfile();
   }, [isLoggedIn, loading]);

@@ -12,6 +12,7 @@ import Cart from './pages/Cart';
 import Restaurants from './pages/Restaurants';
 import Shop from './pages/Shop';
 import Product from './pages/Product';
+import BusinessHomePage from './components/blocks/BusinessHomePage';
 import ConfirmationPage from './components/blocks/ConfirmationPage';
 import './App.css'
 
@@ -33,6 +34,7 @@ const App = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/confirmation" element={<ConfirmationPage />} />
               <Route path="/restaurants" element={<Restaurants />} />
+              <Route path="/business-home" element={<BusinessHomePage />} />
             </Routes>
         </Elements>
       </CartProvider>
