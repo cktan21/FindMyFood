@@ -7,92 +7,57 @@ go run main.go
 
 <h2>Order Completed</h2>
 
->http://localhost:7070// OR http://127.0.0.1:7070/qStatus
+>http://localhost:7070//uid OR http://127.0.0.1:7070/uid
 >POST Request
 
->console
-
-```bash 
-Queue Data Succesfully Sent 🚀🚀🚀🚀
-```
+>uid is whatever the user's id is eg 'Kendrick'
 
 <h3>Expected Payload</h3>
 
+http://127.0.0.1:7070/done/Kendrick
 
 ```json
 {
-
     "food" : "Grilled_Teriyaki_Chicken_Donburi",
     "restaurant" : "Bricklane",
-    "id": "1", //this refers to queue id btw pls don't confuse
-    "role": "Client"
+    "id": "18" //this refers to queue id btw pls don't confuse
 }
 ```
 
-<h3>Sample Input</h3>
+<h3>Console Output</h3>
+
+```bash
+Calling QueueAPI: http://queue:8008/dump
+Notification published to RabbitMQ successfully.
+Queue data processed successfully.
+```
+
+<h4>What it sends to Queue MicroService</h4>
 
 ```json
 {
-    "data": {
-        "Bricklane": [
-            {
-                "id": 2,
-                "food": "Torched_Mentaiko_Fries",
-                "user_id": "Jun Wei",
-                "time": "2025-03-08T15:30:22.992916"
-            },
-            {
-                "id": 3,
-                "food": "Kimchi_Carbonara",
-                "user_id": "Dorothy",
-                "time": "2025-03-08T16:29:22.992916"
-            },
-            {
-                "id": 4,
-                "food": "Korean_Fried_Chicken",
-                "user_id": "Jason",
-                "time": "2025-03-08T16:38:22.992916"
-            }
-        ],
-        "Chops": [
-            {
-                "id": 1,
-                "food": "Grilled_Meats",
-                "user_id": "Sweetha",
-                "time": "2025-03-08T13:34:22.992916"
-            },
-            {
-                "id": 2,
-                "food": "Grilled_Lamb_Chop",
-                "user_id": "Lay Foo",
-                "time": "2025-03-08T13:35:10.992916"
-            },
-            {
-                "id": 3,
-                "food": "Truffle_Fries",
-                "user_id": "Dory",
-                "time": "2025-03-08T13:35:18.992916"
-            }
-        ],
-        "Daijoubu": [],
-        "Ima_Sushi": [],
-        "Khoon_Coffeehouse_Express": [],
-        "King_Kong_Curry": [],
-        "Kuro_Kare": [],
-        "Nasi_Lemak_Ayam_Taliwang": [],
-        "ONALU_Bagel_Haus": [],
-        "Park_s_Kitchen": [],
-        "Pasta_Express": [],
-        "Supergreen": [],
-        "Turks_Kebab": []
-    },
-    "type": "queue"
+    "food" : "Grilled_Teriyaki_Chicken_Donburi",
+    "restaurant" : "Bricklane",
+    "id": "18", //this refers to queue id btw pls don't confuse
+    "action": "delete"
 }
 ```
-<h4>NOTE</h4> 
-- Queue will send the above output automatically to queue every 20000ms or 0.33min
-- Add/Deletion of queue will result in 
 
+<h4>What it send to RabbitMQ</h4>
+
+```json
+{
+    "message": "Your order of Grilled_Teriyaki_Chicken_Donburi from Bricklane has been successfully completed and is ready for pickup!",
+    "order_id": "18",
+    "user_id": "Kendrick",
+    "type": "notification" 
+}
+```
+
+<h4>How it Works</h4> 
+- Sends a Delete Order to Update Queue Microservice DB
+- Sends a Notification to RabbitMQ
+- Sends a PUT Request to Outsystems //Coming Soon
 
 
 ### Debugging 

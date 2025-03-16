@@ -44,9 +44,16 @@ async function startServer() {
     channel.consume("notifications", (msg) => {
         console.log("⏳ Checking messages array...");
         if (msg !== null) {
-
-            // Takes in message assumed to be a string
-            const messageData = msg.content.toString();
+            
+            // Parse the message content as JSON
+            let messageData;
+            try {
+                messageData = JSON.parse(msg.content.toString());
+            } catch (error) {
+                console.error("❌ Failed to parse JSON:", error.message);
+                channel.ack(msg); // Acknowledge the message even if parsing fails
+                return;
+            }
 
             //Show what you received
             console.log("📥 Received from RabbitMQ:", messageData);
@@ -69,7 +76,7 @@ async function startServer() {
             console.log("📩 Message received:", data);
 
             //Do smth with the data add to kong or smth
-            sendToKong("/notifications", {data: data, type: 'notification'}); // Forward to Kong
+            sendToKong("/notifications", data); // Forward to Kong
             // // Send data back to RabbitMQ that data has been received
             // io.emit("receivedNotif", data);
         });

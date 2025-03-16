@@ -98,10 +98,14 @@ app.post("/dump", async (c) => {
             return c.json({ error: error.message }, 500);
         }
 
-        // Sends dagta to Socket.IO clients
+        // Notifies Socket.IO clients
         socket.emit("addQueue", { restaurant, data: insertedData, type: 'queue'});
 
+        // Displays in console
+        console.log(`Added (➕) Queue to ${restaurant}`)
+
         // Comfirms that the queue has been added => order comfirmation basically
+        // Displayed on Webpage
         return c.json({ message: `Added (➕) Queue to ${restaurant}`, data: insertedData });
     }
 
@@ -121,6 +125,11 @@ app.post("/dump", async (c) => {
 
         // Notify Socket.IO clients
         socket.emit("deleteQueue", { restaurant, data: deletedData, type: 'queue'});
+
+        //Displays in console
+        console.log(`Deleted (➖) Queue from ${restaurant}`)
+
+        // Display on the webpage
         return c.json({ message: `Deleted (➖) Queue from ${restaurant}` , data: deletedData });
     }
 

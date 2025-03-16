@@ -10,7 +10,8 @@ node run socket.js
 
 ```json
 {
-    "data": "Your food has arrived", //pls note to future self don't make it so lame
-    "type": "notification"
+    "data": "Your order 1 has been successfully completed!", //pls note to future self don't make it so lame
+    "type": "notification",
+    "user_id" : "Kendrick"
 }
 ```

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"log"
 	"sync"
-	"time"
+	// "time"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -38,7 +38,7 @@ func fetchAPIData(apiURL string) (interface{}, error) {
 
 // Helper function to connect to RabbitMQ
 func connectToRabbitMQ() (*amqp.Connection, error) {
-    conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+    conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672")
     if err != nil {
         return nil, fmt.Errorf("failed to connect to RabbitMQ: %v", err)
     }
@@ -98,7 +98,22 @@ func main() {
 	// takes in a post req of the json where the user has completed his order and
 	// from the frontend and updates the notifcation + queue + outsystems accordingly
 	server.POST("/done/:id", func(ctx *gin.Context) {
+		// The id in the param refers to USER ID etc kendrick/subrah
         id := ctx.Param("id")
+
+		// Make sure the Request body is Readable
+		body, err := io.ReadAll(ctx.Request.Body)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "failed to read request body"})
+			return
+		}
+		defer ctx.Request.Body.Close() // Ensure the body is closed after reading
+
+		var queueData map[string]interface{}
+		if err := json.Unmarshal(body, &queueData); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON payload"})
+			return
+		}
 
         // WaitGroup to synchronize Goroutines
         var wg sync.WaitGroup
@@ -106,55 +121,52 @@ func main() {
         // Channel to collect errors from Goroutines
         errChan := make(chan error, 3)
 
-        // Goroutine 1: Update OutSystems
-        wg.Add(1)
-        go func() {
-            defer wg.Done()
+        // // Goroutine 1: Update OutSystems
+        // wg.Add(1)
+        // go func(id string) {
+        //     defer wg.Done()
 
-            outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=%s", id)
-            fmt.Println("Calling Outsystems:", outsysURL)
+        //     outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=%s", id)
+        //     fmt.Println("Calling Outsystems:", outsysURL)
 
-            req, err := http.NewRequest("PUT", outsysURL, nil)
-            if err != nil {
-                errChan <- fmt.Errorf("failed to create PUT request: %v", err)
-                return
-            }
+        //     req, err := http.NewRequest("PUT", outsysURL, nil)
+        //     if err != nil {
+        //         errChan <- fmt.Errorf("failed to create PUT request: %v", err)
+        //         return
+        //     }
 
-            client := &http.Client{Timeout: 10 * time.Second}
-            resp, err := client.Do(req)
-            if err != nil {
-                errChan <- fmt.Errorf("failed to send PUT request: %v", err)
-                return
-            }
-            defer resp.Body.Close()
+        //     client := &http.Client{Timeout: 10 * time.Second}
+        //     resp, err := client.Do(req)
+        //     if err != nil {
+        //         errChan <- fmt.Errorf("failed to send PUT request: %v", err)
+        //         return
+        //     }
+        //     defer resp.Body.Close()
 
-            if resp.StatusCode != http.StatusOK {
-                errChan <- fmt.Errorf("OutSystems returned status: %s", resp.Status)
-                return
-            }
+        //     if resp.StatusCode != http.StatusOK {
+        //         errChan <- fmt.Errorf("OutSystems returned status: %s", resp.Status)
+        //         return
+        //     }
 
-            fmt.Println("OutSystems updated successfully.")
-        }()
+        //     fmt.Println("OutSystems updated successfully.")
+        // }()
 
         // Goroutine 2: Process Queue Data
         wg.Add(1)
-        go func() {
+        go func(queueData interface {}) {
             defer wg.Done()
+			
+			// need to assert type
+			queueDataMap, ok := queueData.(map[string]interface{})
+			if !ok {
+				errChan <- fmt.Errorf("invalid type for queueData: expected map[string]interface{}")
+				return
+			}
 
-            body, err := io.ReadAll(ctx.Request.Body)
-            if err != nil {
-                errChan <- fmt.Errorf("failed to read request body: %v", err)
-                return
-            }
+			// deletes entry from queue
+            queueDataMap["action"] = "delete"
 
-            var queueData map[string]interface{}
-            if err := json.Unmarshal(body, &queueData); err != nil {
-                errChan <- fmt.Errorf("invalid JSON payload: %v", err)
-                return
-            }
-
-            queueData["action"] = "add"
-            toQueue, err := json.Marshal(queueData)
+            toQueue, err := json.Marshal(queueDataMap)
             if err != nil {
                 errChan <- fmt.Errorf("failed to marshal queue data: %v", err)
                 return
@@ -168,7 +180,7 @@ func main() {
             fmt.Println("Calling QueueAPI:", queueURL)
             resp, err := http.Post(queueURL, "application/json", bytes.NewBuffer(toQueue))
             if err != nil {
-                errChan <- fmt.Errorf("failed to send data to FastAPI: %v", err)
+                errChan <- fmt.Errorf("failed to send data to QueueAPI: %v", err)
                 return
             }
             defer resp.Body.Close()
@@ -179,11 +191,17 @@ func main() {
             }
 
             fmt.Println("Queue data processed successfully.")
-        }()
+        }(queueData)
 
         // Goroutine 3: Publish to RabbitMQ
         wg.Add(1)
-        go func() {
+        go func(queueData interface {}, id string) {
+
+			queueDataMap, ok := queueData.(map[string]interface{})
+			if !ok {
+				errChan <- fmt.Errorf("invalid type for queueData: expected map[string]interface{}")
+				return
+			}
             defer wg.Done()
 
             conn, err := connectToRabbitMQ()
@@ -194,8 +212,10 @@ func main() {
             defer conn.Close()
 
             rabbitMQData := map[string]interface{}{
-                "message": fmt.Sprintf("Your order %s has been successfully completed", id),
-                "id":      id,
+                "message": fmt.Sprintf("Your order of %s from %s has been successfully completed and is ready for pickup!", queueDataMap["food"], queueDataMap["restaurant"]), // the food here will appear as Grilled_Teriyaki_Chicken_Donburi yes i'm too lazy to type assert shoot me 
+                "type": "notification",
+				"user_id": id, //ie Kendrick
+				"order_id" : queueDataMap["id"], // ie 18
             }
 
             toRabbitMQ, err := json.Marshal(rabbitMQData)
@@ -210,7 +230,7 @@ func main() {
             }
 
             fmt.Println("Notification published to RabbitMQ successfully.")
-        }()
+        }(queueData, id)
 
         // Wait for all Goroutines to finish
         go func() {
