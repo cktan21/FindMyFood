@@ -1,0 +1,9 @@
+node_modules
+.env
+.git
+.gitignore
+__pycache__/
+firebase_credentials.json
+upload_scripts
+data
+archive

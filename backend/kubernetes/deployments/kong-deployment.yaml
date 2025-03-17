@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      containers:
+      - name: kong
+        image: kong/kong-gateway:3.9.0.1
+        ports:
+          - containerPort: 8000  # Proxy
+          - containerPort: 8443  # Proxy SSL
+          - containerPort: 8001  # Admin
+          - containerPort: 8444  # Admin SSL
+          - containerPort: 8002  # Admin GUI (if used)
+          - containerPort: 8445  # Admin GUI SSL
+          - containerPort: 8003  # Extra port if needed
+          - containerPort: 8004  # Extra port if needed
+        env:
+          - name: KONG_DATABASE
+            value: "off"
+          - name: KONG_DECLARATIVE_CONFIG
+            value: "/kong/declarative/kong.yml"
+          - name: KONG_PROXY_ACCESS_LOG
+            value: "/dev/stdout"
+          - name: KONG_ADMIN_ACCESS_LOG
+            value: "/dev/stdout"
+          - name: KONG_PROXY_ERROR_LOG
+            value: "/dev/stderr"
+          - name: KONG_ADMIN_ERROR_LOG
+            value: "/dev/stderr"
+          - name: KONG_ADMIN_LISTEN
+            value: "0.0.0.0:8001"
+          - name: KONG_ADMIN_GUI_URL
+            value: "http://localhost:8002"
+          - name: KONG_LICENSE_DATA
+            value: ""
+        volumeMounts:
+          - name: kong-declarative
+            mountPath: /kong/declarative
+      volumes:
+        - name: kong-declarative
+          configMap:
+            name: kong-declarative-config

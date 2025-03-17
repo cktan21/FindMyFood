@@ -12,11 +12,10 @@ import Cart from './pages/Cart';
 import Restaurants from './pages/Restaurants';
 import Shop from './pages/Shop';
 import Product from './pages/Product';
+import BusinessHomePage from './components/blocks/BusinessHomePage';
 import ConfirmationPage from './components/blocks/ConfirmationPage';
 import './App.css'
 
-// Load your Stripe publishable key
-// Replace 'pk_test_your_stripe_publishable_key' with your actual publishable key
 const stripePromise = loadStripe('STRIPE_PUBLIC_KEY');
 
 const App = () => {
@@ -24,7 +23,6 @@ const App = () => {
     <AuthProvider>
       <CartProvider>
         <Elements stripe={stripePromise}>
-          <div>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
@@ -36,8 +34,8 @@ const App = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/confirmation" element={<ConfirmationPage />} />
               <Route path="/restaurants" element={<Restaurants />} />
+              <Route path="/business-home" element={<BusinessHomePage />} />
             </Routes>
-          </div>
         </Elements>
       </CartProvider>
     </AuthProvider>

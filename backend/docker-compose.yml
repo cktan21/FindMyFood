@@ -123,6 +123,16 @@ services:
     env_file:
       - ./services/simple/credit/.env
 
+  payment:
+    build: ./services/simple/payment
+    container_name: payment
+    networks:
+      - esd-net
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./services/simple/payment/.env
+
   queue:
     build: ./services/simple/queue
     container_name: queue
