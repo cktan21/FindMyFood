@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reccomendation
+  namespace: esd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reccomendation
+  template:
+    metadata:
+      labels:
+        app: reccomendation
+    spec:
+      containers:
+      - name: reccomendation
+        image: your-registry/reccomendation:latest
+        ports:
+        - containerPort: 4000
+        envFrom:
+        - configMapRef:
+            name: reccomendation-secret

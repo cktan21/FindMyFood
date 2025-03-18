@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kong-declarative-config
+  name: kong-config
+  namespace: esd
 data:
   kong.yml: |
     _format_version: "3.0"

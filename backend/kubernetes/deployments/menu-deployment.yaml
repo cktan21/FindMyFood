@@ -1,7 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: menu-deployment
+  name: menu
+  namespace: esd
 spec:
   replicas: 1
   selector:
@@ -13,15 +14,15 @@ spec:
         app: menu
     spec:
       containers:
-      - name: menu
-        image: your-dockerhub-username/menu:latest
+      - name: menu-container
+        image: your-registry/menu:latest
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: firebase-credentials
+        - name: firebase-creds
           mountPath: /app/firebase_credentials.json
           subPath: firebase_credentials.json
       volumes:
-      - name: firebase-credentials
-        configMap:
-          name: firebase-credentials-config
+      - name: firebase-creds
+        secret:
+          secretName: menu-firebase-secret

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+  namespace: esd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+      - name: queue
+        image: your-registry/queue:latest
+        ports:
+        - containerPort: 8008
+        envFrom:
+        - configMapRef:
+            name: queue-secret
+        env:
+        - name: SOCKET_IO_URL
+          value: "http://socketio:3300"

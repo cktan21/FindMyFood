@@ -1,23 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chatgpt
+  name: grafana
   namespace: esd
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: chatgpt
+      app: grafana
   template:
     metadata:
       labels:
-        app: chatgpt
+        app: grafana
     spec:
       containers:
-      - name: chatgpt-container
-        image: your-registry/chatgpt:latest
+      - name: grafana
+        image: grafana/grafana:latest
         ports:
         - containerPort: 3000
-        envFrom:
-        - secretRef:
-            name: chatgpt-secret
