@@ -133,6 +133,16 @@ services:
     env_file:
       - ./services/simple/payment/.env
 
+  order:
+    build: ./services/simple/order
+    container_name: order
+    networks:
+      - esd-net
+    ports:
+      - "6369:6369"
+    env_file:
+      - ./services/simple/order/.env
+
   queue:
     build: ./services/simple/queue
     container_name: queue

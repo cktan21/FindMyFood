@@ -37,6 +37,13 @@ services:
         paths:
           - /payment
 
+  - name: order-service
+    url: http://order:6369
+    routes:
+      - name: order-route
+        paths:
+          - /order
+
   - name: reccomendation-service
     url: http://reccomendation:4000
     routes:
