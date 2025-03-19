@@ -1,5 +1,6 @@
 ## Instructions
 ```bash
+npm install -g bun
 bun --watch index.ts
 ```
 
