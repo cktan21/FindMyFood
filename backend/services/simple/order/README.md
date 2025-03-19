@@ -57,7 +57,7 @@ https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderServic
 ```
 
 where RecieptNo = GetOrderHistory("InProgressId")
--this needs to be run n times, where n is the number of restaurant-dishes pairs in any given reciept
+
 
 ### Put Complete Order
 ```bash
@@ -65,7 +65,6 @@ https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderServic
 ```
 
 where  RecieptNo = GetOrderHistory("InProgressId")
--this needs to be run n times, where n is the number of restaurant-dishes pairs in any given reciept
 
 
 
