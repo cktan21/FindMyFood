@@ -7,24 +7,30 @@ go run main.go
 
 <h2>Order Completed</h2>
 
->http://localhost:7070//uid OR http://127.0.0.1:7070/uid
+>http://localhost:7070/uid OR http://127.0.0.1:7070/uid
 >POST Request
 
 >uid is whatever the user's id is eg 'Kendrick'
 
-<h3>Expected Payload</h3>
+<h3>Example</h3>
 
-http://127.0.0.1:7070/done/Kendrick
+<h4>URL</h4>
+
+>http://127.0.0.1:7070/bulk/cancel/Kendrick #Store Cancel Order 
+>http://127.0.0.1:7070/single/complete/Kendrick #Store Complete Order
+
+<h4>Expected Payload</h4>
 
 ```json
 {
     "food" : "Grilled_Teriyaki_Chicken_Donburi",
     "restaurant" : "Bricklane",
-    "id": "18" //this refers to queue id btw pls don't confuse
+    "id": "18", //this refers to queue id btw pls don't confuse
+    "price": 6.9
 }
 ```
 
-<h3>Console Output</h3>
+<h4>Console Output</h4>
 
 ```bash
 Calling QueueAPI: http://queue:8008/dump

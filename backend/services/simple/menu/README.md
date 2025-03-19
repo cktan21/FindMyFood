@@ -13,8 +13,9 @@ deactivate
 
 <h1>How to use</h1>
 
->To call all restraunts + photo of menu
->/all
+<h2>To call all restraunts + photo of menu</h2>
+
+>http://localhost:5001//all
 
 <h3>Sample Output</h3>
 
@@ -110,10 +111,13 @@ deactivate
 <br>
 <br>
 
->To call one restraunt
->/restraunt_name
+<h2>To call one restraunt</h2>
 
-<h3>Sample Output (/Bricklane)</h3>
+>http://localhost:5001/restraunt_name
+
+<h3>Sample Output </h3>
+
+>http://localhost:5001/Bricklane
 
 ```json
 {
