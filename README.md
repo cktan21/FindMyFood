@@ -1,4 +1,3 @@
-
 # ESD_Team8
 
 ## Prerequisite
@@ -69,10 +68,11 @@ Switch to your branch before starting to code <br>
 <p align="center">
 <a href="https://nodejs.org/"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" alt="Node.js" width="70"/></a>&nbsp;&nbsp;
 <a href="https://deno.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Deno_2021.svg" alt="Deno" width="50"/></a>&nbsp;&nbsp;
+<a href="https://bun.sh/"><img src="https://bun.sh/logo.svg" alt="Bun" width="55"/></a>&nbsp;&nbsp;
 <br>
-<i>Node.js · Deno</i>
+<i>Node.js · Deno · Bun</i>
 </p>
-<br> 
+<br>
 
 <p align="center"><strong>API Gateway</strong></p>
 <p align="center">
