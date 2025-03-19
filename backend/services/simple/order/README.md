@@ -11,6 +11,7 @@ bun --watch index.ts
 
 <b><u>GET Request</u></b>
 <h4>URL</h4>
+
 >http://localhost:6369/orders
 
 <h4>Returns</h4>
@@ -93,10 +94,12 @@ bun --watch index.ts
 ```
 
 <h3>Get Order by Order ID</h3>
+
 >http://localhost:6369/orders?oid=oid
 
 <h4>URL</h4>
 Search by order id
+
 >http://localhost:6369/orders?oid=909fff87-e51c-4ecf-aa18-0dba89e0c54f
 
 <h4>Returns</h4>
@@ -108,7 +111,7 @@ Search by order id
         "userid": "Ewan",
         "info": {
             "total": 7,
-            "Ayam Taliwang": [
+            "items": [
                 {
                     "qty": 1,
                     "dish": "Ayam_Penyet",
@@ -116,16 +119,19 @@ Search by order id
                 }
             ]
         },
-        "status": "cancelled"
+        "status": "cancelled",
+        "restaurant": "Nasi_Lemak_Ayam_Taliwang"
     }
 ]
 ```
 
 <h3>Get Order by User ID</h3>
+
 >http://localhost:6369/orders?uid=uid
 
 <h4>URL</h4>
 Search by order id
+
 >http://localhost:6369/orders?uid=Kendrick
 
 <h4>Returns</h4>
@@ -136,8 +142,8 @@ Search by order id
         "orderid": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
         "userid": "Kendrick",
         "info": {
-            "total": 1620.8,
-            "Bricklane": [
+            "total": 1613.8,
+            "items": [
                 {
                     "qty": 2,
                     "dish": "Grilled_Teriyaki_Chicken_Donburi",
@@ -148,25 +154,104 @@ Search by order id
                     "dish": "Bulgogi_Tacos",
                     "price": 1600
                 }
-            ],
-            "Ayam Taliwang": [
+            ]
+        },
+        "status": "processing",
+        "restaurant": "Bricklane"
+    },
+    {
+        "orderid": "c9ba07bb-7b45-40e3-9643-2a276d331e26",
+        "userid": "Kendrick",
+        "info": {
+            "items": [
                 {
                     "qty": 1,
                     "dish": "Ayam_Penyet",
                     "price": 7
                 }
-            ]
+            ],
+            "total": 49
         },
-        "status": "processing"
+        "status": "processing",
+        "restaurant": "Nasi_Lemak_Ayam_Taliwang"
     }
 ]
 ```
 
+<h3>Get Order by restaurant ID</h3>
+
+>http://localhost:6369/orders?restaurant=restaurant
+
+<h4>URL</h4>
+Search by order id
+
+>http://localhost:6369/orders?restaurant=Bricklane
+
+<h4>Returns</h4>
+
+```json
+[
+    {
+        "orderid": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
+        "userid": "Kendrick",
+        "info": {
+            "total": 1613.8,
+            "items": [
+                {
+                    "qty": 2,
+                    "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                    "price": 13.8
+                },
+                {
+                    "qty": 200,
+                    "dish": "Bulgogi_Tacos",
+                    "price": 1600
+                }
+            ]
+        },
+        "status": "processing",
+        "restaurant": "Bricklane"
+    },
+    {
+        "orderid": "f2057454-490b-4c72-abc3-85d759a29a68",
+        "userid": "Subrah",
+        "info": {
+            "total": 6.9,
+            "items": [
+                {
+                    "qty": 2,
+                    "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                    "price": 6.9
+                }
+            ]
+        },
+        "status": "completed",
+        "restaurant": "Bricklane"
+    }
+]
+```
+
+### Combined Filters
+
+You can combine any of the three parameters (`uid`, `oid`, and `restaurant`) in any combination to retrieve specific orders. For example:
+
+-   To filter orders by user ID (`uid`), include `uid=Subrah`.
+-   To filter orders by order ID (`oid`), include `oid=f2057454-490b-4c72-abc3-85d759a29a68`.
+-   To filter orders by restaurant name, include `restaurant=Bricklane`.
+
+These parameters can be stacked together in any combination to refine your query. For instance:
+
+-   `uid=Subrah&oid=f2057454-490b-4c72-abc3-85d759a29a68` retrieves a specific order for a particular user.
+-   `uid=Subrah&restaurant=Bricklane` retrieves all orders placed by a specific user at a specific restaurant.
+
+
 <h3>Get Order by User ID and by Order ID</h3>
+
 >http://localhost:6369/orders?uid=uid&oid=oid
 
 <h4>URL</h4>
 Search by order id
+
 >http://localhost:6369/orders?uid=Subrah&oid=f2057454-490b-4c72-abc3-85d759a29a68
 
 <h4>Returns</h4>
@@ -193,9 +278,11 @@ Search by order id
 
 <h2>Change Order Status</h2>
 <b><u>PUT Request</u></b>
+
 >http://localhost:6369/update/orderid
 
 <h4>URL</h4>
+
 >http://localhost:6369/update/4631fe98-2fa6-4da5-b695-7eeb6328715a
 
 <h4>Payload</h4>
@@ -238,7 +325,6 @@ Search by order id
 }
 ```
 
-<h4>How it Works</h4> 
 
 ### Debugging 
 ```bash

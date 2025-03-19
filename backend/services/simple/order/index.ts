@@ -28,16 +28,26 @@ app.get("/orders", async (ctx) => {
     // Extract optional query parameters
     const uid = ctx.req.query('uid'); // Query parameter for user ID
     const oid = ctx.req.query('oid'); // Query parameter for order ID
+    const restaurant = ctx.req.query('restaurant') // Query parameter for Restraunt
 
     // Start building the query
     let query = supabase.from('orders').select('*');
 
     // Add filters conditionally
+
+    // Filter by user ID if provided
     if (uid) {
-        query = query.eq('userid', uid); // Filter by user ID if provided
+        query = query.eq('userid', uid);
     }
+
+    // Filter by order ID if provided
     if (oid) {
-        query = query.eq('orderid', oid); // Filter by order ID if provided
+        query = query.eq('orderid', oid); 
+    }
+
+    // Filter by Restraunts if provided
+    if (restaurant) {
+        query = query.eq('restaurant', restaurant); 
     }
 
     // Execute the query
