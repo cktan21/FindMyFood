@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reccomend-food
+  namespace: esd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reccomend-food
+  template:
+    metadata:
+      labels:
+        app: reccomend-food
+    spec:
+      containers:
+      - name: reccomend-food
+        image: your-registry/reccomend-food:latest
+        ports:
+        - containerPort: 8080

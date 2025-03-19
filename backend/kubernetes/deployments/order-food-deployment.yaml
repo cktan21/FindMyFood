@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-food
+  namespace: esd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-food
+  template:
+    metadata:
+      labels:
+        app: order-food
+    spec:
+      containers:
+      - name: order-food
+        image: your-registry/order-food:latest
+        ports:
+        - containerPort: 8090

@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rabbitmq-setup
+  namespace: esd
+spec:
+  template:
+    spec:
+      containers:
+      - name: rabbitmq-setup
+        image: your-registry/rabbitmq-setup:latest
+        # If needed, add command/args here
+      restartPolicy: OnFailure

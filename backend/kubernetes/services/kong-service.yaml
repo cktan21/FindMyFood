@@ -1,41 +1,34 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: kong-service
+  name: kong
+  namespace: esd
 spec:
+  type: NodePort
   selector:
     app: kong
   ports:
-    - name: proxy
-      protocol: TCP
-      port: 8000
-      targetPort: 8000
-    - name: proxy-ssl
-      protocol: TCP
-      port: 8443
-      targetPort: 8443
-    - name: admin
-      protocol: TCP
-      port: 8001
-      targetPort: 8001
-    - name: admin-ssl
-      protocol: TCP
-      port: 8444
-      targetPort: 8444
-    - name: admin-gui
-      protocol: TCP
-      port: 8002
-      targetPort: 8002
-    - name: admin-gui-ssl
-      protocol: TCP
-      port: 8445
-      targetPort: 8445
-    - name: extra1
-      protocol: TCP
-      port: 8003
-      targetPort: 8003
-    - name: extra2
-      protocol: TCP
-      port: 8004
-      targetPort: 8004
-  type: LoadBalancer  # Change to NodePort for local clusters if needed
+  - name: proxy
+    port: 8000
+    targetPort: 8000
+  - name: proxy-ssl
+    port: 8443
+    targetPort: 8443
+  - name: admin
+    port: 8001
+    targetPort: 8001
+  - name: admin-ssl
+    port: 8444
+    targetPort: 8444
+  - name: gui
+    port: 8002
+    targetPort: 8002
+  - name: gui-ssl
+    port: 8445
+    targetPort: 8445
+  - name: extra1
+    port: 8003
+    targetPort: 8003
+  - name: extra2
+    port: 8004
+    targetPort: 8004

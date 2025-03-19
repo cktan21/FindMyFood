@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: complete-order
+  namespace: esd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: complete-order
+  template:
+    metadata:
+      labels:
+        app: complete-order
+    spec:
+      containers:
+      - name: complete-order
+        image: your-registry/complete-order:latest
+        ports:
+        - containerPort: 7070
