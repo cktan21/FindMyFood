@@ -9,7 +9,7 @@ bun --watch index.ts
 
 <h2>Get All Orders</h2>
 
-<b><u>Get Request</u></b>
+<b><u>GET Request</u></b>
 <h4>URL</h4>
 >http://localhost:6369/orders
 
@@ -189,6 +189,53 @@ Search by order id
         "status": "completed"
     }
 ]
+```
+
+<h2>Change Order Status</h2>
+<b><u>PUT Request</u></b>
+>http://localhost:6369/update/orderid
+
+<h4>URL</h4>
+>http://localhost:6369/update/4631fe98-2fa6-4da5-b695-7eeb6328715a
+
+<h4>Payload</h4>
+
+```json
+{
+    "status" : "cancelled"
+}
+```
+
+<h4>Returns</h4>
+
+```json
+{
+    "orderid": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
+    "userid": "Kendrick",
+    "info": {
+        "total": 1620.8,
+        "Bricklane": [
+            {
+                "qty": 2,
+                "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                "price": 13.8
+            },
+            {
+                "qty": 200,
+                "dish": "Bulgogi_Tacos",
+                "price": 1600
+            }
+        ],
+        "Ayam Taliwang": [
+            {
+                "qty": 1,
+                "dish": "Ayam_Penyet",
+                "price": 7
+            }
+        ]
+    },
+    "status": "cancelled"
+}
 ```
 
 <h4>How it Works</h4> 
