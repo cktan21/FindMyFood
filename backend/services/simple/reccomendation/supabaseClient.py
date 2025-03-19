@@ -15,6 +15,6 @@ class SupabaseClient:
         return response
 
     def fetch_recommendation(self, id):
-        response = self.client.table("Recommendations").select("*").eq("id", id).execute()
+        response = self.client.table("Recommendations").select("*").eq("uuid", id).execute()
         data = response.data
         return data[0] if data else None

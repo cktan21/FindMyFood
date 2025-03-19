@@ -28,7 +28,7 @@ def create_recommendation(rec: Recommendation):
     return {"message": "Recommendation stored successfully", "data": rec}
 
 @app.get("/recommendation/{id}")
-def get_recommendation(id: int):
+def get_recommendation(id: str):
     recommendation = supabase.fetch_recommendation(id)
     if not recommendation:
         return {}

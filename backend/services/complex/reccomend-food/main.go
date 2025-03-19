@@ -43,7 +43,7 @@ func main() {
 
 	router.GET("/order/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		apiURL := fmt.Sprintf("http://localhost:6369?uId=%s", id)
+		apiURL := fmt.Sprintf("http://order:6369/orders?uid=%s", id)
 		fmt.Println("Calling Outsystems:", apiURL)
 
 		data, err := fetchAPIData(apiURL)
@@ -103,7 +103,7 @@ func main() {
 			return
 		}
 
-		orderHistoryData, err := fetchAPIData(fmt.Sprintf("http://localhost:6369?uId=%s", id))
+		orderHistoryData, err := fetchAPIData(fmt.Sprintf("http://order:6369/orders?uid=%s", id))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch order history"})
 			return
