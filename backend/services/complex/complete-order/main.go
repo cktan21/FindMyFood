@@ -97,9 +97,10 @@ func main() {
 
 	// takes in a post req of the json where the user has completed his order and
 	// from the frontend and updates the notifcation + queue + outsystems accordingly
-	server.POST("/done/:id", func(ctx *gin.Context) {
+	server.POST("/done/:action/:id", func(ctx *gin.Context) {
 		// The id in the param refers to USER ID etc kendrick/subrah
         id := ctx.Param("id")
+		// action:=ctx.Param("action")
 
 		// Make sure the Request body is Readable
 		body, err := io.ReadAll(ctx.Request.Body)
@@ -163,7 +164,7 @@ func main() {
 				return
 			}
 
-			// deletes entry from queue
+			// add action to deletes entry from queue
             queueDataMap["action"] = "delete"
 
             toQueue, err := json.Marshal(queueDataMap)
@@ -231,6 +232,52 @@ func main() {
 
             fmt.Println("Notification published to RabbitMQ successfully.")
         }(queueData, id)
+		
+        // // Goroutine 4: Update Credits
+        // wg.Add(1)
+        // go func(queueData interface {}) {
+        //     defer wg.Done()
+			
+		// 	// need to assert type
+		// 	queueDataMap, ok := queueData.(map[string]interface{})
+		// 	if !ok {
+		// 		errChan <- fmt.Errorf("invalid type for queueData: expected map[string]interface{}")
+		// 		return
+		// 	}
+
+		// 	// deletes entry from queue
+        //     queueDataMap["action"] = "delete"
+
+        //     toQueue, err := json.Marshal(queueDataMap)
+        //     if err != nil {
+        //         errChan <- fmt.Errorf("failed to marshal queue data: %v", err)
+        //         return
+        //     }
+
+        //     creditURL := os.Getenv("CREDIT_URL")
+        //     if creditURL == "" {
+        //         creditURL = "http://credit:4040/"
+        //     }
+
+        //     fmt.Println("Calling QueueAPI:", creditURL)
+
+		// 	amt, err:=http.Get
+
+        //     resp, err := http.Post(creditURL, "application/json", bytes.NewBuffer(toQueue))
+        //     if err != nil {
+        //         errChan <- fmt.Errorf("failed to send data to QueueAPI: %v", err)
+        //         return
+        //     }
+        //     defer resp.Body.Close()
+
+        //     if resp.StatusCode != http.StatusOK {
+        //         errChan <- fmt.Errorf("QueueAPI returned status: %s", resp.Status)
+        //         return
+        //     }
+
+        //     fmt.Println("Queue data processed successfully.")
+        // }(queueData)
+		
 
         // Wait for all Goroutines to finish
         go func() {
