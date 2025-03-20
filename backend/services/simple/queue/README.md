@@ -105,6 +105,31 @@ Queue Data Succesfully Sent 🚀🚀🚀🚀
 
 <h2>Adding Queue (User bought the food)</h2>
 
+> consider 
+> http://localhost:8008/add
+```json
+{
+    "food" : "Grilled_Teriyaki_Chicken_Donburi",
+    "restaurant" : "Bricklane",
+    "user_id": "Kendrick", // this refer to user id 
+    "order_id" : ""
+}
+```
+
+
+<h2>Delete Queue (User bought the food)</h2>
+
+> consider 
+> http://localhost:8008/delete
+```json
+{
+    "restaurant" : "Bricklane",
+    "id" : 2 
+}
+```
+
+
+
 >http://localhost:8008/dump OR http://127.0.0.1:8008/dump
 >POST Request
 
