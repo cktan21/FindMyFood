@@ -41,9 +41,9 @@ export default function Team() {
       {/* Title */}
       <div className="text-center mb-10 lg:mb-14">
         <h2 className="text-3xl font-bold md:text-4xl md:leading-tight">
-          Meet the crew
+          Who's cooking up this idea?!
         </h2>
-        <p className="mt-1 text-lg text-muted-foreground">The team behind this ESD project</p>
+        <p className="mt-1 text-lg text-muted-foreground">Meet the brains behind the bites</p>
       </div>
       {/* End Title */}
 
