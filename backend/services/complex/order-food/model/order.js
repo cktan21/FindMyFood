@@ -1,11 +1,11 @@
 require('dotenv').config();
 const axios = require("axios");
 
-async function getOrder(RecieptNo) {
+async function getAllOrders() {
 
     try {
 
-        const response = await axios.get(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?RecieptNo=${RecieptNo}`);
+        const response = await axios.get(`http://order:6369/orders`);
 
         return response.data;
         
@@ -16,11 +16,11 @@ async function getOrder(RecieptNo) {
     
 }
 
-async function getOrderHistory(userId) {
+async function getUserOrders(uid) {
 
     try {
 
-        const response = await axios.get(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/orderhistory?userId=${userId}`);
+        const response = await axios.get(`http://order:6369/orders/uid=${uid}`);
 
         return response.data;
         
@@ -31,30 +31,11 @@ async function getOrderHistory(userId) {
     
 }
 
-async function makeOrder(userId, orderDetails) {
-    try {
-        const response = await axios.post(
-            `https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order?userId=${userId}`, 
-            orderDetails,
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        return response.data;
-    } catch (error) {
-        console.error("Error making order:", error.response ? error.response.data : error.message);
-        throw error;
-    }
-}
-
-async function cancelOrder(RecieptNo) {
+async function getOrder(oid) {
 
     try {
 
-        const response = await axios.put(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/cancel?RecieptNo=${RecieptNo}`);
+        const response = await axios.get(`http://order:6369/orders?oid=${oid}`);
 
         return response.data;
         
@@ -65,11 +46,11 @@ async function cancelOrder(RecieptNo) {
     
 }
 
-async function completeOrder(RecieptNo) {
+async function getRestaurantOrders(restaurant) {
 
     try {
 
-        const response = await axios.put(`https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=${RecieptNo}`);
+        const response = await axios.get(`http://order:6369/orders?restaurant=${restaurant}`);
 
         return response.data;
         
@@ -81,11 +62,10 @@ async function completeOrder(RecieptNo) {
 }
 
 module.exports = {
+    getAllOrders,
+    getUserOrders,
     getOrder,
-    getOrderHistory,
-    makeOrder,
-    cancelOrder,
-    completeOrder
+    getRestaurantOrders
 };
 
 
