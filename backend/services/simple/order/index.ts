@@ -11,6 +11,9 @@ if (!supabaseUrl || !supabaseKey) {
     throw new Error("Missing required environment variables: SUPABASE_URL or SUPABASE_KEY");
 }
 
+//Show it is running 
+console.log('index.ts Serving at Port 6369 👀🤔🤧😤🔥☺️🤥💀')
+
 // Initialize the Supabase client
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -28,16 +31,26 @@ app.get("/orders", async (ctx) => {
     // Extract optional query parameters
     const uid = ctx.req.query('uid'); // Query parameter for user ID
     const oid = ctx.req.query('oid'); // Query parameter for order ID
+    const restaurant = ctx.req.query('restaurant') // Query parameter for Restraunt
 
     // Start building the query
     let query = supabase.from('orders').select('*');
 
     // Add filters conditionally
+
+    // Filter by user ID if provided
     if (uid) {
-        query = query.eq('userid', uid); // Filter by user ID if provided
+        query = query.eq('user_id', uid);
     }
+
+    // Filter by order ID if provided
     if (oid) {
-        query = query.eq('orderid', oid); // Filter by order ID if provided
+        query = query.eq('order_id', oid); 
+    }
+
+    // Filter by Restraunts if provided
+    if (restaurant) {
+        query = query.eq('restaurant', restaurant); 
     }
 
     // Execute the query
@@ -71,6 +84,27 @@ app.put("/update/:oid", async (ctx) => {
 
     if (error) {
         return ctx.json({ message: 'Error updating post', error }, 500);
+    }
+
+    return ctx.json(data[0]); // Return the updated post
+})
+
+// Add New Order to it 
+app.post("/add", async (ctx) => {
+    const body = await ctx.req.json();
+
+    if (Object.keys(body).length === 0) {
+        return ctx.json({ message: 'No fields provided for addition' }, 400);
+    }
+
+    // Update only the fields provided in the request body
+    const { data, error } = await supabase
+        .from('orders') // Specify the table name
+        .insert( body ) // insert table 
+        .select();     // Return the new table record
+
+    if (error) {
+        return ctx.json({ message: 'Error adding post', error }, 500);
     }
 
     return ctx.json(data[0]); // Return the updated post
