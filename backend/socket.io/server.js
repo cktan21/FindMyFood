@@ -83,13 +83,13 @@ async function startServer() {
 
         // Receive data of all the queuen
         socket.on("allQueue", (message) => {
-            console.log("📩 addQueue Message received:", message);
+            console.log("📩 aLLQueue Message received:", message);
 
             //Do smth with this data connect to kong or smth
             sendToKong("/queue/all", message); // Forward to Kong
 
             // Send data back to Queue MS to comfirm message added
-            // io.emit("receivedAllQueue", message);
+            io.emit("receivedAllQueue", message);
         })
 
         // Receive data from added Queue
@@ -100,18 +100,18 @@ async function startServer() {
             sendToKong("/queue/add", message); // Forward to Kong
 
             // Send data back to Queue MS to comfirm message added
-            // io.emit("QAdded", message);
+            io.emit("QAdded", message);
         })
 
         // Receive data from what to delete Queue
         socket.on("deleteQueue", (message) => {
-            console.log("📩 Message received:", message);
+            console.log("📩 deleteQueue Message received:", message);
 
             //Do smth with this data connect to kong or smth
             sendToKong("/queue/delete", message); // Forward to Kong
 
             // Send data back to Queue MS to comfirm message added
-            // io.emit("Qdeleted", message);
+            io.emit("Qdeleted", message);
         })
     });
 

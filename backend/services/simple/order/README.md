@@ -24,9 +24,13 @@ bun --watch index.ts
         "order_id": "f2057454-490b-4c72-abc3-85d759a29a68",
         "user_id": "Subrah",
         "info": {
-        "items": [
-            { "qty": 2, "dish": "Grilled_Teriyaki_Chicken_Donburi", "price": 6.9 }
-        ]
+            "items": [
+                { 
+                    "qty": 2, 
+                    "dish": "Grilled_Teriyaki_Chicken_Donburi", 
+                    "price": 6.9 
+                }
+            ]
         },
         "status": "completed",
         "restaurant": "Bricklane",
@@ -53,7 +57,7 @@ bun --watch index.ts
         "user_id": "Ryan",
         "info": { "items": [{ "qty": 200, "dish": "Bulgogi_Tacos", "price": 16 }] },
         "status": "processing",
-        "restaurant": "Bircklane",
+        "restaurant": "Bricklane",
         "total": 16
     },
     {
@@ -103,9 +107,9 @@ Search by order id
         "info": {
         "items": [
             {
-            "qty": 1,
-            "dish": "Ayam_Penyet",
-            "price": 7
+                "qty": 1,
+                "dish": "Ayam_Penyet",
+                "price": 7
             }
         ]
         },
