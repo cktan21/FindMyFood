@@ -5,7 +5,6 @@ const order = require('../model/order');
 router.get('/all', async (req, res) => {
     try {
 
-        res.status(200).json({ 
         const allOrders = await order.getAllOrders()
         res.status(200).json({ 
             message: allOrders
