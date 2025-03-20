@@ -18,12 +18,13 @@ export default function Hero() {
             <div className="max-w-2xl text-center mx-auto">
               <div className="mt-5 max-w-2xl">
                 <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-                  FindMyFood
+                  Finding Food, Figured Out
                 </h1>
               </div>
               <div className="mt-5 max-w-3xl">
                 <p className="text-xl text-muted-foreground">
-                  Over 50+ partner restaurants and food options within walking distance of SMU Campus, over 100+ partner restaurants across all of Singapore
+                  Over 20 partner restaurants within and around SMU's campus. <br />
+                  With more being added everyday, there's always something good to eat.
                 </p>
               </div>
               <div className="mt-8 gap-3 flex justify-center">

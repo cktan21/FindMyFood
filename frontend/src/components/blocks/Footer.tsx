@@ -63,14 +63,14 @@ export const Footer = () => {
                 FindMyFood
               </h2>
               <p className="text-lg max-w-lg leading-relaxed tracking-tight text-background/75 text-left">
-                The all in one solution to your hunger needs
+                Because finding food shouldn't be hard
               </p>
             </div>
             <div className="flex gap-20 flex-row">
               <div className="flex flex-col text-sm max-w-lg leading-relaxed tracking-tight text-background/75 text-left">
-                <p>1 Tailwind Way</p>
-                <p>Menlo Park</p>
-                <p>CA 94025</p>
+                <p>SCIS1 SR 2-4</p>
+                <p>Singapore Management University</p>
+                <p>188065</p>
               </div>
               <div className="flex flex-col text-sm max-w-lg leading-relaxed tracking-tight text-background/75 text-left">
                 <Link to="/">Terms of service</Link>

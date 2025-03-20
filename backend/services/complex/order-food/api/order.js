@@ -2,14 +2,12 @@ const express = require('express');
 const router = express.Router();
 const order = require('../model/order');
 
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
 
-        const { RecieptNo } = req.body;
-
-        const orderitem = await order.getOrder(RecieptNo)
+        const allOrders = await order.getAllOrders()
         res.status(200).json({ 
-            message: orderitem
+            message: allOrders
           });
         
     } catch (error) {
@@ -17,14 +15,14 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/history', async (req, res) => {
+router.get('/user', async (req, res) => {
     try {
 
-        const { userId } = req.body;
+        const { uid } = req.body
 
-        const orderHistory = await order.getOrderHistory(userId)
+        const allOrders = await order.getUserOrders(uid)
         res.status(200).json({ 
-            message: orderHistory
+            message: allOrders
           });
         
     } catch (error) {
@@ -32,14 +30,14 @@ router.get('/history', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.get('/order', async (req, res) => {
     try {
 
-        const { userId, orderDetails } = req.body;
+        const { oid } = req.body
 
-        const orderstatus = await order.makeOrder(userId, orderDetails)
+        const allOrders = await order.getOrder(oid)
         res.status(200).json({ 
-            message: orderstatus
+            message: allOrders
           });
         
     } catch (error) {
@@ -47,29 +45,14 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/cancel', async (req, res) => {
+router.get('/restaurant', async (req, res) => {
     try {
 
-        const { RecieptNo } = req.body;
+        const { restaurant } = req.body
 
-        const response = await order.cancelOrder(RecieptNo)
+        const allOrders = await order.getRestaurantOrders(restaurant)
         res.status(200).json({ 
-            message: response
-          });
-        
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-router.put('/complete', async (req, res) => {
-    try {
-
-        const { RecieptNo } = req.body;
-
-        const response = await order.completeOrder(RecieptNo)
-        res.status(200).json({ 
-            message: response
+            message: allOrders
           });
         
     } catch (error) {
