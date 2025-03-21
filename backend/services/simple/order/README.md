@@ -273,25 +273,18 @@ Search by order id
 <h2>Change Order Status</h2>
 <b><u>PUT Request</u></b>
 
-> http://localhost:6369/update/orderid
+> http://localhost:6369/update/orderid/status
 
 <h4>URL</h4>
 
-> http://localhost:6369/update/4631fe98-2fa6-4da5-b695-7eeb6328715a
+> http://localhost:6369/update/4631fe98-2fa6-4da5-b695-7eeb6328715a/cancelled
 
-<h4>Payload</h4>
-
-```json
-{
-  "status": "cancelled"
-}
-```
 
 <h4>Returns</h4>
 
 ```json
 {
-    "orderid": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
+    "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
     "user_id": "Kendrick",
     "info": {
         "Bricklane": [
