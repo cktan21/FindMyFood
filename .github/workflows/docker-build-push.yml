@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'services/**/Dockerfile'
+      - 'socket.io/Dockerfile'
+      - 'rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push.yml'
 
 jobs:
@@ -28,13 +30,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push images
+      - name: Build and Push Docker Images to GHCR
         run: |
+          REPO_NAME=$(basename "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+
           for dir in ./services/simple/* ./services/complex/* ./socket.io ./rabbitmq; do
             if [ -f "$dir/Dockerfile" ]; then
               service=$(basename "$dir")
-              echo "📦 Building and pushing $service"
-              docker build -t ghcr.io/${{ github.repository_owner }}/$service:latest $dir
-              docker push ghcr.io/${{ github.repository_owner }}/$service:latest
+              image="ghcr.io/${{ github.repository_owner }}/$REPO_NAME-$service:latest"
+              echo "📦 Building $service -> $image"
+              docker build -t "$image" "$dir"
+              echo "🚀 Pushing $image"
+              docker push "$image"
+              echo "✅ Done with $service"
+              echo "---------------------------"
             fi
           done
