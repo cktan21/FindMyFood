@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'services/**/Dockerfile'
-      - 'socket.io/Dockerfile'
-      - 'rabbitmq/Dockerfile'
+      - 'backend/services/**/Dockerfile'
+      - 'backend/socket.io/Dockerfile'
+      - 'backend/rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push.yml'
 
 jobs:
@@ -30,15 +30,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Docker Images to GHCR
+      - name: Build and Push Docker Images
         run: |
-          REPO_NAME=$(basename "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO=$(echo "${{ github.repository }}" | awk -F/ '{print $2}' | tr '[:upper:]' '[:lower:]')
 
-          for dir in ./services/simple/* ./services/complex/* ./socket.io ./rabbitmq; do
+          for dir in backend/services/simple/* backend/services/complex/* backend/socket.io backend/rabbitmq; do
             if [ -f "$dir/Dockerfile" ]; then
               service=$(basename "$dir")
-              image="ghcr.io/${{ github.repository_owner }}/$REPO_NAME-$service:latest"
-              echo "📦 Building $service -> $image"
+              image="ghcr.io/$OWNER/${REPO}-$service:latest"
+              echo "📦 Building $service"
               docker build -t "$image" "$dir"
               echo "🚀 Pushing $image"
               docker push "$image"
