@@ -15,9 +15,9 @@ spec:
     spec:
       containers:
       - name: payment
-        image: your-registry/payment:latest
+        image: ghcr.io/thykp/esd_team8-payment:latest
         ports:
         - containerPort: 5002
         envFrom:
-        - configMapRef:
+        - secretRef:
             name: payment-secret

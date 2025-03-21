@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: reccomend-food
-        image: your-registry/reccomend-food:latest
+        image: ghcr.io/thykp/esd_team8-reccomend-food:latest
         ports:
         - containerPort: 8080

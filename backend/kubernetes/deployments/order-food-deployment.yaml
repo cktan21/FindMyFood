@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: order-food
-        image: your-registry/order-food:latest
+        image: ghcr.io/thykp/esd_team8-order-food:latest
         ports:
         - containerPort: 8090

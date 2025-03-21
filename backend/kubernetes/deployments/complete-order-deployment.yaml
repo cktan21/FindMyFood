@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: complete-order
-        image: your-registry/complete-order:latest
+        image: ghcr.io/thykp/esd_team8-complete-order:latest
         ports:
         - containerPort: 7070

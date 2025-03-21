@@ -15,9 +15,9 @@ spec:
     spec:
       containers:
       - name: reccomendation
-        image: your-registry/reccomendation:latest
+        image: ghcr.io/thykp/esd_team8-reccomendation:latest
         ports:
         - containerPort: 4000
         envFrom:
-        - configMapRef:
+        - secretRef:
             name: reccomendation-secret
