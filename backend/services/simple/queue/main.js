@@ -78,7 +78,7 @@ const channel = supabase
     )
     .subscribe(); // Subscribe to the channel
 
-console.log(`Listening for changes in the all tables...`);
+console.log(`Listening 🦻🏻🦻🏻 for changes in the all tables...`);
 
 
 //Check service is alive 

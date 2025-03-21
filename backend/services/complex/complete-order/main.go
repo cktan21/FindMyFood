@@ -97,11 +97,11 @@ func main() {
 
 	// takes in a post req of the json where the user has completed his order and
 	// from the frontend and updates the notifcation + queue + outsystems accordingly
-	server.POST("/done/:action/:id", func(ctx *gin.Context) {
+	server.POST("/:oid/:action", func(ctx *gin.Context) {
 		// The id in the param refers to USER ID etc kendrick/subrah
-        id := ctx.Param("id")
-		// action:=ctx.Param("action")
-
+        oid := ctx.Param("oid")
+		action:=ctx.Param("action")
+		
 		// Make sure the Request body is Readable
 		body, err := io.ReadAll(ctx.Request.Body)
 		if err != nil {
@@ -110,8 +110,8 @@ func main() {
 		}
 		defer ctx.Request.Body.Close() // Ensure the body is closed after reading
 
-		var queueData map[string]interface{}
-		if err := json.Unmarshal(body, &queueData); err != nil {
+		var payloadData map[string]interface{}
+		if err := json.Unmarshal(body, &payloadData); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON payload"})
 			return
 		}
@@ -122,8 +122,151 @@ func main() {
         // Channel to collect errors from Goroutines
         errChan := make(chan error, 3)
 
-        // // Goroutine 1: Update OutSystems
-        // wg.Add(1)
+        // Goroutine 1: Update Order's Status
+		wg.Add(1)
+        go func(oid string, action string) {
+            defer wg.Done()
+			// Create URL
+            orderURL := os.Getenv("ORDER_URL")
+            if orderURL == "" {
+                orderURL = fmt.Sprintf("http://order:6369/update/%s/%s", oid ,action) 
+            }
+
+            fmt.Println("Calling OrderAPI:", orderURL)
+
+			// Empty string represented as a byte slice
+			emptyBody := []byte("") 
+
+
+			// Create a new PUT request
+			req, err := http.NewRequest("PUT", orderURL, bytes.NewBuffer(emptyBody))
+			if err != nil {
+				errChan <- fmt.Errorf("failed to create PUT request: %v", err)
+				return
+			}
+
+			// Send to Client
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to send data to OrderAPI: %v", err)
+				return
+			}
+			defer resp.Body.Close()
+
+			// Check if Ok
+            if resp.StatusCode != http.StatusOK {
+                errChan <- fmt.Errorf("OrderAPI returned status: %s", resp.Status)
+                return
+            }
+
+            fmt.Println("Order Status Updated successfully.")
+        }(oid, action)
+		
+
+        // Goroutine 2: Delete from Queue
+        wg.Add(1)
+        go func(payloadData interface {}, oid string) {
+            defer wg.Done()
+			
+			// need to assert type
+			queueDataMap, ok := payloadData.(map[string]interface{})
+			if !ok {
+				errChan <- fmt.Errorf("invalid type for payloadData: expected map[string]interface{}")
+				return
+			}
+
+			toQueueMap := map[string]interface{}{
+				"restaurant": queueDataMap["restaurant"],
+				"order_id":  oid,
+			}
+
+
+            toQueue, err := json.Marshal(toQueueMap)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to marshal queue data: %v", err)
+                return
+            }
+
+            queueURL := os.Getenv("QUEUE_URL")
+            if queueURL == "" {
+                queueURL = "http://queue:8008/delete"
+            }
+
+            fmt.Println("Calling QueueAPI:", queueURL)
+            resp, err := http.Post(queueURL, "application/json", bytes.NewBuffer(toQueue))
+            if err != nil {
+                errChan <- fmt.Errorf("failed to send data to QueueAPI: %v", err)
+                return
+            }
+            defer resp.Body.Close()
+
+            if resp.StatusCode != http.StatusOK {
+                errChan <- fmt.Errorf("QueueAPI returned status: %s", resp.Status)
+                return
+            }
+
+            fmt.Println("Queue data processed successfully.")
+        }(payloadData, oid)
+
+        // Goroutine 3: Publish to RabbitMQ
+        wg.Add(1)
+        go func(payloadData interface {}, oid string, action string) {
+
+			MQDataMap, ok := payloadData.(map[string]interface{})
+			if !ok {
+				errChan <- fmt.Errorf("invalid type for payloadData: expected map[string]interface{}")
+				return
+			}
+            defer wg.Done()
+
+            conn, err := connectToRabbitMQ()
+            if err != nil {
+                errChan <- fmt.Errorf("failed to connect to RabbitMQ: %v", err)
+                return
+            }
+            defer conn.Close()
+
+			// Your message formmatting
+			var message string 
+
+			if action == "cancelled" {
+				message = fmt.Sprintf("We regret to inform you that your order %s from %s has been unfortunately been cancelled due to %s. As compensation we have added %f to total credits which you can use on your next purchase! ", oid ,MQDataMap["restaurant"],MQDataMap["message"], MQDataMap["total"])
+			} else if action == "completed" {
+				message = fmt.Sprintf("Your order of %s from %s has been successfully completed and is ready for pickup! %s", oid ,MQDataMap["restaurant"],MQDataMap["message"])
+			}else {
+				message = ""
+			}
+
+			// Throw Error if message is empty (failsafe)
+			if message == "" {
+				errChan <- fmt.Errorf("failed to create to message")
+				return 
+			}
+
+            rabbitMQData := map[string]interface{}{
+                "message": message,
+                "type": "notification",
+				"user_id": MQDataMap["user_id"], //ie Kendrick
+				"order_id" : oid, // ie 18
+            }
+
+            toRabbitMQ, err := json.Marshal(rabbitMQData)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to marshal RabbitMQ data: %v", err)
+                return
+            }
+
+            if err := publishToQueue(conn, "notifications", toRabbitMQ); err != nil {
+                errChan <- fmt.Errorf("failed to publish to RabbitMQ: %v", err)
+                return
+            }
+
+            fmt.Println("Notification published to RabbitMQ successfully.")
+        }(payloadData, oid, action)
+		
+        // // Goroutine 4: Update Credits
+		// wg.Add(1)
         // go func(id string) {
         //     defer wg.Done()
 
@@ -152,132 +295,6 @@ func main() {
         //     fmt.Println("OutSystems updated successfully.")
         // }()
 
-        // Goroutine 2: Process Queue Data
-        wg.Add(1)
-        go func(queueData interface {}) {
-            defer wg.Done()
-			
-			// need to assert type
-			queueDataMap, ok := queueData.(map[string]interface{})
-			if !ok {
-				errChan <- fmt.Errorf("invalid type for queueData: expected map[string]interface{}")
-				return
-			}
-
-			// add action to deletes entry from queue
-            queueDataMap["action"] = "delete"
-
-            toQueue, err := json.Marshal(queueDataMap)
-            if err != nil {
-                errChan <- fmt.Errorf("failed to marshal queue data: %v", err)
-                return
-            }
-
-            queueURL := os.Getenv("QUEUE_URL")
-            if queueURL == "" {
-                queueURL = "http://queue:8008/dump"
-            }
-
-            fmt.Println("Calling QueueAPI:", queueURL)
-            resp, err := http.Post(queueURL, "application/json", bytes.NewBuffer(toQueue))
-            if err != nil {
-                errChan <- fmt.Errorf("failed to send data to QueueAPI: %v", err)
-                return
-            }
-            defer resp.Body.Close()
-
-            if resp.StatusCode != http.StatusOK {
-                errChan <- fmt.Errorf("QueueAPI returned status: %s", resp.Status)
-                return
-            }
-
-            fmt.Println("Queue data processed successfully.")
-        }(queueData)
-
-        // Goroutine 3: Publish to RabbitMQ
-        wg.Add(1)
-        go func(queueData interface {}, id string) {
-
-			queueDataMap, ok := queueData.(map[string]interface{})
-			if !ok {
-				errChan <- fmt.Errorf("invalid type for queueData: expected map[string]interface{}")
-				return
-			}
-            defer wg.Done()
-
-            conn, err := connectToRabbitMQ()
-            if err != nil {
-                errChan <- fmt.Errorf("failed to connect to RabbitMQ: %v", err)
-                return
-            }
-            defer conn.Close()
-
-            rabbitMQData := map[string]interface{}{
-                "message": fmt.Sprintf("Your order of %s from %s has been successfully completed and is ready for pickup!", queueDataMap["food"], queueDataMap["restaurant"]), // the food here will appear as Grilled_Teriyaki_Chicken_Donburi yes i'm too lazy to type assert shoot me 
-                "type": "notification",
-				"user_id": id, //ie Kendrick
-				"order_id" : queueDataMap["id"], // ie 18
-            }
-
-            toRabbitMQ, err := json.Marshal(rabbitMQData)
-            if err != nil {
-                errChan <- fmt.Errorf("failed to marshal RabbitMQ data: %v", err)
-                return
-            }
-
-            if err := publishToQueue(conn, "notifications", toRabbitMQ); err != nil {
-                errChan <- fmt.Errorf("failed to publish to RabbitMQ: %v", err)
-                return
-            }
-
-            fmt.Println("Notification published to RabbitMQ successfully.")
-        }(queueData, id)
-		
-        // // Goroutine 4: Update Credits
-        // wg.Add(1)
-        // go func(queueData interface {}) {
-        //     defer wg.Done()
-			
-		// 	// need to assert type
-		// 	queueDataMap, ok := queueData.(map[string]interface{})
-		// 	if !ok {
-		// 		errChan <- fmt.Errorf("invalid type for queueData: expected map[string]interface{}")
-		// 		return
-		// 	}
-
-		// 	// deletes entry from queue
-        //     queueDataMap["action"] = "delete"
-
-        //     toQueue, err := json.Marshal(queueDataMap)
-        //     if err != nil {
-        //         errChan <- fmt.Errorf("failed to marshal queue data: %v", err)
-        //         return
-        //     }
-
-        //     creditURL := os.Getenv("CREDIT_URL")
-        //     if creditURL == "" {
-        //         creditURL = "http://credit:4040/"
-        //     }
-
-        //     fmt.Println("Calling QueueAPI:", creditURL)
-
-		// 	amt, err:=http.Get
-
-        //     resp, err := http.Post(creditURL, "application/json", bytes.NewBuffer(toQueue))
-        //     if err != nil {
-        //         errChan <- fmt.Errorf("failed to send data to QueueAPI: %v", err)
-        //         return
-        //     }
-        //     defer resp.Body.Close()
-
-        //     if resp.StatusCode != http.StatusOK {
-        //         errChan <- fmt.Errorf("QueueAPI returned status: %s", resp.Status)
-        //         return
-        //     }
-
-        //     fmt.Println("Queue data processed successfully.")
-        // }(queueData)
-		
 
         // Wait for all Goroutines to finish
         go func() {

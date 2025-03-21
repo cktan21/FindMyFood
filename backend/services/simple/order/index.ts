@@ -67,19 +67,20 @@ app.get("/orders", async (ctx) => {
 
 
 // Update order status to whatever you want
-app.put("/update/:oid", async (ctx) => {
+app.put("/update/:oid/:status", async (ctx) => {
     const oid = ctx.req.param('oid')
-    const body = await ctx.req.json();
+    const status = ctx.req.param('status')
+    // const body = await ctx.req.json();
 
-    if (Object.keys(body).length === 0) {
-        return ctx.json({ message: 'No fields provided for update' }, 400);
-    }
+    // if (Object.keys(body).length === 0) {
+    //     return ctx.json({ message: 'No fields provided for update' }, 400);
+    // }
 
     // Update only the fields provided in the request body
     const { data, error } = await supabase
         .from('orders') // Specify the table name
-        .update(body)  // Update the record with the provided fields
-        .eq('orderid', oid)  // Match the record by ID
+        .update({"status" : status})  // Update the status
+        .eq('order_id', oid)  // Match the record by ID
         .select();     // Return the updated record
 
     if (error) {
