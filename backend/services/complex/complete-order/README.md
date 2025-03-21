@@ -16,17 +16,19 @@ go run main.go
 
 <h4>URL</h4>
 
->http://127.0.0.1:7070/bulk/cancel/Kendrick #Store Cancel Order 
->http://127.0.0.1:7070/single/complete/Kendrick #Store Complete Order
+>http://127.0.0.1:7070/cancel/Kendrick #Store Cancel Order 
+>http://127.0.0.1:7070/complete/Kendrick #Store Complete Order
 
 <h4>Expected Payload</h4>
 
+//Gawd damn i really streamlined it a lot LOL
+//Rem Draw out the diagram tomrrow LMAO
 ```json
 {
-    "food" : "Grilled_Teriyaki_Chicken_Donburi",
-    "restaurant" : "Bricklane",
-    "id": "18", //this refers to queue id btw pls don't confuse
-    "price": 6.9
+    "order_id" : "909fff87-e51c-4ecf-aa18-0dba89e0c54f",
+    "restaurant" : "Nasi_Lemak_Ayam_Taliwang",
+    "status": "cancelled",
+    "total" : 7
 }
 ```
 

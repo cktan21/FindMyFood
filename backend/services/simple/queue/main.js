@@ -43,17 +43,42 @@ async function qstatus() {
             holder[key] = tableData;
         }
 
-        socket.emit("allQueue", {data: holder, type: 'queue'});
+        socket.emit("allQueue", { data: holder, type: 'queue' });
         // Make sure the data has been successfully sent
         console.log('Queue Data Succesfully Sent 🚀🚀🚀🚀')
 
         return holder
-    } catch (error) {
+    } 
+    catch (error) {
         // Return error response
         console.error("Request failed:", error);
         // return c.json({ error: error.message }, 500);
     }
 }
+
+//Listen for changes in any table
+const channel = supabase
+    .channel('table-changes') // Create a channel for listening
+    .on(
+        'postgres_changes', // Listen for PostgreSQL changes
+        { event: '*', schema: 'public', table: '*' }, // Specify the table to monitor
+        (payload) => {
+            console.log('Change detected in a table:');
+            // Print a custom message based on the event type
+            if (payload.eventType === 'INSERT') {
+              console.log(`A new record was inserted into the "${payload.table}" table.`);
+            } else if (payload.eventType === 'UPDATE') {
+              console.log(`A record was updated in the "${payload.table}" table.`);
+            } else if (payload.eventType === 'DELETE') {
+              console.log(`A record was deleted from the "${payload.table}" table.`);
+            }
+            // sends entire queue to frontend
+            qstatus()
+        }
+    )
+    .subscribe(); // Subscribe to the channel
+
+console.log(`Listening for changes in the all tables...`);
 
 
 //Check service is alive 
@@ -69,8 +94,9 @@ app.get("/qStatus", async (c) => {
         let allq = await qstatus()
 
         // Return success response
-        return c.json({data: allq, type: "queue"}, 200);
-    } catch (error) {
+        return c.json({ data: allq, type: "queue" }, 200);
+    } 
+    catch (error) {
         // Return error response
         console.error("Request failed:", error);
         return c.json({ error: error.message }, 500);
@@ -78,72 +104,65 @@ app.get("/qStatus", async (c) => {
 });
 
 
-app.post("/dump", async (c) => {
-    const { food, restaurant, id, action } = await c.req.json();
-    // if data is recceived from the 
-    if (action == "add") {
+app.post("/delete", async (c) => {
+    const { restaurant, order_id } = await c.req.json();
+    const { data: deletedData, error } = await supabase
+        .from(restaurant.toLowerCase())
+        .delete()
+        .eq("order_id", order_id)
+        .select();
 
-        // Insert data into Supabase
-        const { data: insertedData, error } = await supabase
-            .from(restaurant.toLowerCase())
-            .insert([
-                {
-                    food: food,
-                    user_id: id,
-                },
-            ])
-            .select();
-
-        if (error) {
-            return c.json({ error: error.message }, 500);
-        }
-
-        // Notifies Socket.IO clients
-        socket.emit("addQueue", { restaurant, data: insertedData, type: 'queue'});
-
-        // Displays in console
-        console.log(`Added (➕) Queue to ${restaurant}`)
-
-        // Comfirms that the queue has been added => order comfirmation basically
-        // Displayed on Webpage
-        return c.json({ message: `Added (➕) Queue to ${restaurant}`, data: insertedData });
+    if (error) {
+        return c.json({ error: error.message }, 500);
     }
 
-    console.log(action)
-    // if data is received from the client => order is doner => gotta delete the order from db
-    if (action == "delete") {
-        // Delete data from Supabase
-        const { data: deletedData, error } = await supabase
-            .from(restaurant.toLowerCase())
-            .delete()
-            .eq("id", id)
-            .select();
+    // Notify Socket.IO clients
+    socket.emit("deleteQueue", { restaurant, data: deletedData, type: 'queue' });
 
-        if (error) {
-            return c.json({ error: error.message }, 500);
-        }
+    //Displays in console
+    console.log(`Deleted (➖) Queue from ${restaurant}`)
 
-        // Notify Socket.IO clients
-        socket.emit("deleteQueue", { restaurant, data: deletedData, type: 'queue'});
+    // return to sender
+    return c.json({ message: `Deleted (➖) Queue from ${restaurant}`, data: deletedData });
 
-        //Displays in console
-        console.log(`Deleted (➖) Queue from ${restaurant}`)
+})
 
-        // Display on the webpage
-        return c.json({ message: `Deleted (➖) Queue from ${restaurant}` , data: deletedData });
+app.post("/add", async (c) => {
+    const {restaurant, user_id, order_id } = await c.req.json();
+
+    // Insert data into Supabase
+    const { data: insertedData, error } = await supabase
+        .from(restaurant.toLowerCase())
+        .insert([
+            {
+                order_id: order_id,
+                user_id: user_id,
+            },
+        ])
+        .select();
+
+    if (error) {
+        return c.json({ error: error.message }, 500);
     }
 
-    // Send all queue
-    qstatus()
+    // Notifies Socket.IO clients
+    socket.emit("addQueue", { restaurant, data: insertedData, type: 'queue' });
 
-    return c.json({ error: "Invalid action" }, 400);
-});
+    // Displays in console
+    console.log(`Added (➕) Queue to ${restaurant}`)
 
-//Send data of all queue every 20000ms or 0.33 of a min
-// just like with jn you gotta put async otherwise it won't wait for the function LOL
-setInterval(async () => {
-    qstatus()
-}, 20000);
+    // Comfirms that the queue has been added => order comfirmation basically
+    // Displayed on Webpage
+    return c.json({ message: `Added (➕) Queue to ${restaurant}`, data: insertedData });
+
+})
+
+
+// //Send data of all queue every 20000ms or 0.33 of a min
+// // just like with jn you gotta put async otherwise it won't wait for the function LOL
+// setInterval(async () => {
+//     qstatus()
+// }, 20000);
 
 // receive comfirmation from socket.io that add order has received
 socket.on("receivedAllQueue", (a) => {
