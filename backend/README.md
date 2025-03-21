@@ -24,4 +24,6 @@ kubectl apply -f kubernetes/deployments/ -n esd
 
 # 6. Jobs (like rabbitmq setup)
 kubectl apply -f kubernetes/jobs/ -n esd
+
+kubectl get svc -n esd
 ```
