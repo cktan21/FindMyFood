@@ -10,7 +10,6 @@ import (
 	"sync"
 	// "time"
 	"os"
-	"math"
 
 	"github.com/gin-gonic/gin"
 	"github.com/streadway/amqp" // RabbitMQ client library
