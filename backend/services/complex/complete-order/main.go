@@ -10,6 +10,7 @@ import (
 	"sync"
 	// "time"
 	"os"
+	"math"
 
 	"github.com/gin-gonic/gin"
 	"github.com/streadway/amqp" // RabbitMQ client library
@@ -231,10 +232,10 @@ func main() {
 			var message string 
 
 			if action == "cancelled" {
-				message = fmt.Sprintf("We regret to inform you that your order %s from %s has been unfortunately been cancelled due to %s. As compensation we have added %f to total credits which you can use on your next purchase! ", oid ,MQDataMap["restaurant"],MQDataMap["message"], MQDataMap["total"])
+				message = fmt.Sprintf("We regret to inform you that your order %s from %s has been unfortunately been cancelled due to %s. As compensation we have added %s to total credits which you can use on your next purchase! ", oid ,MQDataMap["restaurant"],MQDataMap["message"], MQDataMap["total"]) // probably works otherwise change thge %s to %f
 			} else if action == "completed" {
 				message = fmt.Sprintf("Your order of %s from %s has been successfully completed and is ready for pickup! %s", oid ,MQDataMap["restaurant"],MQDataMap["message"])
-			}else {
+			} else {
 				message = ""
 			}
 
