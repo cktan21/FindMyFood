@@ -5,7 +5,7 @@ from flask_cors import CORS
 # Initialize Firestore using credentials
 db = firestore.Client.from_service_account_json("firebase_credentials.json")
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app)
 
 # check if alive
 @app.route('/', methods=['GET'])
