@@ -1,6 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { useRestaurants } from "@/context/RestaurantsContext";
 import { supabase } from "@/supabaseClient";
 import {
   ArrowDown,
@@ -39,7 +38,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function BusinessHomePage() {
-    const { isLoggedIn, loading } = useAuth();
+    const { isLoggedIn } = useAuth();
 
     if (!isLoggedIn) {
         return <Navigate to="/login" />;
