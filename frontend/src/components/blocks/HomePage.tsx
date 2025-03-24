@@ -190,40 +190,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        <section className="w-full py-8 md:py-12">
-          <div className="container px-4 md:px-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold tracking-tight">Food Categories</h2>
-              <Link
-                to="#"
-                className="flex items-center text-sm font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 hover:underline"
-              >
-                View All
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-              {[
-                { name: "Pizza", icon: "🍕" },
-                { name: "Burgers", icon: "🍔" },
-                { name: "Sushi", icon: "🍣" },
-                { name: "Pasta", icon: "🍝" },
-                { name: "Desserts", icon: "🍰" },
-                { name: "Healthy", icon: "🥗" },
-              ].map((category) => (
-                <Link
-                  key={category.name}
-                  to="#"
-                  className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-colors hover:bg-muted/50"
-                >
-                  <span className="text-3xl">{category.icon}</span>
-                  <span className="mt-2 font-medium">{category.name}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
         <section className="w-full py-8 md:py-12 bg-gradient-to-b from-white to-blue-50/30">
           <div className="container px-4 md:px-6">
             <div className="mb-8">
