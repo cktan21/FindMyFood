@@ -1,105 +1,97 @@
-import { useState, useRef, useEffect } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { useRestaurants } from "@/context/RestaurantsContext";
-import { supabase } from "@/supabaseClient";
-import {
-  Search,
-  ShoppingBag,
-  User,
-  ChevronRight,
-  Star,
-  Clock,
-  MapPin,
-} from "lucide-react";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
+import { useState, useRef, useEffect } from "react"
+import { Link, Navigate, useNavigate } from "react-router-dom"
+import { useAuth } from "@/context/AuthContext"
+import { useRestaurants } from "@/context/RestaurantsContext"
+import { supabase } from "@/supabaseClient"
+import { Search, ShoppingBag, User, ChevronRight, Star, Clock, MapPin } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import LoadingScreen from "@/components/blocks/LoadingScreen.tsx"
 
 export default function HomePage() {
-  const { isLoggedIn, loading } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants();
-  const [displayCount, setDisplayCount] = useState(8);
-  const navigate = useNavigate();
+  const { isLoggedIn, loading } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants()
+  const [displayCount, setDisplayCount] = useState(8)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (!isLoggedIn || loading) return;
+    if (!isLoggedIn || loading) return
 
     const checkAndInsertProfile = async () => {
-      const { data: userData, error: authError } = await supabase.auth.getUser();
+      const { data: userData, error: authError } = await supabase.auth.getUser()
       if (authError) {
-        console.error("Error fetching user:", authError);
-        return;
+        console.error("Error fetching user:", authError)
+        return
       }
-      const user = userData?.user;
+      const user = userData?.user
       if (!user) {
-        console.log("No user is logged in.");
-        return;
+        console.log("No user is logged in.")
+        return
       }
       const { data: profileData, error: profileError } = await supabase
         .from("User")
         .select("*")
         .eq("id", user.id)
-        .maybeSingle();
+        .maybeSingle()
       if (profileError) {
-        console.error("Error fetching profile:", profileError);
-        return;
+        console.error("Error fetching profile:", profileError)
+        return
       }
       if (!profileData) {
         const { error: insertError } = await supabase.from("User").insert({
           id: user.id,
           email: user.email,
           name: user.user_metadata?.name,
-          role: user.user_metadata?.role
-        });
+          role: user.user_metadata?.role,
+        })
         if (insertError) {
-          console.error("Error inserting profile:", insertError);
+          console.error("Error inserting profile:", insertError)
         } else {
-          console.log("Profile created successfully");
+          console.log("Profile created successfully")
         }
       } else {
-        console.log("Profile already exists:", profileData);
+        console.log("Profile already exists:", profileData)
       }
 
       if (user.user_metadata?.role === "Business") {
-        navigate("/business-home");
+        navigate("/business-home")
       }
-
-    };
-    checkAndInsertProfile();
-  }, [isLoggedIn, loading]);
+    }
+    checkAndInsertProfile()
+  }, [isLoggedIn, loading])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
+        setMenuOpen(false)
       }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   if (!isLoggedIn) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" />
   }
 
   const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
+    setMenuOpen((prev) => !prev)
+  }
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
+    await supabase.auth.signOut()
+  }
 
   const handleLoadMore = () => {
-    setDisplayCount((prev) => prev + 8);
-  };
+    setDisplayCount((prev) => prev + 8)
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -198,121 +190,106 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        <section className="w-full py-8 md:py-12 bg-gradient-to-b from-white to-blue-50/30">
+          <div className="container px-4 md:px-6">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+                Restaurants Near You
+              </h2>
+              <p className="text-muted-foreground mt-2">Discover the best food options around your campus</p>
+            </div>
 
-        <section className="w-full py-8 md:py-12">
-          <div className="container px-4 md:px-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold tracking-tight">Food Categories</h2>
-              <Link
-                to="#"
-                className="flex items-center text-sm font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 hover:underline"
-              >
-                View All
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-              {[
-                { name: "Pizza", icon: "🍕" },
-                { name: "Burgers", icon: "🍔" },
-                { name: "Sushi", icon: "🍣" },
-                { name: "Pasta", icon: "🍝" },
-                { name: "Desserts", icon: "🍰" },
-                { name: "Healthy", icon: "🥗" },
-              ].map((category) => (
-                <Link
-                  key={category.name}
-                  to="#"
-                  className="flex flex-col items-center justify-center rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-colors hover:bg-muted/50"
-                >
-                  <span className="text-3xl">{category.icon}</span>
-                  <span className="mt-2 font-medium">{category.name}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-        <section className="w-full py-8 md:py-12">
-          <div className="container px-4 md:px-6">
-            <Tabs defaultValue="featured" className="w-full">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold tracking-tight">Restaurants Near You</h2>
-                <TabsList>
-                  <TabsTrigger value="featured">Featured</TabsTrigger>
-                  <TabsTrigger value="popular">Popular</TabsTrigger>
-                  <TabsTrigger value="new">New</TabsTrigger>
-                </TabsList>
-              </div>
-              <TabsContent value="featured" className="mt-6 space-y-8">
-                {restaurantsLoading ? (
-                  <LoadingScreen />
-                ) : (
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {featuredRestaurants.slice(0, displayCount).map((restaurant) => (
-                      <Card key={restaurant.id} className="overflow-hidden">
+            {restaurantsLoading ? (
+              <LoadingScreen />
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {featuredRestaurants.slice(0, displayCount).map((restaurant) => {
+                  console.log("Restaurant data:", restaurant)
+                  return (
+                    <Link to={`/shop/?shop=${encodeURIComponent(restaurant.id || "restaurant")}`} key={restaurant.id}>
+                      <Card className="overflow-hidden h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 group">
                         <div className="relative">
                           <img
                             src={restaurant.logo_url?.[0] || "/placeholder.svg"}
                             alt={restaurant.name}
                             width="300"
                             height="200"
-                            className="aspect-video w-full object-cover"
+                            className="aspect-video w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                           <div className="absolute right-2 top-2">
-                            <Badge className="bg-white text-black hover:bg-white/90">
-                              <Star className="mr-1 h-3 w-3 fill-purple-500 text-purple-500" />
+                            <Badge className="bg-white text-black hover:bg-white/90 shadow-sm">
+                              <Star className="mr-1 h-3 w-3 fill-yellow-400 text-yellow-400" />
                               {restaurant.rating || "N/A"}
                             </Badge>
                           </div>
+                          {restaurant.isNew && (
+                            <div className="absolute left-2 top-2">
+                              <Badge className="bg-blue-600 text-white hover:bg-blue-700">New</Badge>
+                            </div>
+                          )}
                         </div>
-                        <CardContent className="p-4">
-                          <div className="space-y-2">
-                            <h3 className="font-bold">{restaurant.name}</h3>
+                        <CardContent className="p-4 flex flex-col h-full">
+                          <div className="space-y-2 flex-1">
+                            <h3 className="font-bold text-lg group-hover:text-blue-600 transition-colors">
+                              {restaurant.name}
+                            </h3>
                             <div className="flex flex-wrap gap-1">
-                              {(restaurant.tags || []).map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-xs">
+                              {(restaurant.tags || []).slice(0, 3).map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant="secondary"
+                                  className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                >
                                   {tag}
                                 </Badge>
                               ))}
+                              {(restaurant.tags || []).length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{(restaurant.tags || []).length - 3} more
+                                </Badge>
+                              )}
                             </div>
-                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
                               <div className="flex items-center">
-                                <Clock className="mr-1 h-3 w-3" />
-                                {restaurant.deliveryTime || "N/A"}
+                                <Clock className="mr-1 h-3 w-3 text-blue-500" />
+                                <span>{restaurant.deliveryTime || "20-30 min"}</span>
                               </div>
                               <div className="flex items-center">
-                                <MapPin className="mr-1 h-3 w-3" />
-                                {restaurant.distance || "1.2 km"}
+                                <MapPin className="mr-1 h-3 w-3 text-purple-500" />
+                                <span>{restaurant.distance || "1.2 km"}</span>
                               </div>
-                              <div>{restaurant.deliveryFee || "$0.00"}</div>
                             </div>
+                          </div>
+                          <div className="mt-4 pt-4 border-t flex items-center justify-between">
+                            <div className="text-sm font-medium">{restaurant.deliveryFee || "Free Delivery"}</div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="rounded-full h-8 px-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            >
+                              Order Now
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                )}
-                {/* Show Load More button only if there are more restaurants to load */}
-                {displayCount < featuredRestaurants.length && (
-                  <div className="flex justify-center">
-                    <Button variant="outline" className="gap-1" onClick={handleLoadMore}>
-                      Load More
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-              <TabsContent value="popular" className="mt-6">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {/* Populate popular restaurants similarly */}
-                </div>
-              </TabsContent>
-              <TabsContent value="new" className="mt-6">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {/* Populate new restaurants similarly */}
-                </div>
-              </TabsContent>
-            </Tabs>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Show Load More button only if there are more restaurants to load */}
+            {displayCount < featuredRestaurants.length && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={handleLoadMore}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                >
+                  Load More Restaurants
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
           </div>
         </section>
         <section className="w-full bg-muted/50 py-8 md:py-12">
@@ -351,11 +328,7 @@ export default function HomePage() {
                     </Button>
                   </div>
                   <div className="absolute right-0 top-0 h-full w-1/3 opacity-20">
-                    <img
-                      src={offer.image || "/placeholder.svg"}
-                      alt=""
-                      className="object-cover w-full h-full"
-                    />
+                    <img src={offer.image || "/placeholder.svg"} alt="" className="object-cover w-full h-full" />
                   </div>
                 </div>
               ))}
@@ -534,5 +507,6 @@ export default function HomePage() {
         {/* Footer code remains unchanged */}
       </footer>
     </div>
-  );
+  )
 }
+
