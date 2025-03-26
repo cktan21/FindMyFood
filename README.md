@@ -1,9 +1,14 @@
 # ESD_Team8
 
+## FindMyFood
+<img width="1710" alt="Screenshot 2025-03-24 at 3 03 06 PM" src="https://github.com/user-attachments/assets/db93c561-8024-4827-abeb-1718294aa09e" />
+
 ## Prerequisite
 IDE (Any) <br>
 Node Package Manager (npm) <br>
 Github Desktop (If you prefer else CLI) <br>
+Terraform <br>
+Kubectl <br>
 Docker <br>
 
 ## Instructions
