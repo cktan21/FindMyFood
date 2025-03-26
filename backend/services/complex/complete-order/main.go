@@ -268,18 +268,19 @@ func main() {
         // Goroutine 4: Update Credits (Oustsystems)
 		wg.Add(1)
         go func(payloadData interface {}, action string) {
+			defer wg.Done()
 
-			// only works if it's cancelled not completed
-			if action == "completed" {
-				return 
+			// Only proceed if the action is cancelled
+			if action != "cancelled" {
+				fmt.Println("Goroutine 4: Action is %s. Exiting early.", action)
+				return
 			}
-
+			
             OutsysDataMap, ok := payloadData.(map[string]interface{})
 			if !ok {
 				errChan <- fmt.Errorf("invalid type for payloadData: expected map[string]interface{}")
 				return
 			}
-            defer wg.Done()
 
 			// fmt.Println(OutsysDataMap["user_id"])
 			// fmt.Println(OutsysDataMap["total"])
