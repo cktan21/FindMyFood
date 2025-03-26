@@ -1,28 +1,3 @@
-## Instructions
-```bash
-npm i
-npm run start
-```
-
-### GET Credit
-Place uuid in body:
-```bash
-{
-    "uuid": "123"
-}
-```
-
-
-### POST Credit (Create and Update)
-Place uuid and creditAmount in body:
-```bash
-{
-    "uuid": "123"
-    creditAmount: 10.99
-}
-```
-
-New README:
 <h1>How to use</h1>
 
 <h2>To get credits of a user</h2>

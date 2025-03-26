@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"log"
 	"sync"
-	// "time"
+	"time"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -89,7 +89,7 @@ func main() {
 
     server.GET("/", func(ctx *gin.Context) { // ctx here is your context 
 		// this is what shows on webpages
-        ctx.JSON(200, gin.H{ // gin.H is the respionse body
+        ctx.JSON(200, gin.H{ // gin.H is the response body
             "message": "Hello! Complete-Order is running! 🚀",
         })
     })
@@ -120,7 +120,7 @@ func main() {
         var wg sync.WaitGroup
 
         // Channel to collect errors from Goroutines
-        errChan := make(chan error, 3)
+        errChan := make(chan error, 4)
 
         // Goroutine 1: Update Order's Status
 		wg.Add(1)
@@ -265,35 +265,40 @@ func main() {
             fmt.Println("Notification published to RabbitMQ successfully.")
         }(payloadData, oid, action)
 		
-        // // Goroutine 4: Update Credits
-		// wg.Add(1)
-        // go func(id string) {
-        //     defer wg.Done()
+        // Goroutine 4: Update Credits (Oustsystems)
+		wg.Add(1)
+        go func(payloadData interface {}) {
+            OutsysDataMap, ok := payloadData.(map[string]interface{})
+			if !ok {
+				errChan <- fmt.Errorf("invalid type for payloadData: expected map[string]interface{}")
+				return
+			}
+            defer wg.Done()
 
-        //     outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=%s", id)
-        //     fmt.Println("Calling Outsystems:", outsysURL)
+            outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/CreditMicroservice/rest/RESTAPI1/credit?userid=%s&credit=%s",OutsysDataMap["user_id"],OutsysDataMap["total"])
+            fmt.Println("Calling Outsystems:", outsysURL)
 
-        //     req, err := http.NewRequest("PUT", outsysURL, nil)
-        //     if err != nil {
-        //         errChan <- fmt.Errorf("failed to create PUT request: %v", err)
-        //         return
-        //     }
+            req, err := http.NewRequest("POST", outsysURL, nil)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to create POST request: %v", err)
+                return
+            }
 
-        //     client := &http.Client{Timeout: 10 * time.Second}
-        //     resp, err := client.Do(req)
-        //     if err != nil {
-        //         errChan <- fmt.Errorf("failed to send PUT request: %v", err)
-        //         return
-        //     }
-        //     defer resp.Body.Close()
+            client := &http.Client{Timeout: 10 * time.Second}
+            resp, err := client.Do(req)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to send POST request: %v", err)
+                return
+            }
+            defer resp.Body.Close()
 
-        //     if resp.StatusCode != http.StatusOK {
-        //         errChan <- fmt.Errorf("OutSystems returned status: %s", resp.Status)
-        //         return
-        //     }
+            if resp.StatusCode != http.StatusOK {
+                errChan <- fmt.Errorf("OutSystems returned status: %s", resp.Status)
+                return
+            }
 
-        //     fmt.Println("OutSystems updated successfully.")
-        // }()
+            fmt.Println("OutSystems updated successfully.")
+        }(payloadData)
 
 
         // Wait for all Goroutines to finish
