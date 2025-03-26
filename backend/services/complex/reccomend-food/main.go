@@ -10,7 +10,7 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-func fetchAPIData(apiURL string) (interface{}, error) {
+func fetchAPIData(apiURL string) ([]byte, error) {
     resp, err := http.Get(apiURL)
     if err != nil {
         return nil, err
@@ -22,13 +22,24 @@ func fetchAPIData(apiURL string) (interface{}, error) {
         return nil, readErr
     }
 
-    var responseData interface{}
-    jsonErr := json.Unmarshal(body, &responseData)
-    if jsonErr != nil {
-        return nil, jsonErr
+    return body, nil
+}
+
+func parseDynamicData(Data []byte) (interface{}, error) {
+    // Try parsing as a map
+    var asMap map[string]interface{}
+    if err := json.Unmarshal(Data, &asMap); err == nil {
+        return asMap, nil
     }
 
-    return responseData, nil
+    // Try parsing as an array
+    var asArray []interface{}
+    if err := json.Unmarshal(Data, &asArray); err == nil {
+        return asArray, nil
+    }
+
+    // If neither works, return an error
+    return nil, fmt.Errorf("failed to parse JSON: unknown structure")
 }
 
 func main() {
@@ -102,27 +113,31 @@ func main() {
             return
         }
 
-        // Create channels to receive results from Goroutines
-        orderHistoryChan := make(chan map[string]interface{})
-        menuChan := make(chan map[string]interface{})
-        recommendationChan := make(chan map[string]interface{})
+		// NO TYPE ASSERTION 
+		// Create channels to receive results from Goroutines
+		orderHistoryChan := make(chan interface{})
+		menuChan := make(chan interface{})
+		recommendationChan := make(chan interface{})
         errorChan := make(chan error, 3) // Buffered channel to collect errors
 
         // Fetch order history in a Goroutine
-        go func() {
+        go func(id string) {
             data, err := fetchAPIData(fmt.Sprintf("http://order:6369/orders?uid=%s", id))
             if err != nil {
                 errorChan <- err
                 return
             }
 
-            // Perform type assertion before sending to the channel
-            if parsedData, ok := data.(map[string]interface{}); ok {
-                orderHistoryChan <- parsedData
-            } else {
-                errorChan <- fmt.Errorf("unexpected JSON structure for order history: expected map[string]interface{}")
-            }
-        }()
+			// Parse the JSON dynamically
+			parsedData, parseErr := parseDynamicData(data)
+			if parseErr != nil {
+				errorChan <- fmt.Errorf("failed to parse order history data: %w", parseErr)
+				return
+			}
+		
+			orderHistoryChan <- parsedData
+
+        }(id)
 
         // Fetch menu data in a Goroutine
         go func() {
@@ -132,32 +147,36 @@ func main() {
                 return
             }
 
-            // Perform type assertion before sending to the channel
-            if parsedData, ok := data.(map[string]interface{}); ok {
-                menuChan <- parsedData
-            } else {
-                errorChan <- fmt.Errorf("unexpected JSON structure for menu: expected map[string]interface{}")
-            }
+			// Parse the JSON dynamically
+			parsedData, parseErr := parseDynamicData(data)
+			if parseErr != nil {
+				errorChan <- fmt.Errorf("failed to parse order history data: %w", parseErr)
+				return
+			}
+
+			menuChan <- parsedData
         }()
 
         // Fetch recommendation data in a Goroutine
-        go func() {
+        go func(id string) {
             data, err := fetchAPIData(fmt.Sprintf("http://reccomendation:4000/recommendation/%s", id))
             if err != nil {
                 errorChan <- err
                 return
             }
 
-            // Perform type assertion before sending to the channel
-            if parsedData, ok := data.(map[string]interface{}); ok {
-                recommendationChan <- parsedData
-            } else {
-                errorChan <- fmt.Errorf("unexpected JSON structure for recommendation: expected map[string]interface{}")
-            }
-        }()
+			// Parse the JSON dynamically
+			parsedData, parseErr := parseDynamicData(data)
+			if parseErr != nil {
+				errorChan <- fmt.Errorf("failed to parse order history data: %w", parseErr)
+				return
+			}
+
+			recommendationChan <- parsedData
+        }(id)
 
         // Collect results or handle errors
-        var orderHistoryData, menuData, recommendationData map[string]interface{}
+        var orderHistoryData, menuData, recommendationData interface{}
         for i := 0; i < 3; i++ {
 			// select here "listens" ie checks for each of the cases => if any of them return true it runs (like mutiple if statements)
             select {

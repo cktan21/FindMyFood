@@ -267,7 +267,13 @@ func main() {
 		
         // Goroutine 4: Update Credits (Oustsystems)
 		wg.Add(1)
-        go func(payloadData interface {}) {
+        go func(payloadData interface {}, action string) {
+
+			// only works if it's cancelled not completed
+			if action == "completed" {
+				return 
+			}
+
             OutsysDataMap, ok := payloadData.(map[string]interface{})
 			if !ok {
 				errChan <- fmt.Errorf("invalid type for payloadData: expected map[string]interface{}")
@@ -275,8 +281,13 @@ func main() {
 			}
             defer wg.Done()
 
-            outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/CreditMicroservice/rest/RESTAPI1/credit?userid=%s&credit=%s",OutsysDataMap["user_id"],OutsysDataMap["total"])
+			// fmt.Println(OutsysDataMap["user_id"])
+			// fmt.Println(OutsysDataMap["total"])
+
+            outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/CreditMicroservice/rest/RESTAPI1/credit?userid=%s&credit=%f", OutsysDataMap["user_id"],OutsysDataMap["total"])
             fmt.Println("Calling Outsystems:", outsysURL)
+
+			// fmt.Println(outsysURL)
 
             req, err := http.NewRequest("POST", outsysURL, nil)
             if err != nil {
@@ -298,7 +309,7 @@ func main() {
             }
 
             fmt.Println("OutSystems updated successfully.")
-        }(payloadData)
+        }(payloadData, action)
 
 
         // Wait for all Goroutines to finish
