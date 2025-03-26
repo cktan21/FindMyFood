@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"log"
 	"sync"
-	// "time"
+	"time"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -89,7 +89,7 @@ func main() {
 
     server.GET("/", func(ctx *gin.Context) { // ctx here is your context 
 		// this is what shows on webpages
-        ctx.JSON(200, gin.H{ // gin.H is the respionse body
+        ctx.JSON(200, gin.H{ // gin.H is the response body
             "message": "Hello! Complete-Order is running! 🚀",
         })
     })
@@ -120,7 +120,7 @@ func main() {
         var wg sync.WaitGroup
 
         // Channel to collect errors from Goroutines
-        errChan := make(chan error, 3)
+        errChan := make(chan error, 4)
 
         // Goroutine 1: Update Order's Status
 		wg.Add(1)
@@ -231,10 +231,10 @@ func main() {
 			var message string 
 
 			if action == "cancelled" {
-				message = fmt.Sprintf("We regret to inform you that your order %s from %s has been unfortunately been cancelled due to %s. As compensation we have added %f to total credits which you can use on your next purchase! ", oid ,MQDataMap["restaurant"],MQDataMap["message"], MQDataMap["total"])
+				message = fmt.Sprintf("We regret to inform you that your order %s from %s has been unfortunately been cancelled due to %s. As compensation we have added %s to total credits which you can use on your next purchase! ", oid ,MQDataMap["restaurant"],MQDataMap["message"], MQDataMap["total"]) // probably works otherwise change thge %s to %f
 			} else if action == "completed" {
 				message = fmt.Sprintf("Your order of %s from %s has been successfully completed and is ready for pickup! %s", oid ,MQDataMap["restaurant"],MQDataMap["message"])
-			}else {
+			} else {
 				message = ""
 			}
 
@@ -265,35 +265,51 @@ func main() {
             fmt.Println("Notification published to RabbitMQ successfully.")
         }(payloadData, oid, action)
 		
-        // // Goroutine 4: Update Credits
-		// wg.Add(1)
-        // go func(id string) {
-        //     defer wg.Done()
+        // Goroutine 4: Update Credits (Oustsystems)
+		wg.Add(1)
+        go func(payloadData interface {}, action string) {
 
-        //     outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/OrderMicroservice/rest/OrderService/order/complete?RecieptNo=%s", id)
-        //     fmt.Println("Calling Outsystems:", outsysURL)
+			// only works if it's cancelled not completed
+			if action == "completed" {
+				return 
+			}
 
-        //     req, err := http.NewRequest("PUT", outsysURL, nil)
-        //     if err != nil {
-        //         errChan <- fmt.Errorf("failed to create PUT request: %v", err)
-        //         return
-        //     }
+            OutsysDataMap, ok := payloadData.(map[string]interface{})
+			if !ok {
+				errChan <- fmt.Errorf("invalid type for payloadData: expected map[string]interface{}")
+				return
+			}
+            defer wg.Done()
 
-        //     client := &http.Client{Timeout: 10 * time.Second}
-        //     resp, err := client.Do(req)
-        //     if err != nil {
-        //         errChan <- fmt.Errorf("failed to send PUT request: %v", err)
-        //         return
-        //     }
-        //     defer resp.Body.Close()
+			// fmt.Println(OutsysDataMap["user_id"])
+			// fmt.Println(OutsysDataMap["total"])
 
-        //     if resp.StatusCode != http.StatusOK {
-        //         errChan <- fmt.Errorf("OutSystems returned status: %s", resp.Status)
-        //         return
-        //     }
+            outsysURL := fmt.Sprintf("https://personal-3mms7vqv.outsystemscloud.com/CreditMicroservice/rest/RESTAPI1/credit?userid=%s&credit=%f", OutsysDataMap["user_id"],OutsysDataMap["total"])
+            fmt.Println("Calling Outsystems:", outsysURL)
 
-        //     fmt.Println("OutSystems updated successfully.")
-        // }()
+			// fmt.Println(outsysURL)
+
+            req, err := http.NewRequest("POST", outsysURL, nil)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to create POST request: %v", err)
+                return
+            }
+
+            client := &http.Client{Timeout: 10 * time.Second}
+            resp, err := client.Do(req)
+            if err != nil {
+                errChan <- fmt.Errorf("failed to send POST request: %v", err)
+                return
+            }
+            defer resp.Body.Close()
+
+            if resp.StatusCode != http.StatusOK {
+                errChan <- fmt.Errorf("OutSystems returned status: %s", resp.Status)
+                return
+            }
+
+            fmt.Println("OutSystems updated successfully.")
+        }(payloadData, action)
 
 
         // Wait for all Goroutines to finish
