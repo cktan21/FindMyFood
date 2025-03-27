@@ -17,7 +17,7 @@ ok
 Required Body JSON are { foodHistory, menulisting, reccomendationHistory }
 
 Sample Output
-```bash
+```json
 
 {
     "foodReccomendation": {
