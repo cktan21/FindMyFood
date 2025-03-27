@@ -37,7 +37,7 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
         return;
       }
       try {
-        const res = await axios.get("http://127.0.0.1:5001/all");
+        const res = await axios.get("http://localhost:5001/all");
         const data = res.data;
         const restaurantsArray: Restaurant[] = Object.entries(data).map(
           ([id, restaurant]) => {
@@ -55,7 +55,7 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       async function fetchAndUpdateRestaurants() {
         try {
-          const res = await axios.get("http://127.0.0.1:5001/all");
+          const res = await axios.get("http://localhost:5001/all");
           const data = res.data;
           const restaurantsArray: Restaurant[] = Object.entries(data).map(
             ([id, restaurant]) => {
