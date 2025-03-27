@@ -258,9 +258,9 @@ Search by order id
         "info": {
         "Bricklane": [
             {
-            "qty": 2,
-            "dish": "Grilled_Teriyaki_Chicken_Donburi",
-            "price": 6.9
+                "qty": 2,
+                "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                "price": 6.9
             }
         ]
         },

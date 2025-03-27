@@ -34,6 +34,23 @@ Switch to your branch before starting to code <br>
 ## Kubernetes Architecture Diagram
 <img width="850" alt="Screenshot 2025-03-22 at 2 42 52 PM" src="https://github.com/user-attachments/assets/d19e1e4f-a735-435c-9b26-bd1894535bfb" />
 
+## Notable Technical Implementations
+### Backend
+- <b>Microservice Archictecture</b>
+- <b>Loosely Coupled</b> Atomic Microservices
+- Variety of <b>Languages and Frameworks and Runtimes</b> to show <b>Language Agnostic</b> properties in Microservices
+- <b>Golang Concurrency Servers</b> on Composite Services for <b>Multi-Threading</b>
+- Mix of <b>SQL and NoSQL Databases</b>
+- <b>RabbitMQ as message broker</b> for real time changes
+- <b>Kong API Gateway</b> for aggregating requests
+- <b>Grafana + Prometheus</b> for data ingestion and monitoring
+- <b>CI/CD pipeline</b> to automate Image and Container building on Cloud
+- <b>Kubernetes Integration</b>
+
+### Frontend
+- React + Tailwind + TypeScript + ShadCN Web UI
+- Supabase Authentication for user accounts
+
 ## Frameworks and Databases Utilised
 
 <p align="center"><strong>UI Stack</strong></p>

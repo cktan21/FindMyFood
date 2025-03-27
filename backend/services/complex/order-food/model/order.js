@@ -20,7 +20,7 @@ async function getUserOrders(uid) {
 
     try {
 
-        const response = await axios.get(`http://order:6369/orders/uid=${uid}`);
+        const response = await axios.get(`http://order:6369/orders?uid=${uid}`);
 
         return response.data;
         

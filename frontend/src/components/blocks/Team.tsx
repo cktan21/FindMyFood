@@ -1,13 +1,15 @@
-import { Github, Linkedin } from "lucide-react";
+// import { Github, Linkedin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 
 const team = [
   {
     name: "Saurabh Maskara",
     role: "Developer",
     image:
-      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+      "/Saurabh.png",
+
+
   },
   {
     name: "Kevin Tan",
@@ -25,7 +27,7 @@ const team = [
     name: "Ryan Bangras",
     role: "Developer",
     image:
-      "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+      "/Ryan.jpeg",
   },
   {
     name: "Ewan",
@@ -61,6 +63,7 @@ export default function Team() {
                 {member.role}
               </p>
             </div>
+            {/* These were the GitHub and LinkedIn buttons below each team member
             <div className="mt-3 flex gap-2">
               <Button size="icon" variant="ghost">
                 <Github className="w-4 h-4" />
@@ -68,7 +71,7 @@ export default function Team() {
               <Button size="icon" variant="ghost">
                 <Linkedin className="w-4 h-4" />
               </Button>
-            </div>
+            </div> */}
           </div>
         ))}
       </div>
