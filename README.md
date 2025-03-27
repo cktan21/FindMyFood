@@ -157,3 +157,27 @@ Switch to your branch before starting to code <br>
 <i>StripeAPI · Docker Compose · Docker Hub · Kubernetes · OpenAI · Socket.io</i>
 </p>
 <br> 
+
+## Contributors
+
+**Team 8**
+
+<div align="center">
+    <table>
+        <tr>
+            <th>Ryan Bangras</th>
+            <th>Saurabh Maskara</th>
+            <th>Kendrick Poon</th>
+            <th>Kevin Tan</th>
+            <th>Ewan</th>
+        </tr>
+        <tr>
+            <td><img src="https://github.com/user-attachments/assets/80d01dda-0d39-4648-b695-5ed0367d2777" alt="Ryan" width="120" height="120" style="display:block; margin:0 auto;"></td>
+            <td><img src="https://github.com/user-attachments/assets/aa289832-1d5d-4a4c-b8dc-15732eebc691" alt="Saurabh" width="120" height="120" style="display:block; margin: 0 auto;"></td>
+            <td><img src="https://github.com/user-attachments/assets/fc41231a-1d80-4fdc-9c08-b89ead1b6b20" alt="Kendrick" width="120" height="120" style="display:block; margin: 0 auto;"></td>
+            <td><img src="https://github.com/user-attachments/assets/47010ac4-2697-48bd-9083-7f6e91c0e49e" alt="Kevin" width="120" height="120" style="display:block; margin: 0 auto;"</td>
+            <td><img src="https://github.com/user-attachments/assets/36147165-6866-489c-9642-bf9dd37590f2" alt="Ewan" width="120" height="120" style="display:block; margin: 0 auto;"></td>
+        </tr>
+    </table>
+</div>
+
