@@ -20,50 +20,50 @@ export const Navbar = () => {
       href: "/",
       description: "",
     },
-    {
-      title: "Platform",
-      description: "Not sure what to eat and where to queue?",
-      items: [
-        {
-          title: "Reports",
-          href: "/reports",
-        },
-        {
-          title: "Statistics",
-          href: "/statistics",
-        },
-        {
-          title: "Dashboards",
-          href: "/dashboards",
-        },
-        {
-          title: "Recordings",
-          href: "/recordings",
-        },
-      ],
-    },
-    {
-      title: "Company",
-      description: "Managing a small business today is already tough.",
-      items: [
-        {
-          title: "About us",
-          href: "/about",
-        },
-        {
-          title: "Fundraising",
-          href: "/fundraising",
-        },
-        {
-          title: "Investors",
-          href: "/investors",
-        },
-        {
-          title: "Contact us",
-          href: "/contact",
-        },
-      ],
-    },
+    // {
+    //   title: "Platform",
+    //   description: "Not sure what to eat and where to queue?",
+    //   items: [
+    //     {
+    //       title: "Reports",
+    //       href: "/reports",
+    //     },
+    //     {
+    //       title: "Statistics",
+    //       href: "/statistics",
+    //     },
+    //     {
+    //       title: "Dashboards",
+    //       href: "/dashboards",
+    //     },
+    //     {
+    //       title: "Recordings",
+    //       href: "/recordings",
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Company",
+    //   description: "Managing a small business today is already tough.",
+    //   items: [
+    //     {
+    //       title: "About us",
+    //       href: "/about",
+    //     },
+    //     {
+    //       title: "Fundraising",
+    //       href: "/fundraising",
+    //     },
+    //     {
+    //       title: "Investors",
+    //       href: "/investors",
+    //     },
+    //     {
+    //       title: "Contact us",
+    //       href: "/contact",
+    //     },
+    //   ],
+    // },
   ];
 
   const [isOpen, setOpen] = useState(false);
@@ -101,7 +101,7 @@ export const Navbar = () => {
                                 Try our platform
                             </Button>
                           </div>
-                          <div className="flex flex-col text-sm justify-end">
+                          {/* <div className="flex flex-col text-sm justify-end">
                             {item.items?.map((subItem) => (
                               <NavigationMenuLink asChild key={subItem.title}>
                                 <Link
@@ -113,7 +113,7 @@ export const Navbar = () => {
                                 </Link>
                               </NavigationMenuLink>
                             ))}
-                          </div>
+                          </div> */}
                         </div>
                       </NavigationMenuContent>
                     </>
@@ -133,7 +133,7 @@ export const Navbar = () => {
         <div className="hidden md:flex gap-4 items-center">
           {/* <Button variant="ghost">Book a demo</Button> */}
           <p className="font-semibold text-center">FindMyFood</p>
-          <div className="border-r h-6"></div>
+          {/* <div className="border-r h-6"></div> */}
           <Link to="/login">
             <Button variant="outline">Sign in</Button>
           </Link>
@@ -168,7 +168,7 @@ export const Navbar = () => {
                   ) : (
                     <p className="text-lg py-2">{item.title}</p>
                   )}
-                  {item.items &&
+                  {/* {item.items &&
                     item.items.map((subItem) => (
                       <Link
                         key={subItem.title}
@@ -180,7 +180,7 @@ export const Navbar = () => {
                         </span>
                         <MoveRight className="w-4 h-4 stroke-1" />
                       </Link>
-                    ))}
+                    ))} */}
                 </div>
               </div>
             ))}
