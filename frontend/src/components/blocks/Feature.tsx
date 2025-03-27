@@ -1,4 +1,4 @@
-import { Timer, Zap, ZoomIn } from "lucide-react";
+import { CreditCard, Clock, Sparkle } from "lucide-react";
 
 const Feature= () => {
   return (
@@ -11,7 +11,7 @@ const Feature= () => {
         <div className="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-3">
           <div className="rounded-lg bg-accent p-5">
             <span className="mb-8 flex size-12 items-center justify-center rounded-full bg-background">
-              <Timer className="size-6" />
+              <CreditCard className="size-6" />
             </span>
             <h3 className="mb-2 text-xl font-medium">Single unified ordering platform</h3>
             <p className="leading-7 text-muted-foreground">
@@ -20,7 +20,7 @@ const Feature= () => {
           </div>
           <div className="rounded-lg bg-accent p-5">
             <span className="mb-8 flex size-12 items-center justify-center rounded-full bg-background">
-              <ZoomIn className="size-6" />
+              <Clock className="size-6" />
             </span>
             <h3 className="mb-2 text-xl font-medium">Make informed choices</h3>
             <p className="leading-7 text-muted-foreground">
@@ -29,7 +29,7 @@ const Feature= () => {
           </div>
           <div className="rounded-lg bg-accent p-5">
             <span className="mb-8 flex size-12 items-center justify-center rounded-full bg-background">
-              <Zap className="size-6" />
+              <Sparkle className="size-6" />
             </span>
             <h3 className="mb-2 text-xl font-medium">Having trouble deciding?</h3>
             <p className="leading-7 text-muted-foreground">

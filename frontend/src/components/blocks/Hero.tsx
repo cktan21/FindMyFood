@@ -28,7 +28,7 @@ export default function Hero() {
                 </p>
               </div>
               <div className="mt-8 gap-3 flex justify-center">
-                <Link to="/login">
+                <Link to="/register">
                   <Button size={"lg"} className="bg-gradient-to-r from-blue-600 via-blue-400 to-purple-500">Get started</Button>
                 </Link>
                 <a href="#about">
