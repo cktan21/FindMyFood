@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { supabase } from "@/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
-import { CreditCard, Home, MapPin, LogOut, ShoppingBag, User, ChevronLeft } from "lucide-react";
+import { LogOut, ShoppingBag, User, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
