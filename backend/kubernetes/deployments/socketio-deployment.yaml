@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: socketio
-        image: ghcr.io/thykp/esd_team8-socket.io:latest
+        image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/socket.io:latest
         ports:
         - containerPort: 3300
         env:

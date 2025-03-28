@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: menu-container
-        image: ghcr.io/thykp/esd_team8-menu:latest
+        image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/menu:latest
         ports:
         - containerPort: 5001
         volumeMounts:

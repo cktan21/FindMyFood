@@ -12,6 +12,6 @@ spec:
         command: ['sh', '-c', 'until nc -z rabbitmq 5672; do echo "Waiting for RabbitMQ..."; sleep 2; done']
       containers:
       - name: rabbitmq-setup
-        image: ghcr.io/thykp/esd_team8-rabbitmq:latest
+        image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/rabbitmq:latest
         command: ["python3", "/app/amqp_setup.py"]
       restartPolicy: OnFailure

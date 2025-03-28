@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: complete-order
-        image: ghcr.io/thykp/esd_team8-complete-order:latest
+        image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/complete-order:latest
         ports:
         - containerPort: 7070

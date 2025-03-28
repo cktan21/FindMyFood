@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: reccomend-food
-        image: ghcr.io/thykp/esd_team8-reccomend-food:latest
+        image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/reccomend-food:latest
         ports:
         - containerPort: 8080

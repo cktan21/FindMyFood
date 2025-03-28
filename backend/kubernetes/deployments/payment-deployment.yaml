@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: payment
-        image: ghcr.io/thykp/esd_team8-payment:latest
+        image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/payment:latest
         ports:
         - containerPort: 5002
         envFrom:
