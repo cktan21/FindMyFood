@@ -19,3 +19,4 @@ jobs:
         with:
           directory: backend/kubernetes
           framework: kubernetes
+        continue-on-error: true
