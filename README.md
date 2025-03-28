@@ -135,13 +135,15 @@ Switch to your branch before starting to code <br>
 </p> 
 <br>
 
-<p align="center"><strong>DevOps and Site Reliability</strong></p>
+<p align="center"><strong>DevSecOps and Site Reliability</strong></p>
 <p align="center">
 <a href="https://github.com/features/actions"><img src="https://github.com/user-attachments/assets/84046b86-7745-4ddd-8c36-b39b6a9ead91" alt="GitHub Actions" height="60"/></a>&nbsp;&nbsp;
+<a href="https://grafana.com/"><img src="https://github.com/user-attachments/assets/f35638ce-2ad1-4664-9cf1-e219222ca4f0" alt="Snyk" height="60"/></a>&nbsp;&nbsp;
+<a href="https://grafana.com/"><img src="https://github.com/user-attachments/assets/cd9f1fa6-5410-4407-81b3-d7cc28c79a75" alt="Checkov" height="60"/></a>&nbsp;&nbsp;
 <a href="https://grafana.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a1/Grafana_logo.svg" alt="Grafana" height="60"/></a>&nbsp;&nbsp;
 <a href="https://prometheus.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg" alt="Prometheus" height="60"/></a>&nbsp;&nbsp;
 <br>
-<i>Github Actions · Grafana · Prometheus</i>
+<i>Github Actions · Snyk · Checkov · Grafana · Prometheus</i>
 </p> 
 <br>
 
