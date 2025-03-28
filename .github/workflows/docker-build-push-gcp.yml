@@ -31,7 +31,7 @@ jobs:
           REGION: asia-southeast1
           REPO: my-repo
         run: |
-          for dir in ./services/simple/* ./services/complex/* ./socket.io ./rabbitmq; do
+          for dir in backend/services/simple/* backend/services/complex/* backend/socket.io backend/rabbitmq; do
             echo "Processing directory: $dir"
             if [ -f "$dir/Dockerfile" ]; then
               service=$(basename "$dir")
