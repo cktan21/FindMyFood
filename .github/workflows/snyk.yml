@@ -1,0 +1,30 @@
+name: Snyk Scan
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Snyk
+        run: npm install -g snyk
+
+      - name: Snyk Auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Scan application dependencies
+        run: snyk test --all-projects --severity-threshold=high
+
+      - name: Monitor project in Snyk Dashboard
+        run: snyk monitor --all-projects
