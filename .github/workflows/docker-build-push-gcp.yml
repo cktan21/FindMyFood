@@ -23,8 +23,7 @@ jobs:
 
       - name: Configure Docker for Artifact Registry
         run: |
-          # Replace REGION with your region (e.g., us-central1)
-          gcloud auth configure-docker us-central1-docker.pkg.dev
+          gcloud auth configure-docker asia-southeast1-docker.pkg.dev
 
       - name: Build and Push images
         env:
