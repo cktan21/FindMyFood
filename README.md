@@ -29,7 +29,7 @@ Switch to your branch before starting to code <br>
 ```
 
 ## Technical Architecture Diagram
-<img width="1184" alt="architecture" src="https://github.com/user-attachments/assets/116e5035-9f06-4b8c-b5a0-a25f9349c016" />
+![image](https://github.com/user-attachments/assets/8bb03a33-40f2-44eb-b421-ae1162802181)
 
 ## Kubernetes Architecture Diagram
 <img width="850" alt="Screenshot 2025-03-22 at 2 42 52 PM" src="https://github.com/user-attachments/assets/d19e1e4f-a735-435c-9b26-bd1894535bfb" />
