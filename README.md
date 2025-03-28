@@ -142,8 +142,9 @@ Switch to your branch before starting to code <br>
 <a href="https://grafana.com/"><img src="https://github.com/user-attachments/assets/cd9f1fa6-5410-4407-81b3-d7cc28c79a75" alt="Checkov" height="60"/></a>&nbsp;&nbsp;
 <a href="https://grafana.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a1/Grafana_logo.svg" alt="Grafana" height="60"/></a>&nbsp;&nbsp;
 <a href="https://prometheus.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg" alt="Prometheus" height="60"/></a>&nbsp;&nbsp;
+<a href="https://www.terraform.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Terraform_Logo.svg" alt="Terraform" height="55"/></a>&nbsp;&nbsp;
 <br>
-<i>Github Actions · Snyk · Checkov · Grafana · Prometheus</i>
+<i>Github Actions · Snyk · Checkov · Grafana · Prometheus · Terraform</i>
 </p> 
 <br>
 
