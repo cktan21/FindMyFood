@@ -1,0 +1,42 @@
+name: Build and Push to Artifact Registry
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/**/Dockerfile'
+      - 'socket.io/Dockerfile'
+      - 'rabbitmq/Dockerfile'
+      - '.github/workflows/docker-build-push-gcp.yml'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          # Replace REGION with your region (e.g., us-central1)
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Build and Push images
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          REGION: us-central1
+          REPO: my-repo
+        run: |
+          for dir in ./services/simple/* ./services/complex/* ./socket.io ./rabbitmq; do
+            if [ -f "$dir/Dockerfile" ]; then
+              service=$(basename "$dir")
+              echo "📦 Building and pushing $service"
+              docker build -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/$service:latest $dir
+              docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/$service:latest
+            fi
+          done
