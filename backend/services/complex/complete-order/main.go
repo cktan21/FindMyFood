@@ -272,7 +272,7 @@ func main() {
 
 			// Only proceed if the action is cancelled
 			if action != "cancelled" {
-				fmt.Println("Goroutine 4: Action is %s. Exiting early.", action)
+				fmt.Println("Goroutine 4: Action is", action, ". Exiting early.")
 				return
 			}
 			
