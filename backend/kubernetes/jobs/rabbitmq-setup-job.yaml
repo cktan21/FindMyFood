@@ -8,6 +8,6 @@ spec:
     spec:
       containers:
       - name: rabbitmq-setup
-        image: ghcr.io/thykp/esd_team8-rabbitmq-setup:latest
+        image: ghcr.io/thykp/esd_team8-rabbitmq:latest
         # If needed, add command/args here
       restartPolicy: OnFailure
