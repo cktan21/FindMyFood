@@ -32,10 +32,14 @@ jobs:
           REPO: my-repo
         run: |
           for dir in ./services/simple/* ./services/complex/* ./socket.io ./rabbitmq; do
+            echo "Processing directory: $dir"
             if [ -f "$dir/Dockerfile" ]; then
               service=$(basename "$dir")
-              echo "📦 Building and pushing $service"
-              docker build -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/$service:latest $dir
-              docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/$service:latest
+              image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/$service:latest"
+              echo "📦 Building and pushing $service with image tag: $image"
+              docker build -t "$image" "$dir" || { echo "Build failed for $service"; exit 1; }
+              docker push "$image" || { echo "Push failed for $service"; exit 1; }
+            else
+              echo "No Dockerfile found in $dir"
             fi
           done
