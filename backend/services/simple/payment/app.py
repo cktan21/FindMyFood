@@ -77,7 +77,7 @@ def create_checkout_session():
             success_url=f"{data.get('domain', 'http://localhost:3000')}/confirmation?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{data.get('domain', 'http://localhost:3000')}/cart",
             metadata={
-                'order_id': data.get('orderId', f"ORDER-{str(int(time.time()))}"),
+                # 'order_id': data.get('orderId', f"ORDER-{str(int(time.time()))}"),
                 'customer_email': data.get('customerEmail', '')
             }
         )

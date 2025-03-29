@@ -232,7 +232,7 @@ You can combine any of the three parameters (`uid`, `oid`, and `restaurant`) in 
 
 - To filter orders by user ID (`uid`), include `uid=Subrah`.
 - To filter orders by order ID (`oid`), include `oid=f2057454-490b-4c72-abc3-85d759a29a68`.
-- To filter orders by restaurant name, include `restaurant=Bricklane`.
+- To filter orders by (`restaurant name`), include `restaurant=Bricklane`.
 
 These parameters can be stacked together in any combination to refine your query. For instance:
 

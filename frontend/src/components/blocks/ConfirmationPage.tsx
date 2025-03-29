@@ -15,7 +15,7 @@ interface OrderItem {
 }
 
 interface Order {
-  orderNumber: string;
+//   orderNumber: string;
   orderDate: string;
   paymentMethod: string;
   paymentId: string;
@@ -56,7 +56,7 @@ export default function ConfirmationPage() {
           if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
             // Create order data using both Stripe response and stored cart data
             setOrder({
-              orderNumber: `FE-${Date.now().toString().slice(-4)}`,
+            //   orderNumber: `FE-${Date.now().toString().slice(-4)}`,
               orderDate: new Date().toLocaleString(),
               paymentMethod: 'Credit Card',
               paymentId: sessionId,
@@ -137,10 +137,10 @@ export default function ConfirmationPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between text-sm">
+              {/* <div className="flex justify-between text-sm">
                 <span>Order Number</span>
                 <span className="font-medium">{order.orderNumber}</span>
-              </div>
+              </div> */}
               <div className="flex justify-between text-sm">
                 <span>Order Date</span>
                 <span>{order.orderDate}</span>

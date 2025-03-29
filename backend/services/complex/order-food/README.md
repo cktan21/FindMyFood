@@ -19,7 +19,7 @@ ok
 GET http://localhost:8090/order/all
 
 Sample Output:
-```bash
+```json
 [
     {
         "order_id": "f2057454-490b-4c72-abc3-85d759a29a68",
@@ -96,7 +96,7 @@ GET http://localhost:8090/order/user/uid=uid
 where uid is user id
 
 Sample Output:
-```bash
+```json
 [
     {
         "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
@@ -145,7 +145,7 @@ GET http://localhost:8090/order/restaurant=restaurant
 where restaurant is restaurant name
 
 Sample Output:
-```bash
+```json
 [
     {
         "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
@@ -194,7 +194,7 @@ GET http://localhost:8090/order/oid=oid
 where oid is id of receipt
 
 Sample Output:
-```bash
+```json
 [
     {
         "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
@@ -243,7 +243,7 @@ PUT http://localhost:8090/order/updatestatus
 Required body JSON is oid, status
 
 Sample Output:
-```bash
+```json
 {
     "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
     "user_id": "Kendrick",
@@ -280,7 +280,7 @@ POST http://localhost:8090/order/addorder
 Required body JSON is orderContent
 
 Sample JSON for orderContent:
-```bash
+```json
 {
     "user_id": "Kendrick",
     "info": {
@@ -299,7 +299,7 @@ Sample JSON for orderContent:
 ```
 
 Sample Output:
-```bash
+```json
 {
     "order_id": "20cc894b-62a3-48e9-8d0c-65238f227b8e",
     "user_id": "Kendrick",
