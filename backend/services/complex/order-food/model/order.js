@@ -16,51 +16,6 @@ async function getAllOrders() {
 
 }
 
-// async function getUserOrders(uid) {
-
-//     try {
-
-//         const response = await axios.get(`http://order:6369/orders?uid=${uid}`);
-
-//         return response.data;
-
-//     } catch (error) {
-//         console.error("Error getting user order history:", error.response ? error.response.data : error.message);
-//         throw error;
-//     }
-
-// }
-
-// async function getOrder(oid) {
-
-//     try {
-
-//         const response = await axios.get(`http://order:6369/orders?oid=${oid}`);
-
-//         return response.data;
-
-//     } catch (error) {
-//         console.error("Error getting order:", error.response ? error.response.data : error.message);
-//         throw error;
-//     }
-
-// }
-
-// async function getRestaurantOrders(restaurant) {
-
-//     try {
-
-//         const response = await axios.get(`http://order:6369/orders?restaurant=${restaurant}`);
-
-//         return response.data;
-
-//     } catch (error) {
-//         console.error("Error getting Restaurant order history:", error.response ? error.response.data : error.message);
-//         throw error;
-//     }
-
-// }
-
 async function getOrder(uid, oid, restaurant) {
     try {
         const response = await axios.get(`http://order:6369/orders?oid=${oid}&uid=${uid}&restaurant=${restaurant}`)
@@ -137,9 +92,7 @@ async function useCredits(creditsContent) {
 
 module.exports = {
     getAllOrders,
-    // getUserOrders,
     getOrder,
-    // getRestaurantOrders,
     updateStatus,
     addOrder,
     useCredits,

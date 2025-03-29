@@ -16,58 +16,24 @@ router.get('/all', async (req, res) => {
     }
 });
 
-// router.get('/user', async (req, res) => {
-//     try {
-
-//         const { uid } = req.body
-
-//         const allOrders = await order.getUserOrders(uid)
-//         res.status(200).json({
-//             message: allOrders
-//         });
-
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-// router.get('/order', async (req, res) => {
-//     try {
-
-//         const { oid } = req.body
-
-//         const allOrders = await order.getOrder(oid)
-//         res.status(200).json({
-//             message: allOrders
-//         });
-
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-// router.get('/restaurant', async (req, res) => {
-//     try {
-
-//         const { restaurant } = req.body
-
-//         const allOrders = await order.getRestaurantOrders(restaurant)
-//         res.status(200).json({
-//             message: allOrders
-//         });
-
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-
-router.get('/order', async (req, res) => {
+router.get('/graborder', async (req, res) => {
     try {
         // Extract optional query parameters from the request
-        const uid = req.query.uid; // Query parameter for user ID [[2]]
-        const oid = req.query.oid; // Query parameter for order ID [[2]]
-        const restaurant = req.query.restaurant; // Query parameter for restaurant [[2]]
+        var uid = req.query.uid; // Query parameter for user ID [[2]]
+        var oid = req.query.oid; // Query parameter for order ID [[2]]
+        var restaurant = req.query.restaurant; // Query parameter for restaurant [[2]]
+
+        if (!uid) {
+            uid = ""
+        }
+
+        if (!oid) {
+            oid = ""
+        }
+
+        if (!restaurant) {
+            restaurant = ""
+        }
 
         const allOrders = await order.getOrder(uid, oid, restaurant)
         res.status(200).json({
