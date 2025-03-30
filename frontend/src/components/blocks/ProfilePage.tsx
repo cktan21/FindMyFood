@@ -70,7 +70,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile?.name) {
       axios
-        .get(`http://localhost:8000/order/orders?uid=${profile.name}`)
+        .get(`http://localhost:8000/order-food/order/graborder?uid=${profile.name}`)
         .then((response) => {
           setOrders(response.data);
         })
