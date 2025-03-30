@@ -10,3 +10,4 @@ spec:
   ports:
   - port: 8080
     targetPort: 8080
+    nodePort: 30808 # Fixed NodePort between 30000-32767

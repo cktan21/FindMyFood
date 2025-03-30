@@ -8,6 +8,7 @@ spec:
   selector:
     app: grafana
   ports:
-  - port: 3000
+  - port: 1010
     targetPort: 3000
     # Note: NodePort values are typically in the 30000-32767 range unless using a specific setup.
+    nodePort: 31010 # Fixed NodePort between 30000-32767
