@@ -1,5 +1,42 @@
 require('dotenv').config();
 const axios = require("axios");
+const amqp = require("amqplib");
+
+// Uses env variable from docker if avaliable, otherwise use localhost
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost:5672";
+
+async function SendRabbitMQ(message) {
+    let connection = null
+    try {
+        connection = await amqp.connect(RABBITMQ_URL);
+        const channel = await connection.createChannel();
+        await channel.assertQueue("notifications");
+        console.log("✅ Connected to RabbitMQ");
+
+        const success = channel.sendToQueue('notifications', Buffer.from(JSON.stringify(message)));
+        if (success) {
+            console.log(`Message successfully sent to the 'notifications' queue: ${message}`);
+        } else {
+            console.error(`Failed to send message to the 'notifications' queue`);
+        }
+
+        return message
+
+    } catch (error) {
+        // Error Handling
+        console.error("❌ Error occurred while connecting to RabbitMQ or publishing the message:", error.message);
+    } finally {
+        // Close the connection to free resources
+        if (connection) {
+            try {
+                await connection.close();
+                console.log("✅ RabbitMQ connection closed");
+            } catch (closeError) {
+                console.error("❌ Error occurred while closing RabbitMQ connection:", closeError.message);
+            }
+        }
+    }
+}
 
 async function getAllOrders() {
 
@@ -29,11 +66,46 @@ async function getOrder(uid, oid, restaurant) {
 }
 
 
-async function updateStatus(oid, status) {
+async function cancelOrder(oid) {
 
     try {
 
-        const response = await axios.put(`http://order:6369/update/${oid}/${status}`);
+        const response = await axios.put(`http://order:6369/update/${oid}/cancelled`);
+
+        return response.data;
+
+    } catch (error) {
+        console.error("Error updating status:", error.response ? error.response.data : error.message);
+        throw error;
+    }
+
+}
+
+async function cancelQ(oid, restaurant) {
+
+    try {
+
+        const content = {
+            restaurant: restaurant,
+            order_id: oid
+        }
+
+        const response = await axios.post(`http://queue:8008/delete`, content);
+
+        return response.data;
+
+    } catch (error) {
+        console.error("Error updating status:", error.response ? error.response.data : error.message);
+        throw error;
+    }
+
+}
+
+async function addQ(qContent) {
+
+    try {
+
+        const response = await axios.post(`http://queue:8008/add`, qContent);
 
         return response.data;
 
@@ -93,10 +165,13 @@ async function useCredits(creditsContent) {
 module.exports = {
     getAllOrders,
     getOrder,
-    updateStatus,
+    cancelOrder,
     addOrder,
     useCredits,
-    getCredits
+    getCredits,
+    cancelQ,
+    addQ,
+    SendRabbitMQ
 };
 
 

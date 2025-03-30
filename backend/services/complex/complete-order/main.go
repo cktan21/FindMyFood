@@ -15,27 +15,6 @@ import (
 	"github.com/streadway/amqp" // RabbitMQ client library
 )
 
-func fetchAPIData(apiURL string) (interface{}, error) {
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, readErr := io.ReadAll(resp.Body)
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	var responseData interface{}
-	jsonErr := json.Unmarshal(body, &responseData)
-	if jsonErr != nil {
-		return nil, jsonErr
-	}
-
-	return responseData, nil
-}
-
 // Helper function to connect to RabbitMQ
 func connectToRabbitMQ() (*amqp.Connection, error) {
     conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672")

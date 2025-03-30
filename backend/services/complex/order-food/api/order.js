@@ -45,14 +45,16 @@ router.get('/graborder', async (req, res) => {
     }
 });
 
-router.put('/updatestatus', async (req, res) => {
+// Cancel Queue
+router.put('/cancel/:oid/:restaurant', async (req, res) => {
     try {
 
-        const { oid, status } = req.body
-
-        const allOrders = await order.updateStatus(oid, status)
+        const { oid, restaurant } = req.params;
+        const allOrders = await order.cancelOrder(oid)
+        const queue = await order.cancelQ(oid, restaurant)
         res.status(200).json({
-            message: allOrders
+            order: allOrders,
+            queue: queue
         });
 
     } catch (error) {
@@ -60,24 +62,41 @@ router.put('/updatestatus', async (req, res) => {
     }
 });
 
-// add order to order and also updates credits if used 
+// add order to order, add to queue and update credits if used 
 router.post('/addorder', async (req, res) => {
     try {
-        var addCredits
+        var addCredits = 'No Credits Deducted'
         const { orderContent, creditsContent } = req.body
         const addOrder = await order.addOrder(orderContent)
-        
+
         // checks if credits has been used
-        if (creditsContent) {
+        // js is a very annoying language 
+        if (Object.keys(creditsContent).length > 0) {
             addCredits = await order.useCredits(creditsContent)
         }
-        else {
-            addCredits = 'No Credits Deducted'
+
+        const toQ = {
+            restaurant: addOrder.restaurant,
+            user_id: addOrder.user_id,
+            order_id: addOrder.order_id
         }
+
+        const adQ = await order.addQ(toQ)
+
+        const toRabbiMQ = {
+            message: `Your Order ${addOrder.order_id} from ${addOrder.restaurant} has been successfully sent to the Kitchen!`,
+            order_id: addOrder.order_id,
+            type: "notification",
+            user_id: addOrder.user_id
+        }
+
+        const rabbitMQ = await order.SendRabbitMQ(toRabbiMQ)
 
         res.status(200).json({
             order: addOrder,
-            credit: addCredits
+            credit: addCredits,
+            queue: adQ,
+            rabbitMQ : rabbitMQ
         });
 
     } catch (error) {
@@ -91,7 +110,7 @@ router.get('/credits/:uid', async (req, res) => {
 
         const { uid } = req.params;
         const addOrder = await order.getCredits(uid)
-        
+
         res.status(200).json({
             message: addOrder
         });

@@ -4,7 +4,7 @@ npm i
 npm run start
 ```
 
->Health Check
+## Health Check
 
 GET http://localhost:8090
 
@@ -14,7 +14,7 @@ ok
 ```
 
 
-> Get all order
+## Get all order
 
 GET http://localhost:8090/order/all
 
@@ -89,9 +89,9 @@ Sample Output:
 ]
 ```
 
-> Get order by user
+## Get order by user
 
-GET http://localhost:8090/order/user/uid=uid
+GET http://localhost:8090/graborder/user/uid=uid
 
 where uid is user id
 
@@ -104,14 +104,14 @@ Sample Output:
         "info": {
         "items": [
             {
-            "qty": 2,
-            "dish": "Grilled_Teriyaki_Chicken_Donburi",
-            "price": 13.8
+                "qty": 2,
+                "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                "price": 13.8
             },
             {
-            "qty": 200,
-            "dish": "Bulgogi_Tacos",
-            "price": 1600
+                "qty": 200,
+                "dish": "Bulgogi_Tacos",
+                "price": 1600
             }
         ]
         },
@@ -138,9 +138,9 @@ Sample Output:
 ]
 ```
 
-> Get orders by restaurants
+## Get orders by restaurants
 
-GET http://localhost:8090/order/restaurant=restaurant
+GET http://localhost:8090/graborder/restaurant=restaurant
 
 where restaurant is restaurant name
 
@@ -153,14 +153,14 @@ Sample Output:
         "info": {
         "items": [
             {
-            "qty": 2,
-            "dish": "Grilled_Teriyaki_Chicken_Donburi",
-            "price": 13.8
+                "qty": 2,
+                "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                "price": 13.8
             },
             {
-            "qty": 200,
-            "dish": "Bulgogi_Tacos",
-            "price": 1600
+                "qty": 200,
+                "dish": "Bulgogi_Tacos",
+                "price": 1600
             }
         ]
         },
@@ -174,9 +174,9 @@ Sample Output:
         "info": {
         "items": [
             {
-            "qty": 2,
-            "dish": "Grilled_Teriyaki_Chicken_Donburi",
-            "price": 6.9
+                "qty": 2,
+                "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                "price": 6.9
             }
         ]
         },
@@ -187,9 +187,9 @@ Sample Output:
 ]
 ```
 
-> Get orders by receipt
+## Get orders by receipt
 
-GET http://localhost:8090/order/oid=oid
+GET http://localhost:8090/graborder/oid=oid
 
 where oid is id of receipt
 
@@ -200,18 +200,18 @@ Sample Output:
         "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
         "user_id": "Kendrick",
         "info": {
-        "items": [
-            {
-            "qty": 2,
-            "dish": "Grilled_Teriyaki_Chicken_Donburi",
-            "price": 13.8
-            },
-            {
-            "qty": 200,
-            "dish": "Bulgogi_Tacos",
-            "price": 1600
-            }
-        ]
+            "items": [
+                {
+                    "qty": 2,
+                    "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                    "price": 13.8
+                },
+                {
+                    "qty": 200,
+                    "dish": "Bulgogi_Tacos",
+                    "price": 1600
+                }
+            ]
         },
         "status": "processing",
         "restaurant": "Bricklane",
@@ -223,9 +223,9 @@ Sample Output:
         "info": {
         "items": [
             {
-            "qty": 1,
-            "dish": "Ayam_Penyet",
-            "price": 7
+                "qty": 1,
+                "dish": "Ayam_Penyet",
+                "price": 7
             }
         ]
         },
@@ -235,54 +235,90 @@ Sample Output:
     }
 ]
 ```
+## Combined Filters
 
-> Update status of order
+You can combine any of the three parameters (`uid`, `oid`, and `restaurant`) in any combination to retrieve specific orders. For example:
 
-PUT http://localhost:8090/order/updatestatus
+- To filter orders by user ID (`uid`), include `uid=Subrah`.
+- To filter orders by order ID (`oid`), include `oid=f2057454-490b-4c72-abc3-85d759a29a68`.
+- To filter orders by (`restaurant name`), include `restaurant=Bricklane`.
 
-Required body JSON is oid, status
+These parameters can be stacked together in any combination to refine your query. For instance:
+
+- `uid=Subrah&oid=f2057454-490b-4c72-abc3-85d759a29a68` retrieves a specific order for a particular user.
+- `uid=Subrah&restaurant=Bricklane` retrieves all orders placed by a specific user at a specific restaurant.
+
+## Get User Credits
+
+GET http://localhost:8090/credits/uid
+
+Required params is uid
 
 Sample Output:
+http://localhost:8090/credits/Ewan
+
 ```json
 {
-    "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
-    "user_id": "Kendrick",
-    "info": {
-        "Bricklane": [
-            {
-                "qty": 2,
-                "dish": "Grilled_Teriyaki_Chicken_Donburi",
-                "price": 13.8
-            },
-            {
-                "qty": 200,
-                "dish": "Bulgogi_Tacos",
-                "price": 1600
-            }
-        ],
-        "Ayam Taliwang": [
-            {
-                "qty": 1,
-                "dish": "Ayam_Penyet",
-                "price": 7
-            }
-        ]
-    },
-    "status": "cancelled",
-    "total": 1620.8
+    "message": {
+        "message": "successful",
+        "statuscode": "200",
+        "currentcredits": 46
+    }
 }
 ```
 
-> Add order
+### User Cancel Order
+
+PUT http://localhost:8090/order/cancel/oid/resteraunt
+
+Required params is oid, resteraunt
+
+Sample Output:
+http://localhost:8090/order/cancel/a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc/Kuro_Kare
+
+```json
+{
+    "order": {
+        "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc",
+        "user_id": "Kevin",
+        "info": {
+            "items": [
+                {
+                    "qty": 10,
+                    "dish": "Black_Angus_Shortribs_Curry",
+                    "price": 16.9
+                }
+            ]
+        },
+        "status": "cancelled",
+        "restaurant": "Kuro_Kare",
+        "total": 16.9
+    },
+    "queue": {
+        "message": "Deleted (➖) Queue from Kuro_Kare",
+        "data": [
+            {
+                "queue_no": 2,
+                "user_id": "Kevin",
+                "time": "2025-03-30T04:19:34.080078",
+                "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc"
+            }
+        ]
+    }
+}
+```
+
+### Add order
 
 POST http://localhost:8090/order/addorder
 
-Required body JSON is orderContent
+Required body JSON is orderContent, creditContent
 
-Sample JSON for orderContent:
+Sample JSON for orderContent, creditContent:
 ```json
 {
-    "user_id": "Kendrick",
+    "orderContent": {
+    "user_id": "Kevin",
     "info": {
         "items": [
             {
@@ -292,28 +328,53 @@ Sample JSON for orderContent:
             }
         ]
     },
-    "status": "processing",
     "restaurant": "Kuro_Kare",
-    "total": 169
+    "total": 16.9
+},
+    // User doesn't need to necessarily use credits 
+    "creditsContent": { 
+        // "uid" : "Kevin",
+        // "credit": "5"
+    }
 }
 ```
 
 Sample Output:
 ```json
 {
-    "order_id": "20cc894b-62a3-48e9-8d0c-65238f227b8e",
-    "user_id": "Kendrick",
-    "info": {
-        "items": [
+    "order": {
+        "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc",
+        "user_id": "Kevin",
+        "info": {
+            "items": [
+                {
+                    "qty": 10,
+                    "dish": "Black_Angus_Shortribs_Curry",
+                    "price": 16.9
+                }
+            ]
+        },
+        "status": "processing",
+        "restaurant": "Kuro_Kare",
+        "total": 16.9
+    },
+    "credit": "No Credits Deducted", // Default message if user doesn't use credits otherwise will return the message that
+    "queue": {
+        "message": "Added (➕) Queue to Kuro_Kare",
+        "data": [
             {
-                "qty": 10,
-                "dish": "Black_Angus_Shortribs_Curry",
-                "price": 16.9
+                "queue_no": 2,
+                "user_id": "Kevin",
+                "time": "2025-03-30T04:19:34.080078",
+                "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc"
             }
         ]
     },
-    "status": "processing",
-    "restaurant": "Kuro_Kare",
-    "total": 169
+    "rabbitMQ": {
+        "message": "Your Order a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc from Kuro_Kare has been successfully sent to the Kitchen!",
+        "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc",
+        "type": "notification",
+        "user_id": "Kevin"
+    }
 }
 ```

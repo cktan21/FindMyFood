@@ -335,7 +335,7 @@ Search by order id
             }
         ]
     },
-    "status": "processing",
+    // status no longer needed
     "restaurant": "Kuro_Kare",
     "total": 169
 }
@@ -362,8 +362,3 @@ Search by order id
 }
 ```
 
-### Debugging
-
-```bash
-
-```
