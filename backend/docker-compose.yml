@@ -180,7 +180,7 @@ services:
       timeout: 5s
 
   rabbitmq-setup:
-    build: ./rabbitmq
+    build: ./rabbitmq-setup
     container_name: amqp-setup
     depends_on:
       rabbitmq:

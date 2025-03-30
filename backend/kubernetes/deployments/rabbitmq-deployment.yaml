@@ -17,22 +17,17 @@ spec:
       - name: rabbitmq
         image: rabbitmq:3-management
         ports:
-        - containerPort: 5672
-        - containerPort: 15672
+        - containerPort: 5672 # AMQP port
+        - containerPort: 15672 # Management UI port
         volumeMounts:
-        - name: rabbitmq-data
+        - name: config-volume
+          mountPath: /etc/rabbitmq
+        - name: rabbitmq-storage
           mountPath: /var/lib/rabbitmq
-        livenessProbe:
-          exec:
-            command: ["rabbitmqctl", "status"]
-          initialDelaySeconds: 20
-          periodSeconds: 10
-        readinessProbe:
-          exec:
-            command: ["rabbitmqctl", "status"]
-          initialDelaySeconds: 20
-          periodSeconds: 10
       volumes:
-      - name: rabbitmq-data
+      - name: config-volume
+        configMap:
+          name: rabbitmq-config
+      - name: rabbitmq-storage
         persistentVolumeClaim:
           claimName: rabbitmq-pvc
