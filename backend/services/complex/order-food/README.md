@@ -317,20 +317,38 @@ Required body JSON is orderContent, creditContent
 Sample JSON for orderContent, creditContent:
 ```json
 {
-    "orderContent": {
-    "user_id": "Kevin",
-    "info": {
-        "items": [
-            {
-                "qty": 10,
-                "dish": "Black_Angus_Shortribs_Curry",
-                "price": 16.9
-            }
-        ]
-    },
-    "restaurant": "Kuro_Kare",
-    "total": 16.9
-},
+    // make sure it's an array
+    "orderContent": [
+        {
+            "user_id": "Kevin",
+            "info": {
+                "items": [
+                    {
+                        "qty": 10,
+                        "dish": "Black_Angus_Shortribs_Curry",
+                        "price": 16.9
+                    }
+                ]
+            },
+            "restaurant": "Kuro_Kare",
+            "total": 16.9
+        }, 
+        // 
+        {
+            "user_id": "Kevin",
+            "info": {
+                "items": [
+                    {
+                        "qty": 10,
+                        "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                        "price": 16.9
+                    }
+                ]
+            },
+            "restaurant": "Bricklane",
+            "total": 16.9
+        }
+    ],
     // User doesn't need to necessarily use credits 
     "creditsContent": { 
         // "uid" : "Kevin",
@@ -342,39 +360,78 @@ Sample JSON for orderContent, creditContent:
 Sample Output:
 ```json
 {
-    "order": {
-        "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc",
-        "user_id": "Kevin",
-        "info": {
-            "items": [
+    "order": [
+        {
+            "order_id": "a9f119ce-4c51-4bf9-b9ee-6d81dae2c5ed",
+            "user_id": "Kevin",
+            "info": {
+                "items": [
+                    {
+                        "qty": 10,
+                        "dish": "Black_Angus_Shortribs_Curry",
+                        "price": 16.9
+                    }
+                ]
+            },
+            "status": "processing",
+            "restaurant": "Kuro_Kare",
+            "total": 16.9
+        },
+        {
+            "order_id": "05ea28e8-5301-4d4a-ac68-f135067667af",
+            "user_id": "Kevin",
+            "info": {
+                "items": [
+                    {
+                        "qty": 10,
+                        "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                        "price": 16.9
+                    }
+                ]
+            },
+            "status": "processing",
+            "restaurant": "Bricklane",
+            "total": 16.9
+        }
+    ],
+    "credit": "No Credits Deducted", // Default message if user doesn't use credits otherwise will return the message that
+    "queue": [
+        {
+            "message": "Added (➕) Queue to Kuro_Kare",
+            "data": [
                 {
-                    "qty": 10,
-                    "dish": "Black_Angus_Shortribs_Curry",
-                    "price": 16.9
+                    "queue_no": 3,
+                    "user_id": "Kevin",
+                    "time": "2025-03-30T14:53:00.460013",
+                    "order_id": "a9f119ce-4c51-4bf9-b9ee-6d81dae2c5ed"
                 }
             ]
         },
-        "status": "processing",
-        "restaurant": "Kuro_Kare",
-        "total": 16.9
-    },
-    "credit": "No Credits Deducted", // Default message if user doesn't use credits otherwise will return the message that
-    "queue": {
-        "message": "Added (➕) Queue to Kuro_Kare",
-        "data": [
-            {
-                "queue_no": 2,
-                "user_id": "Kevin",
-                "time": "2025-03-30T04:19:34.080078",
-                "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc"
-            }
-        ]
-    },
-    "rabbitMQ": {
-        "message": "Your Order a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc from Kuro_Kare has been successfully sent to the Kitchen!",
-        "order_id": "a74a2f3b-5d7d-45f2-ae08-5f2cc63815bc",
-        "type": "notification",
-        "user_id": "Kevin"
-    }
+        {
+            "message": "Added (➕) Queue to Bricklane",
+            "data": [
+                {
+                    "queue_no": 23,
+                    "user_id": "Kevin",
+                    "time": "2025-03-30T14:53:00.657154",
+                    "order_id": "05ea28e8-5301-4d4a-ac68-f135067667af"
+                }
+            ]
+        }
+    ],
+    "rabbitMQ": [
+        {
+            "message": "Your Order a9f119ce-4c51-4bf9-b9ee-6d81dae2c5ed from Kuro_Kare has been successfully sent to the Kitchen!",
+            "order_id": "a9f119ce-4c51-4bf9-b9ee-6d81dae2c5ed",
+            "type": "notification",
+            "user_id": "Kevin"
+        },
+        {
+            "message": "Your Order 05ea28e8-5301-4d4a-ac68-f135067667af from Bricklane has been successfully sent to the Kitchen!",
+            "order_id": "05ea28e8-5301-4d4a-ac68-f135067667af",
+            "type": "notification",
+            "user_id": "Kevin"
+        }
+    ]
 }
 ```

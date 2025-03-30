@@ -118,11 +118,15 @@ async function addQ(qContent) {
 
 async function addOrder(orderContent) {
 
+    const storage = []
     try {
 
-        const response = await axios.post(`http://order:6369/add`, orderContent);
+        for (content of orderContent){
+            let response = await axios.post(`http://order:6369/add`, content);
+            storage.push(response.data)
+        }
 
-        return response.data;
+        return storage;
 
     } catch (error) {
         console.error("Error updating status:", error.response ? error.response.data : error.message);

@@ -75,23 +75,29 @@ router.post('/addorder', async (req, res) => {
             addCredits = await order.useCredits(creditsContent)
         }
 
-        const toQ = {
-            restaurant: addOrder.restaurant,
-            user_id: addOrder.user_id,
-            order_id: addOrder.order_id
+        const adQ = []
+        const rabbitMQ = []
+
+        for (od of addOrder) {
+            let toQ = {
+                restaurant: od.restaurant,
+                user_id: od.user_id,
+                order_id: od.order_id
+            }
+            let Qchunk = await order.addQ(toQ)
+            adQ.push(Qchunk)
+
+            let toRabbiMQ = {
+                message: `Your Order ${od.order_id} from ${od.restaurant} has been successfully sent to the Kitchen!`,
+                order_id: od.order_id,
+                type: "notification",
+                user_id: od.user_id
+            }
+
+            let rabbitMQChunk = await order.SendRabbitMQ(toRabbiMQ)
+            rabbitMQ.push(rabbitMQChunk)
         }
-
-        const adQ = await order.addQ(toQ)
-
-        const toRabbiMQ = {
-            message: `Your Order ${addOrder.order_id} from ${addOrder.restaurant} has been successfully sent to the Kitchen!`,
-            order_id: addOrder.order_id,
-            type: "notification",
-            user_id: addOrder.user_id
-        }
-
-        const rabbitMQ = await order.SendRabbitMQ(toRabbiMQ)
-
+        
         res.status(200).json({
             order: addOrder,
             credit: addCredits,
