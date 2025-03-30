@@ -6,12 +6,15 @@ metadata:
 spec:
   template:
     spec:
-      initContainers:
-      - name: wait-for-rabbitmq
-        image: busybox
-        command: ['sh', '-c', 'until nc -z rabbitmq 5672; do echo "Waiting for RabbitMQ..."; sleep 2; done']
       containers:
       - name: rabbitmq-setup
-        image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/rabbitmq:latest
-        command: ["python3", "/app/amqp_setup.py"]
-      restartPolicy: OnFailure
+        image: curlimages/curl
+        command:
+        - /bin/sh
+        - -c
+        - |
+          curl -u guest:guest -X PUT http://rabbitmq:15672/api/exchanges/%2F/main -H "Content-Type: application/json" -d '{"type":"topic","durable":true}'
+          curl -u guest:guest -X PUT http://rabbitmq:15672/api/queues/%2F/notifications -H "Content-Type: application/json" -d '{"durable":true}'
+          curl -u guest:guest -X POST http://rabbitmq:15672/api/bindings/%2F/e/main/q/notifications -H "Content-Type: application/json" -d '{"routing_key":"#.notifications"}'
+      restartPolicy: Never
+  backoffLimit: 4

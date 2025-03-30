@@ -10,3 +10,4 @@ spec:
   ports:
   - port: 3300
     targetPort: 3300
+    nodePort: 30330 # Fixed NodePort between 30000-32767

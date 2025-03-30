@@ -26,6 +26,6 @@ kubectl apply -f kubernetes/deployments/ -n esd
 kubectl apply -f kubernetes/jobs/ -n esd
 
 kubectl get svc -n esd
-kubectl get pods -o wide
-kubectl get nodes -o wide
+kubectl get pods -n esd -o wide
+kubectl get nodes -n esd -o wide
 ```

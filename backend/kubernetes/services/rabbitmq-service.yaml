@@ -8,9 +8,11 @@ spec:
   selector:
     app: rabbitmq
   ports:
-  - name: client
+  - name: amqp
     port: 5672
     targetPort: 5672
+    nodePort: 32672 # Fixed NodePort between 30000-32767
   - name: management
     port: 15672
     targetPort: 15672
+    nodePort: 31572 # Fixed NodePort between 30000-32767
