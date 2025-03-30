@@ -74,7 +74,7 @@ export default function CartPage() {
         deliveryFee,
         serviceFee,
         total,
-        orderId: `ORDER-${Date.now()}`,
+        // orderId: `ORDER-${Date.now()}`,
         customerEmail: user?.email || 'guest@example.com',
         domain: window.location.origin
       });

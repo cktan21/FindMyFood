@@ -19,7 +19,7 @@ GET http://localhost:8080/order/id
 where id = user id
 
 Sample Output:
-```bash
+```json
 [
     {
         "order_id": "4631fe98-2fa6-4da5-b695-7eeb6328715a",
@@ -69,7 +69,7 @@ GET http://localhost:8080/reccomendation/id
 where id = user id
 
 Sample Output:
-```bash
+```json
 {
   "food": {
     "Restaurant": "Ayam Taliwang",
@@ -83,7 +83,7 @@ Sample Output:
 GET http://localhost:8080/menu
 
 Sample Output:
-```bash
+```json
 {
     "Bricklane": { // store name
         "Fusion_Bowls": { //category of the item
@@ -179,7 +179,7 @@ POST http://localhost:8080/chatgpt/id
 where id = user id
 
 Sample Output:
-```bash
+```json
 {
     "foodReccomendation": {
         "suggestion1": {

@@ -82,6 +82,8 @@ services:
       - esd-net
     ports:
       - "8090:8090"
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
 
   chatgpt:
     build: ./services/simple/chatgpt

@@ -177,7 +177,7 @@ func main() {
 
         // Collect results or handle errors
         var orderHistoryData, menuData, recommendationData interface{}
-        for i := 0; i < 3; i++ {
+        for range 3 {
 			// select here "listens" ie checks for each of the cases => if any of them return true it runs (like mutiple if statements)
             select {
 				case err := <-errorChan:
