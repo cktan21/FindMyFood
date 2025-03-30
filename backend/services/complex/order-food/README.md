@@ -333,7 +333,7 @@ Sample JSON for orderContent, creditContent:
             "restaurant": "Kuro_Kare",
             "total": 16.9
         }, 
-        // 
+        // differnt restraunts have to be seperated 
         {
             "user_id": "Kevin",
             "info": {
