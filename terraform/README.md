@@ -4,6 +4,12 @@ terraform plan -var="project_id=YOUR_PROJECT_ID"
 terraform apply -var="project_id=YOUR_PROJECT_ID"
 ```
 
+## Link to GCP
+> Need this to get GKE Credentials:
+```bash
+gcloud container clusters get-credentials my-gke-cluster --zone asia-southeast1-a --project YOUR_PROJECT_ID
+```
+
 ## To run GKE Cluster
 > Make sure context is GKE and you are in backend folder
 ```bash
