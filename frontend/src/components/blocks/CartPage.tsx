@@ -44,34 +44,33 @@ export default function CartPage() {
     (acc, item) => acc + item.details.price * item.quantity,
     0
   );
-  const deliveryFee = 2.99;
   const serviceFee = 1.50;
-  const total = subtotal + deliveryFee + serviceFee;
+  const total = subtotal + serviceFee;
 
   const handleCheckout = async () => {
     setIsProcessing(true);
     setError(null);
     
     // Format cart items to match the expected structure in confirmation page
+    // In CartPage.tsx where you store items in localStorage
     const formattedItems = cartItems.map(item => ({
       name: item.item.replace(/_/g, " "),
       quantity: item.quantity,
-      price: item.details.price
+      price: item.details.price,
+      restaurant: item.restaurant // Make sure this property exists and is correctly set
     }));
-    
-    // Store cart data in localStorage before redirecting
+
     localStorage.setItem('pendingOrder', JSON.stringify({
       items: formattedItems,
       subtotal: subtotal,
-      deliveryFee: deliveryFee,
       serviceFee: serviceFee,
       total: total
     }));
+
     
     try {
       const response = await axios.post('http://localhost:5002/create-checkout-session', {
         cartItems,
-        deliveryFee,
         serviceFee,
         total,
         // orderId: `ORDER-${Date.now()}`,
@@ -301,10 +300,7 @@ export default function CartPage() {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">${subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Delivery Fee</span>
-                    <span className="font-medium">$2.99</span>
-                  </div>
+
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Service Fee</span>
                     <span className="font-medium">$1.50</span>

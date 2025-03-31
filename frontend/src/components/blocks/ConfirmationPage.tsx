@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 import { useCart } from "@/hooks/useCart";
+import { supabase } from "@/supabaseClient"
 
 // Define interfaces for type safety
 interface OrderItem {
@@ -15,14 +16,13 @@ interface OrderItem {
 }
 
 interface Order {
-//   orderNumber: string;
+  orderNumber: string;
   orderDate: string;
   paymentMethod: string;
   paymentId: string;
   total: number;
   items: OrderItem[];
   subtotal: number;
-  deliveryFee: number;
   serviceFee: number;
 }
 
@@ -54,23 +54,135 @@ export default function ConfirmationPage() {
           const response = await axios.get(`http://localhost:5002/session-status?session_id=${sessionId}`);
           
           if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
-            // Create order data using both Stripe response and stored cart data
-            setOrder({
-            //   orderNumber: `FE-${Date.now().toString().slice(-4)}`,
-              orderDate: new Date().toLocaleString(),
-              paymentMethod: 'Credit Card',
-              paymentId: sessionId,
-              // If items array exists and has proper format, use it; otherwise create a fallback
-              items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
-              subtotal: pendingOrder.subtotal || 0,
-              deliveryFee: pendingOrder.deliveryFee || 2.99,
-              serviceFee: pendingOrder.serviceFee || 1.50,
-              total: response.data.amount_total || 0 // Stripe returns amount in cents
-            });
-            
-            // Clear the pending order from localStorage
-            localStorage.removeItem('pendingOrder');
-            clearCart();
+            try {
+              // Get stored order details from localStorage
+              const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
+              console.log('pendingOrder:', pendingOrder);
+              
+              // Group items by restaurant for the orderFood API
+              const itemsByRestaurant: Record<string, any[]> = {};
+              
+              // If items exist and have proper format
+              if (Array.isArray(pendingOrder.items)) {
+                console.log('pendingOrder.items:', pendingOrder.items);
+                
+                pendingOrder.items.forEach((item: any) => {
+                  // Make sure we have a restaurant name - check both properties that might contain it
+                  const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
+                  
+                  if (!itemsByRestaurant[restaurantName]) {
+                    itemsByRestaurant[restaurantName] = [];
+                  }
+                  
+                  itemsByRestaurant[restaurantName].push({
+                    qty: item.quantity,
+                    dish: item.name.replace(/ /g, '_'),
+                    price: parseFloat(item.price.toString())
+                  });
+                });
+              }
+              
+              const { data: userData, error: authError } = await supabase.auth.getUser()
+                    if (authError) {
+                      console.error("Error fetching user:", authError)
+                      return
+                    }
+                    const user = userData?.user
+
+              // Create orderContent array for the API
+              const orderContent = Object.keys(itemsByRestaurant).map(restaurant => ({
+                user_id: user.id || 'guest@example.com',
+                info: {
+                  items: itemsByRestaurant[restaurant]
+                },
+                restaurant: restaurant,
+                total: parseFloat(itemsByRestaurant[restaurant].reduce((sum, item) => 
+                  sum + (item.qty * item.price), 0).toFixed(2))
+              }));
+              
+              // Only make API call if there are items to process
+              if (orderContent.length > 0) {
+                const orderData = {
+                  orderContent: orderContent,
+                  creditsContent: {}
+                };
+                
+                console.log('Sending order data:', orderData);
+                
+                const orderResponse = await axios.post('http://localhost:8000/order-food/order/addorder', orderData);
+                
+                console.log('Order created:', orderResponse.data);
+                
+                // Get the first order ID from the response
+                // Log the entire response to see its structure
+                console.log('Full order response:', JSON.stringify(orderResponse.data));
+                
+                // Extract the order ID - make sure we're accessing the right property
+                const orderId = orderResponse.data.order && 
+                               orderResponse.data.order.length > 0 && 
+                               orderResponse.data.order[0].order_id;
+                
+                console.log('Extracted order ID:', orderId);
+                
+                // Create order data using both Stripe response and stored cart data
+                setOrder({
+                  orderNumber: orderId || `FE-${Date.now().toString().slice(-4)}`,
+                  orderDate: new Date().toLocaleString(),
+                  paymentMethod: 'Credit Card',
+                  paymentId: sessionId,
+                  items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
+                  subtotal: pendingOrder.subtotal || 0,
+                  serviceFee: pendingOrder.serviceFee || 1.50,
+                  total: response.data.amount_total || 0
+                });
+                
+                // Log the order state to verify
+                console.log('Order state set to:', {
+                  orderNumber: orderId || `FE-${Date.now().toString().slice(-4)}`,
+                  // other properties...
+                });
+              } else {
+                console.log('No items to process, skipping API call');
+                // Set order with generated ID
+                setOrder({
+                  orderNumber: `FE-${Date.now().toString().slice(-4)}`,
+                  orderDate: new Date().toLocaleString(),
+                  paymentMethod: 'Credit Card',
+                  paymentId: sessionId,
+                  items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
+                  subtotal: pendingOrder.subtotal || 0,
+                  serviceFee: pendingOrder.serviceFee || 1.50,
+                  total: response.data.amount_total || 0
+                });
+              }
+              
+              // Clear the pending order from localStorage
+              localStorage.removeItem('pendingOrder');
+              clearCart();
+            } catch (orderErr: any) {
+              console.error('Error creating order:', orderErr);
+              // Log more detailed error information
+              if (orderErr.response) {
+                console.error('Error response data:', orderErr.response.data);
+                console.error('Error status:', orderErr.response.status);
+              }
+              
+              // Still show confirmation but with generated order number
+              setOrder({
+                orderNumber: `FE-${Date.now().toString().slice(-4)}`,
+                orderDate: new Date().toLocaleString(),
+                paymentMethod: 'Credit Card',
+                paymentId: sessionId,
+                items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
+                subtotal: pendingOrder.subtotal || 0,
+                serviceFee: pendingOrder.serviceFee || 1.50,
+                total: response.data.amount_total || 0
+              });
+              
+              // Clear the pending order from localStorage
+              localStorage.removeItem('pendingOrder');
+              clearCart();
+            }
           } else {
             setError('Payment was not completed successfully.');
             setTimeout(() => navigate('/cart'), 3000);
@@ -137,10 +249,10 @@ export default function ConfirmationPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm">
                 <span>Order Number</span>
                 <span className="font-medium">{order.orderNumber}</span>
-              </div> */}
+              </div>
               <div className="flex justify-between text-sm">
                 <span>Order Date</span>
                 <span>{order.orderDate}</span>
@@ -170,10 +282,7 @@ export default function ConfirmationPage() {
                 <span>Subtotal</span>
                 <span>${(order.subtotal || 0).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Delivery Fee</span>
-                <span>${(order.deliveryFee || 0).toFixed(2)}</span>
-              </div>
+              
               <div className="flex justify-between text-sm">
                 <span>Service Fee</span>
                 <span>${(order.serviceFee || 0).toFixed(2)}</span>
