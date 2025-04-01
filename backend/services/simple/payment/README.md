@@ -35,34 +35,53 @@ Step 4: For the stripe payment credit card number use
 <p>Credit Card Number: 4242 4242 4242 4242</p>
 <p>Any Expiry Date & CSV</p>
 
-Request to Backend
 
+Data passed to Stripe Checkout Session
 ```json
 {
   "cartItems": [
     {
-      "restaurant": "japanese_restaurant",
-      "category": "Curry",
-      "item": "Chicken_Katsu_Don",
+      "item": "Grilled Teriyaki Chicken Donburi",
+      "quantity": 2,
       "details": {
-        "photo": "https://example.com/chicken_katsu.jpg",
-        "desc": "Crispy chicken cutlet over rice.",
-        "price": 10.5
+        "price": 6.9,
+        "desc": "Delicious grilled chicken served with teriyaki sauce.",
+        "photo": "https://example.com/images/chicken.jpg"
       },
-      "quantity": 2
+      "restaurant": "Bricklane"
     }
   ],
-  "deliveryFee": 2.99,
-  "serviceFee": 1.5,
-  "total": 25.49,
-  "orderId": "ORDER-1648452789",
-  "customerEmail": "customer@example.com",
-  "domain": "http://localhost:3000"
+  "serviceFee": 1.50,
+  "total": 25.30,
+  "customerEmail": "ewan_30@hotmail.com",
+  "domain": "http://localhost:5173"
+}
+```
+
+Data Passed to OrderFood Microservice
+```json
+{
+    "orderContent": [
+        {
+            "user_id": "<USER_ID_FROM_SUPABASE>",
+            "info": {
+                "items": [
+                    {
+                        "qty": 2,
+                        "dish": "Grilled_Teriyaki_Chicken_Donburi",
+                        "price": 6.9
+                    }
+                ]
+            },
+            "restaurant": "Bricklane",
+            "total": 13.8
+        }
+    ],
+    creditsContent: {}
 }
 ```
 
 Response from Backend with Stripe Session
-
 ```json
 {
   "sessionId": "cs_test_a1b2c3d4e5f6g7h8i9j0",
@@ -71,12 +90,11 @@ Response from Backend with Stripe Session
 ```
 
 Session Status Response After Payment
-
 ```json
 {
   "status": "complete",
   "payment_status": "paid",
-  "customer_email": "customer@example.com",
+  "customer_email": "ewan_30@hotmail.com",
   "amount_total": 25.49
 }
 ```
