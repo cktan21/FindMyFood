@@ -37,6 +37,9 @@ Switch to your branch before starting to code <br>
 ## Kubernetes Architecture Diagram
 <img width="1000" alt="Screenshot 2025-04-01 at 2 38 43 PM" src="https://github.com/user-attachments/assets/5ed8cf54-6960-48b1-91a3-099e6fcc792f" />
 
+## Development CI/CD Pipelines
+<img width="1000" alt="Screenshot 2025-04-01 at 3 02 19 PM" src="https://github.com/user-attachments/assets/abe00d53-ef5d-40db-8bd0-a2d5a7e2c3e4" />
+
 ## Notable Technical Implementations
 ### Backend
 - <b>Microservice Archictecture</b>
