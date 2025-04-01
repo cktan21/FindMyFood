@@ -73,7 +73,6 @@ export default function CartPage() {
         cartItems,
         serviceFee,
         total,
-        // orderId: `ORDER-${Date.now()}`,
         customerEmail: user?.email || 'guest@example.com',
         domain: window.location.origin
       });
