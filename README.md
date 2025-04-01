@@ -31,8 +31,11 @@ Switch to your branch before starting to code <br>
 ## Technical Architecture Diagram
 ![image](https://github.com/user-attachments/assets/8bb03a33-40f2-44eb-b421-ae1162802181)
 
+## Cloud Architecture Diagram
+<img width="1080" alt="Screenshot 2025-04-01 at 2 34 07 PM" src="https://github.com/user-attachments/assets/ea1fc65f-4870-4543-ba7c-a5007affa873" />
+
 ## Kubernetes Architecture Diagram
-<img width="850" alt="Screenshot 2025-03-22 at 2 42 52 PM" src="https://github.com/user-attachments/assets/d19e1e4f-a735-435c-9b26-bd1894535bfb" />
+<img width="1000" alt="Screenshot 2025-04-01 at 2 38 43 PM" src="https://github.com/user-attachments/assets/5ed8cf54-6960-48b1-91a3-099e6fcc792f" />
 
 ## Notable Technical Implementations
 ### Backend
