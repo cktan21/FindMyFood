@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useRestaurants } from "@/context/RestaurantsContext";
 import { supabase } from "@/supabaseClient";
-import { ChevronLeft, User, ShoppingBag } from "lucide-react";
+import { ChevronLeft, User, ShoppingBag, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 
@@ -17,6 +17,7 @@ export default function ProductPage() {
   const itemParam = searchParams.get("item");
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { addToCart } = useCart();
@@ -73,6 +74,8 @@ export default function ProductPage() {
       },
       quantity: 1,
     });
+    setShowMessage(true);
+    setTimeout(() => setShowMessage(false), 5000);
   };
 
   return (
@@ -161,9 +164,22 @@ export default function ProductPage() {
             >
               Add to Cart
             </Button>
+            <div className="mt-8">
+              <h2 className="text-xl font-bold">User Reviews</h2>
+              <ul className="mt-4 space-y-4">
+                <li className="p-4 border rounded-md shadow-sm">"Great product! Tastes amazing." - John Doe</li>
+                <li className="p-4 border rounded-md shadow-sm">"Will definitely order again!" - Jane Smith</li>
+                <li className="p-4 border rounded-md shadow-sm">"Highly recommend to everyone!" - Alex Johnson</li>
+              </ul>
+            </div>
           </div>
         </div>
       </main>
+      {showMessage && (
+        <div className="fixed bottom-4 left-4 bg-green-500 text-white px-4 py-2 rounded-md flex items-center gap-2 shadow-lg">
+          <CheckCircle className="h-5 w-5" /> Added to cart
+        </div>
+      )}
     </div>
   );
 }
