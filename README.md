@@ -32,7 +32,7 @@ Switch to your branch before starting to code <br>
 ![image](https://github.com/user-attachments/assets/8bb03a33-40f2-44eb-b421-ae1162802181)
 
 ## Cloud Architecture Diagram
-<img width="1300" alt="Screenshot 2025-04-01 at 2 34 07 PM" src="https://github.com/user-attachments/assets/ea1fc65f-4870-4543-ba7c-a5007affa873" />
+<img width="1155" alt="Screenshot 2025-04-02 at 10 32 30 PM" src="https://github.com/user-attachments/assets/7d7ae580-2bb4-40f1-b44a-43bdc48621f9" />
 
 ## Kubernetes Architecture Diagram
 <img width="1000" alt="Screenshot 2025-04-01 at 2 38 43 PM" src="https://github.com/user-attachments/assets/5ed8cf54-6960-48b1-91a3-099e6fcc792f" />
