@@ -40,3 +40,8 @@ kubectl expose deployment kong --type=LoadBalancer --name=kong-deployment -n esd
 ```bash
 kubectl port-forward svc/grafana -n esd 3000:1010
 ```
+
+> To scale cluster down/remove
+```bash
+gcloud container clusters delete my-gke-cluster --zone asia-southeast1-a --project YOUR_PROJECT_ID
+```
