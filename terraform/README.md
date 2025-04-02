@@ -32,4 +32,11 @@ kubectl apply -f kubernetes/deployments/ -n esd
 kubectl apply -f kubernetes/jobs/ -n esd
 
 kubectl get svc -n esd
+
+kubectl expose deployment kong --type=LoadBalancer --name=kong-deployment -n esd
+```
+
+> To access Grafana
+```bash
+kubectl port-forward svc/grafana -n esd 3000:1010
 ```
