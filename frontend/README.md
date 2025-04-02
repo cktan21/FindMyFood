@@ -1,5 +1,12 @@
 # React + TypeScript + Vite
 
+```bash
+cd frontend
+npm i
+npm run build
+gsutil -m rsync -R dist gs://findmyfood-455107-frontend
+```
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
