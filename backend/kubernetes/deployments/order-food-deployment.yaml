@@ -16,5 +16,6 @@ spec:
       containers:
       - name: order-food
         image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/order-food:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8090

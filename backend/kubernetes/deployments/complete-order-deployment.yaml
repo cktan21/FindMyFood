@@ -16,5 +16,6 @@ spec:
       containers:
       - name: complete-order
         image: asia-southeast1-docker.pkg.dev/findmyfood-455107/my-repo/complete-order:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 7070
