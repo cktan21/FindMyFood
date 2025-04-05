@@ -109,7 +109,7 @@ export default function ConfirmationPage() {
                 
                 console.log('Sending order data:', orderData);
                 
-                const orderResponse = await axios.post('http://localhost:8000/order-food/order/addorder', orderData);
+                const orderResponse = await axios.post('http://localhost:8000/order-food/order/addorder', orderData); //
                 
                 console.log('Order created:', orderResponse.data);
                 

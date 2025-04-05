@@ -2,6 +2,7 @@ package main
 
 import (
     "bytes"
+    "encoding/base64"
     "encoding/json"
     "fmt"
     "io/ioutil"
@@ -25,16 +26,41 @@ func fetchAPIData(apiURL string) ([]byte, error) {
     return body, nil
 }
 
+// Helper function to check if a string is base64-encoded
+func isBase64(data []byte) bool {
+    _, err := base64.StdEncoding.DecodeString(string(data))
+    return err == nil
+}
+
+// Decode base64 if necessary
+func decodeBase64IfNeeded(data []byte) ([]byte, error) {
+    if isBase64(data) {
+        decoded, err := base64.StdEncoding.DecodeString(string(data))
+        if err != nil {
+            return nil, fmt.Errorf("failed to decode base64: %w", err)
+        }
+        return decoded, nil
+    }
+    return data, nil
+}
+
+// Parse dynamic data and ensure it's plain JSON
 func parseDynamicData(Data []byte) (interface{}, error) {
+    // Decode base64 if necessary
+    decodedData, err := decodeBase64IfNeeded(Data)
+    if err != nil {
+        return nil, err
+    }
+
     // Try parsing as a map
     var asMap map[string]interface{}
-    if err := json.Unmarshal(Data, &asMap); err == nil {
+    if err := json.Unmarshal(decodedData, &asMap); err == nil {
         return asMap, nil
     }
 
     // Try parsing as an array
     var asArray []interface{}
-    if err := json.Unmarshal(Data, &asArray); err == nil {
+    if err := json.Unmarshal(decodedData, &asArray); err == nil {
         return asArray, nil
     }
 
