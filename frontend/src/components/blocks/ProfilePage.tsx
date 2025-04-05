@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
-import axios from "axios";
 import { supabase } from "@/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut, ShoppingBag, User, ChevronLeft } from "lucide-react";
@@ -13,15 +12,29 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
+import { orderFood } from "../../services/api";
+
+// Define a type for the order structure
+interface Order {
+  order_id: string;
+  restaurant: string;
+  status: string;
+  info: {
+    items: Array<{
+      qty: number;
+      dish: string;
+      price: number;
+    }>;
+  };
+  total: number;
+}
 
 export default function ProfilePage() {
   const { isLoggedIn, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
   // State to hold the profile data
   const [profile, setProfile] = useState<{
     id: string;
@@ -31,36 +44,46 @@ export default function ProfilePage() {
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   // New state for orders
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
   // Fetch profile from the "User" table on mount
   useEffect(() => {
     const fetchProfile = async () => {
-      // Get the authenticated user first
-      const { data: authData, error: authError } = await supabase.auth.getUser();
-      if (authError) {
-        console.error("Error fetching user:", authError);
+      try {
+        // Get the authenticated user first
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+
+        if (authError) {
+          console.error("Error fetching user:", authError);
+          setLoadingProfile(false);
+          return;
+        }
+
+        const user = authData?.user;
+
+        if (!user) {
+          setLoadingProfile(false);
+          return;
+        }
+
+        // Query the "User" table for this user's profile.
+        const { data: profileData, error: profileError } = await supabase
+          .from("User")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+        } else {
+          setProfile(profileData);
+        }
+      } catch (error) {
+        console.error("Unexpected error while fetching profile:", error);
+      } finally {
         setLoadingProfile(false);
-        return;
       }
-      const user = authData?.user;
-      if (!user) {
-        setLoadingProfile(false);
-        return;
-      }
-      // Query the "User" table for this user's profile.
-      const { data: profileData, error: profileError } = await supabase
-        .from("User")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (profileError) {
-        console.error("Error fetching profile:", profileError);
-      } else {
-        setProfile(profileData);
-      }
-      setLoadingProfile(false);
     };
 
     fetchProfile();
@@ -68,36 +91,39 @@ export default function ProfilePage() {
 
   // Fetch orders when profile is available
   useEffect(() => {
-    if (profile?.name) {
-      axios
-        .get(`http://localhost:8000/order-food/order/graborder?uid=${profile.name}`)
-        .then((response) => {
-          setOrders(response.data);
-        })
-        .catch((err) => {
+    const fetchOrders = async () => {
+      if (profile?.name) {
+        try {
+          const response = await orderFood.getOrdersByFilter(profile.name, '', '');
+          if (response && response.data) {
+            setOrders(response.data);
+          } else {
+            console.error("Invalid response from getOrdersByFilter:", response);
+          }
+        } catch (err) {
           console.error("Error fetching orders:", err);
-        })
-        .finally(() => {
+        } finally {
           setLoadingOrders(false);
-        });
-    }
-  }, [profile]);
+        }
+      }
+    };
 
+    fetchOrders();
+  }, [profile?.name]);
+
+  // Handle clicks outside the menu to close it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (loadingProfile) {
-    return <LoadingScreen />;
-  }
-
-  if (loading) {
+  if (loadingProfile || loading) {
     return <LoadingScreen />;
   }
 
@@ -110,7 +136,11 @@ export default function ProfilePage() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (

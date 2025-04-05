@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
-import axios from "axios";
+import { Payment } from "../../services/api"
 
 export default function CartPage() {
   const { isLoggedIn, loading, user } = useAuth();
@@ -69,7 +69,7 @@ export default function CartPage() {
 
     
     try {
-      const response = await axios.post('http://localhost:5002/create-checkout-session', { //
+      const response = await Payment.createCheckout ({
         cartItems,
         serviceFee,
         total,
