@@ -35,7 +35,7 @@ export const orderFood = {
 
     addOrder: async (orderData: any) => {
         const response = await api.post('/order-food/order/addorder', orderData);
-        return response.data;
+        return response;
     }
 };
 
@@ -60,11 +60,11 @@ export const Payment = {
     },
     createCheckout: async (data: any) => {
         const response = await api.post('/payment/create-checkout-session', data)
-        return response.data
+        return response
     },
     sessionStatus: async (sessionId: string) => {
-        const response = await api.post(`/payment/session-status?session_id=${sessionId}`)
-        return response.data
+        const response = await api.get(`/payment/session-status?session_id=${sessionId}`)
+        return response
     }
     
 }
@@ -101,11 +101,11 @@ export const recommendFood = {
 
 export const Menu = {
     getAllMenuItems: async () => {
-        const response = await api.get('/reccomend-food/menu');
+        const response = await api.get('/menu/all');
         return response.data;
     },
     getMenuRestraunt: async (restraunt: string) =>  {
-        const response = await api.get(`/reccomend-food/menu/${restraunt}`);
+        const response = await api.get(`/menu/${restraunt}`);
         return response.data;      
     }
     

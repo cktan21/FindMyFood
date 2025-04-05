@@ -14,6 +14,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
 import { orderFood } from "../../services/api";
+import { Badge } from "../ui/badge";
+import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 
 // Define a type for the order structure
 interface Order {
