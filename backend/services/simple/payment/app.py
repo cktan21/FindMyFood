@@ -61,8 +61,8 @@ def create_checkout_session():
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url=f"{data.get('domain', 'http://localhost:3000')}/confirmation?session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{data.get('domain', 'http://localhost:3000')}/cart",
+            success_url=f"{data.get('domain', 'http://localhost:3000')}/#/confirmation?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{data.get('domain', 'http://localhost:3000')}/#/cart",
             metadata={
                 'customer_email': data.get('customerEmail', '')
             }

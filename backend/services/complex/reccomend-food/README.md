@@ -78,7 +78,7 @@ Sample Output:
 }
 ```
 
-> Get  all Menu items
+> Get all Menu items
 
 GET http://localhost:8080/menu
 

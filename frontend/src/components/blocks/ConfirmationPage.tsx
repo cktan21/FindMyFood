@@ -4,7 +4,7 @@ import { Check, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import axios from "axios";
+import { Payment, orderFood } from "../../services/api"
 import { useCart } from "@/hooks/useCart";
 import { supabase } from "@/supabaseClient"
 
@@ -51,7 +51,7 @@ export default function ConfirmationPage() {
           // Get stored order details from localStorage
           const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
           
-          const response = await axios.get(`http://localhost:5002/session-status?session_id=${sessionId}`);
+          const response = await Payment.sessionStatus(sessionId);
           
           if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
             try {
@@ -109,7 +109,7 @@ export default function ConfirmationPage() {
                 
                 console.log('Sending order data:', orderData);
                 
-                const orderResponse = await axios.post('http://localhost:8000/order-food/order/addorder', orderData); //
+                const orderResponse = await orderFood.addOrder(orderData);
                 
                 console.log('Order created:', orderResponse.data);
                 
