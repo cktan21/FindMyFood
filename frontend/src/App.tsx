@@ -19,27 +19,27 @@ import './App.css'
 const stripePromise = loadStripe('STRIPE_PUBLIC_KEY');
 
 const App = () => {
-  return (
-    <AuthProvider>
-      <CartProvider>
-        <Elements stripe={stripePromise}>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/product" element={<Product />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/confirmation" element={<ConfirmationPage />} />
-              <Route path="/restaurants" element={<Restaurants />} />
-              <Route path="/business-home" element={<BusinessHomePage />} />
-            </Routes>
-        </Elements>
-      </CartProvider>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <CartProvider>
+                <Elements stripe={stripePromise}>
+                    <Routes>
+                        <Route path="/" element={<Landing />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/home" element={<Home />} />
+                        <Route path="/shop" element={<Shop />} />
+                        <Route path="/product" element={<Product />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/cart" element={<Cart />} />
+                        <Route path="/confirmation" element={<ConfirmationPage />} />
+                        <Route path="/restaurants" element={<Restaurants />} />
+                        <Route path="/business-home" element={<BusinessHomePage />} />
+                    </Routes>
+                </Elements>
+            </CartProvider>
+        </AuthProvider>
+    );
 };
 
 export default App;

@@ -69,7 +69,7 @@ export default function CartPage() {
 
     
     try {
-      const response = await axios.post('http://localhost:5002/create-checkout-session', {
+      const response = await axios.post('http://localhost:5002/create-checkout-session', { //
         cartItems,
         serviceFee,
         total,
