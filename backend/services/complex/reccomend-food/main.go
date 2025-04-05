@@ -51,6 +51,7 @@ func main() {
         })
     })
 
+
     router.GET("/order/:id", func(c *gin.Context) {
         id := c.Param("id")
         apiURL := fmt.Sprintf("http://order:6369/orders?uid=%s", id)
@@ -62,7 +63,13 @@ func main() {
             return
         }
 
-        c.JSON(http.StatusOK, data)
+        parsed, err := parseDynamicData(data)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse JSON"})
+            return
+        }
+
+        c.JSON(http.StatusOK, parsed)
     })
 
     router.GET("/reccomendation/:id", func(c *gin.Context) {
@@ -76,7 +83,13 @@ func main() {
             return
         }
 
-        c.JSON(http.StatusOK, data)
+        parsed, err := parseDynamicData(data)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse JSON"})
+            return
+        }
+
+        c.JSON(http.StatusOK, parsed)
     })
 
     router.GET("/menu", func(c *gin.Context) {
@@ -88,9 +101,16 @@ func main() {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
-
-        c.JSON(http.StatusOK, data)
+        
+        parsed, err := parseDynamicData(data)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse JSON"})
+            return
+        }
+        
+        c.JSON(http.StatusOK, parsed)
     })
+
 
     router.GET("/menu/:restaurant", func(c *gin.Context) {
         restaurant := c.Param("restaurant")
@@ -103,7 +123,13 @@ func main() {
             return
         }
 
-        c.JSON(http.StatusOK, data)
+        parsed, err := parseDynamicData(data)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse JSON"})
+            return
+        }
+
+        c.JSON(http.StatusOK, parsed)
     })
 
     router.POST("/chatgpt/:id", func(c *gin.Context) {
