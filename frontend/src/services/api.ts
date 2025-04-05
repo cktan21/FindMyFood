@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+// if you ever face an error simply just delete the .data
+
 // Base URL for Kong API Gateway
 const KONG_BASE_URL = import.meta.env.VITE_KONG_BASE_URL || 'http://localhost:8000';
 
@@ -99,6 +101,7 @@ export const recommendFood = {
     },
 };
 
+// these die die have to have .data
 export const Menu = {
     getAllMenuItems: async () => {
         const response = await api.get('/menu/all');
