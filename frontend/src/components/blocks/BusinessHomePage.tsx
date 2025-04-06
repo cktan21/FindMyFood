@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/supabaseClient";
 import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { orderFood, completeOrder } from "@/services/api";
 import {
   Card,
   CardContent,
@@ -30,43 +31,11 @@ export default function BusinessHomePage() {
   // State for filtering orders by status
   const [selectedFilter, setSelectedFilter] = useState("processing");
 
-  // Sample orders data with statuses matching the filter options.
-  const initialOrdersData = [
-    {
-      id: "ORD-1001",
-      customer: "Alice Smith",
-      status: "processing",
-      total: "$45.00",
-      time: "10 mins ago"
-    },
-    {
-      id: "ORD-1002",
-      customer: "Bob Johnson",
-      status: "completed",
-      total: "$30.00",
-      time: "15 mins ago"
-    },
-    {
-      id: "ORD-1003",
-      customer: "Charlie Brown",
-      status: "cancelled",
-      total: "$25.00",
-      time: "20 mins ago"
-    },
-    {
-      id: "ORD-1004",
-      customer: "Diana Prince",
-      status: "processing",
-      total: "$50.00",
-      time: "5 mins ago"
-    }
-  ];
-
-  // Use state for orders to allow status updates.
-  const [orders, setOrders] = useState(initialOrdersData);
+  // Orders state initially empty
+  const [orders, setOrders] = useState<any[]>([]);
 
   // Sample queue data (this could come from your API in a real app)
-  const queueData = [
+  const [queueData] = useState([
     {
       id: "QUEUE-1",
       description: "Order ORD-1001 is waiting in the queue",
@@ -77,20 +46,64 @@ export default function BusinessHomePage() {
       description: "Order ORD-1004 is waiting in the queue",
       time: "5 mins ago"
     }
-  ];
+  ]);
+
+  // Fetch orders from API on mount
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await orderFood.getAllOrders();
+        console.log("Fetched orders", data);
+        // Check response format and extract the orders array
+        if (Array.isArray(data)) {
+          setOrders(data);
+        } else if (data.orders && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+        } else if (data.message && Array.isArray(data.message)) {
+          setOrders(data.message);
+        } else {
+          console.error("Unexpected orders data format:", data);
+          setOrders([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      }
+    };
+    fetchOrders();
+  }, []);
 
   // Filter orders based on the selected status
   const filteredOrders = orders.filter(
     (order) => order.status === selectedFilter
   );
 
-  // Function to update the order's status
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
+  // Function to update order status locally (using order_id as key)
+  const updateOrderStatusLocally = (orderId: string, newStatus: string) => {
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus } : order
+        order.order_id === orderId ? { ...order, status: newStatus } : order
       )
     );
+  };
+
+  // Async function to handle updating order status via API
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      if (newStatus === "processing") {
+        // For processing, update locally.
+        updateOrderStatusLocally(orderId, newStatus);
+      } else if (newStatus === "cancelled") {
+        // Call cancel order endpoint from completeOrder
+        await completeOrder.cancelOrder(orderId, {});
+        updateOrderStatusLocally(orderId, newStatus);
+      } else if (newStatus === "completed") {
+        // Call complete order endpoint from completeOrder
+        await completeOrder.completeOrder(orderId, {});
+        updateOrderStatusLocally(orderId, newStatus);
+      }
+    } catch (error) {
+      console.error("Failed to update order status", error);
+    }
   };
 
   return (
@@ -109,7 +122,7 @@ export default function BusinessHomePage() {
         </div>
       </header>
 
-      {/* Main Content: Only Orders & Queues Sections */}
+      {/* Main Content: Orders & Queues Sections */}
       <main className="flex flex-1 flex-col gap-4 p-4 md:p-8">
         <div className="grid gap-4 md:grid-cols-2">
           {/* Orders Section */}
@@ -133,16 +146,16 @@ export default function BusinessHomePage() {
                 <div className="space-y-4">
                   {filteredOrders.map((order) => (
                     <div
-                      key={order.id}
+                      key={order.order_id}
                       className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm"
                     >
                       <div>
-                        <div className="font-medium">{order.id}</div>
+                        <div className="font-medium">{order.order_id}</div>
                         <div className="text-muted-foreground">
-                          {order.customer}
+                          {order.user_id}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {order.time}
+                          {order.info?.time || "No time"}
                         </div>
                       </div>
                       <div>
@@ -159,7 +172,9 @@ export default function BusinessHomePage() {
                           {order.status}
                         </Badge>
                       </div>
-                      <div>{order.total}</div>
+                      <div>
+                        {order.info?.total || order.restaurant}
+                      </div>
                       <div className="flex justify-end">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -173,24 +188,24 @@ export default function BusinessHomePage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {/* Provide options to update the status */}
+                            {/* Update status options */}
                             <DropdownMenuItem
                               onClick={() =>
-                                updateOrderStatus(order.id, "processing")
+                                handleUpdateOrderStatus(order.order_id, "processing")
                               }
                             >
                               Processing
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
-                                updateOrderStatus(order.id, "cancelled")
+                                handleUpdateOrderStatus(order.order_id, "cancelled")
                               }
                             >
                               Cancelled
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
-                                updateOrderStatus(order.id, "completed")
+                                handleUpdateOrderStatus(order.order_id, "completed")
                               }
                             >
                               Completed
