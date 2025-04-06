@@ -25,6 +25,10 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const formatId = (id: string): string => {
+    return id.replace(/_/g, " ").trim();
+  };
+
   useEffect(() => {
     async function fetchRestaurants() {
       // Try to load from localStorage first
@@ -41,7 +45,7 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
         const restaurantsArray: Restaurant[] = Object.entries(data).map(
           ([id, restaurant]) => {
             const { id: _, ...restaurantData } = restaurant as Restaurant;
-            return { id, ...restaurantData };
+            return { id: formatId(id), ...restaurantData };
           }
         );
         setRestaurants(restaurantsArray);
@@ -58,7 +62,7 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
           const restaurantsArray: Restaurant[] = Object.entries(data).map(
             ([id, restaurant]) => {
               const { id: _, ...restaurantData } = restaurant as Restaurant;
-              return { id, ...restaurantData };
+              return { id: formatId(id), ...restaurantData };
             }
           );
           setRestaurants(restaurantsArray);
