@@ -110,6 +110,7 @@ export default function BusinessHomePage() {
   const filteredOrders = orders.filter(
     (order) => order.status === selectedFilter
   );
+  console.log(filteredOrders);
 
   // Function to update order status locally (using order_id as key)
   const updateOrderStatusLocally = (orderId: string, newStatus: string) => {
@@ -182,12 +183,14 @@ export default function BusinessHomePage() {
                       className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm"
                     >
                       <div>
-                        <div className="font-medium">{order.order_id}</div>
+                        <div className="font-medium">Order ID: {order.order_id}</div>
                         <div className="text-muted-foreground">
-                          {order.user_id}
+                          User ID: {order.user_id}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {order.info?.time || "No time"}
+                          {order.timestamp
+                            ? new Date(order.timestamp).toLocaleString()
+                            : "No time"}
                         </div>
                       </div>
                       <div>
@@ -205,44 +208,56 @@ export default function BusinessHomePage() {
                         </Badge>
                       </div>
                       <div>
-                        {order.info?.total || order.restaurant}
+                        Total: {order.total || order.restaurant}
                       </div>
                       <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                              <span className="sr-only">Actions</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleUpdateOrderStatus(order.order_id, "processing")
-                              }
-                            >
-                              Processing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleUpdateOrderStatus(order.order_id, "cancelled")
-                              }
-                            >
-                              Cancelled
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleUpdateOrderStatus(order.order_id, "completed")
-                              }
-                            >
-                              Completed
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {order.status === "processing" ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">Actions</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleUpdateOrderStatus(order.order_id, "processing")
+                                }
+                              >
+                                Processing
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleUpdateOrderStatus(order.order_id, "cancelled")
+                                }
+                              >
+                                Cancelled
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleUpdateOrderStatus(order.order_id, "completed")
+                                }
+                              >
+                                Completed
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            disabled
+                          >
+                            <MoreVertical className="h-4 w-4 opacity-50" />
+                            <span className="sr-only">No Actions</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
