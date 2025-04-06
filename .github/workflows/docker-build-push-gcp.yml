@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'services/**/Dockerfile'
+      - 'backend/services/simple/**'
+      - 'backend/services/complex/**'
       - 'socket.io/Dockerfile'
       - 'rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push-gcp.yml'
