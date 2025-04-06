@@ -8,14 +8,17 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
-// Uses env variable from docker if avaliable, otherwise use localhost
-const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost:5672"; 
+// Uses env variable from docker if available, otherwise use localhost with guest credentials
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5672";
 
 async function connectRabbitMQ() {
     try {
         const connection = await amqp.connect(RABBITMQ_URL);
         const channel = await connection.createChannel();
         await channel.assertQueue("notifications");
+        // prefetch how many messages before acknowledging them
+        const PREFETCH_COUNT = 10; // Adjust as needed
+        channel.prefetch(PREFETCH_COUNT);
         console.log("✅ Connected to RabbitMQ");
         return channel;
     } catch (error) {
@@ -40,46 +43,47 @@ async function startServer() {
     const channel = await connectRabbitMQ();
     if (!channel) return;
 
-    // Consume messages from RabbitMQ queue, notifcations
-    channel.consume("notifications", (msg) => {
-        console.log("⏳ Checking messages array...");
-        if (msg !== null) {
-            
-            // Parse the message content as JSON
-            let messageData;
-            try {
-                messageData = JSON.parse(msg.content.toString());
-            } catch (error) {
-                console.error("❌ Failed to parse JSON:", error.message);
-                channel.ack(msg); // Acknowledge the message even if parsing fails
-                return;
-            }
-
-            //Show what you received
-            console.log("📥 Received from RabbitMQ:", messageData);
-
-            // Emit the received message to all clients listening on notifcation
-            io.emit("notification", messageData);
-            
-            // sendToKong("/notifications", {data: messageData, type: 'notification'}); // Forward to Kong
-
-            // Acknowledge the message
-            channel.ack(msg);
-        }
-    });
-
     io.on("connection", (socket) => {
         console.log("⚡ Client connected:", socket.id);
 
-        // Receive data from RabbitMQ about the notifications
-        socket.on("notification", (data) => {
-            console.log("📩 Message received:", data);
+        // // Receive data from RabbitMQ about the notifications
+        // socket.on("notification", (data) => {
+        //     console.log("📩 Message received:", data);
 
-            //Do smth with the data add to kong or smth
-            sendToKong("/notifications", data); // Forward to Kong
-            // // Send data back to RabbitMQ that data has been received
-            // io.emit("receivedNotif", data);
+        //     //Do smth with the data add to kong or smth
+        //     sendToKong("/notifications", data); // Forward to Kong
+        //     // // Send data back to RabbitMQ that data has been received
+        //     io.emit("receivedNotif", data);
+        // });
+
+        // Consume messages from RabbitMQ queue, notifcations
+        channel.consume("notifications", (msg) => {
+            console.log("Waiting ⏳ for Notifications...");
+            if (msg !== null) {
+
+                // Parse the message content as JSON
+                let messageData;
+                try {
+                    messageData = JSON.parse(msg.content.toString());
+                } catch (error) {
+                    console.error("❌ Failed to parse JSON:", error.message);
+                    channel.ack(msg); // Acknowledge the message even if parsing fails
+                    return;
+                }
+
+                //Show what you received
+                console.log("📥 Received from RabbitMQ:", messageData);
+
+                // Emit the received message to all clients listening on notifcation
+                io.emit("notification", messageData);
+
+                // sendToKong("/notifications", {data: messageData, type: 'notification'}); // Forward to Kong
+
+                // Acknowledge the message
+                channel.ack(msg);
+            }
         });
+
 
         // Receive data of all the queuen
         socket.on("allQueue", (message) => {

@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+import { Subject } from 'rxjs'; // essentially adds a custom event listener within your js app kinda like socket.io LMAO
+import { io } from "socket.io-client";
+
 // if you ever face an error simply just delete the .data
 
 // Base URL for Kong API Gateway
@@ -12,6 +15,57 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
+
+// Socket.IO client setup
+const SOCKET_IO_URL = import.meta.env.VITE_SOCKET_IO_URL || 'http://localhost:3300'; 
+const socket = io(SOCKET_IO_URL);
+
+// Log connection status
+socket.on("connect", () => {
+    console.log("✅ Connected to Socket.IO server");
+});
+
+socket.on("connect_error", (error) => {
+    console.error("❌ Socket.IO connection error:", error);
+});
+// Export the socket instance JIC
+export const socketInstance = socket;
+
+// Notification Stream
+const notificationSubject = new Subject<any>();
+export const listenForNotifications = () => {
+    socket.on("notification", (data) => {
+        notificationSubject.next(data); // Emit the notification data
+    });
+};
+// Adds a listener for react hooks to listen to realtime change
+export const getNotifications = () => notificationSubject.asObservable();
+
+// Queue Updates Stream
+const queueUpdateSubject = new Subject<any>();
+export const ioQueueUpdates = (callback: any) => {
+    socket.on("QAdded", (data: any) => {
+        console.log("Queue item added:", data);
+        callback({ action: "added", data });
+    });
+
+    socket.on("Qdeleted", (data: any) => {
+        console.log("Queue item deleted:", data);
+        callback({ action: "deleted", data });
+    });
+};
+export const getQueueUpdates = () => queueUpdateSubject.asObservable();
+
+// All Queue Updates Stream
+const queueAllSubject = new Subject<any>();
+export const ioAllQueue = (callback: any) => {
+    socket.on("receivedAllQueue", (data: any) => {
+        console.log("All queue items:", data);
+        callback(data);
+    });
+};
+export const allQueueUpdates = () => queueAllSubject.asObservable();
+    
 
 // Order Food Service (Routed through Kong)
 export const orderFood = {
@@ -115,20 +169,22 @@ export const Menu = {
 }
 
 
-// Queue Service (Routed through Kong)
-export const queueService = {
-    addToQueue: async (data: any) => {
-        const response = await api.post('/queue/add', data);
-        return response.data;
-    },
-    removeFromQueue: async (data: any) => {
-        const response = await api.post('/queue/delete', data);
-        return response.data;
-    },
-    getAllQueues: async () => {
-        const response = await api.post('/queue/all');
-        return response.data;
-    },
-};
+// // Queue Service (Routed through Kong)
+// export const queueService = {
+//     addToQueue: async (data: any) => {
+//         const response = await api.post('/queue/add', data);
+//         return response.data;
+//     },
+//     removeFromQueue: async (data: any) => {
+//         const response = await api.post('/queue/delete', data);
+//         return response.data;
+//     },
+//     getAllQueues: async () => {
+//         const response = await api.post('/queue/all');
+//         return response.data;
+//     },
+
+
+
 
 export default api;
