@@ -48,23 +48,57 @@ export default function BusinessHomePage() {
     }
   ]);
 
-  // Fetch orders from API on mount
+  // Fetch orders from API on mount, filtering by the restaurant associated with the user.
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        // Get current user
+        const { data: userData, error: authError } = await supabase.auth.getUser();
+        if (authError) {
+          console.error("Error fetching user:", authError);
+          return;
+        }
+        const user = userData?.user;
+        if (!user) {
+          console.log("No user is logged in.");
+          return;
+        }
+
+        // Get the user's restaurant
+        const { data: restaurantData, error: profileError } = await supabase
+          .from("User")
+          .select("restaurant")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          return;
+        }
+        const restaurant = restaurantData?.restaurant;
+        console.log("User's restaurant:", restaurant);
+
+        // Fetch all orders
         const data = await orderFood.getAllOrders();
         console.log("Fetched orders", data);
-        // Check response format and extract the orders array
+        let ordersArray: any[] = [];
         if (Array.isArray(data)) {
-          setOrders(data);
+          ordersArray = data;
         } else if (data.orders && Array.isArray(data.orders)) {
-          setOrders(data.orders);
+          ordersArray = data.orders;
         } else if (data.message && Array.isArray(data.message)) {
-          setOrders(data.message);
+          ordersArray = data.message;
         } else {
           console.error("Unexpected orders data format:", data);
-          setOrders([]);
+          ordersArray = [];
         }
+
+        // Filter orders to only those from the user's restaurant
+        if (restaurant) {
+          ordersArray = ordersArray.filter(
+            (order) => order.restaurant === restaurant
+          );
+        }
+        setOrders(ordersArray);
       } catch (error) {
         console.error("Failed to fetch orders:", error);
       }
@@ -72,7 +106,7 @@ export default function BusinessHomePage() {
     fetchOrders();
   }, []);
 
-  // Filter orders based on the selected status
+  // Further filter orders by selected status
   const filteredOrders = orders.filter(
     (order) => order.status === selectedFilter
   );
@@ -93,11 +127,9 @@ export default function BusinessHomePage() {
         // For processing, update locally.
         updateOrderStatusLocally(orderId, newStatus);
       } else if (newStatus === "cancelled") {
-        // Call cancel order endpoint from completeOrder
         await completeOrder.cancelOrder(orderId, {});
         updateOrderStatusLocally(orderId, newStatus);
       } else if (newStatus === "completed") {
-        // Call complete order endpoint from completeOrder
         await completeOrder.completeOrder(orderId, {});
         updateOrderStatusLocally(orderId, newStatus);
       }
@@ -188,7 +220,6 @@ export default function BusinessHomePage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {/* Update status options */}
                             <DropdownMenuItem
                               onClick={() =>
                                 handleUpdateOrderStatus(order.order_id, "processing")
