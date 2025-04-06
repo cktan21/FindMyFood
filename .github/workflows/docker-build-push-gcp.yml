@@ -9,6 +9,8 @@ on:
       - 'rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push-gcp.yml'
 
+  workflow_dispatch:
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
