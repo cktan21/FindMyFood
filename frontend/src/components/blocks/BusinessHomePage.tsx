@@ -20,6 +20,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 export default function BusinessHomePage() {
   const { isLoggedIn } = useAuth();
@@ -30,11 +38,16 @@ export default function BusinessHomePage() {
 
   // State for filtering orders by status
   const [selectedFilter, setSelectedFilter] = useState("processing");
-
   // Orders state initially empty
   const [orders, setOrders] = useState<any[]>([]);
   // Queue state initially empty
   const [queueData, setQueueData] = useState<any[]>([]);
+
+  // State for our Reason Modal
+  const [reasonModalOpen, setReasonModalOpen] = useState(false);
+  const [modalStatus, setModalStatus] = useState<string | null>(null);
+  const [reasonInput, setReasonInput] = useState("");
+  const [currentOrder, setCurrentOrder] = useState<any>(null);
 
   // Fetch orders and queue from API on mount, filtering by the restaurant associated with the user.
   useEffect(() => {
@@ -88,11 +101,11 @@ export default function BusinessHomePage() {
         }
         setOrders(ordersArray);
 
-        // Now fetch the restaurant's queue using the getRestaurantQueue endpoint.
+        // Fetch the restaurant's queue using the getRestaurantQueue endpoint.
         if (restaurant) {
           const queueResponse = await Queue.getRestaurantQueue(restaurant);
           console.log("Fetched queue", queueResponse);
-          // Assume the response structure is { data: [...] }
+          // Assuming the response structure is { data: [...] }
           if (queueResponse.data && Array.isArray(queueResponse.data)) {
             setQueueData(queueResponse.data);
           } else {
@@ -123,21 +136,58 @@ export default function BusinessHomePage() {
     );
   };
 
-  // Optimistic update: update UI immediately, then call the API.
-  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
-    updateOrderStatusLocally(orderId, newStatus);
+  // Helper to remove a queue item from local state by order_id
+  const removeQueueItem = (orderId: string) => {
+    setQueueData((prevQueue) =>
+      prevQueue.filter((item) => item.order_id !== orderId)
+    );
+  };
+
+  // Function to handle confirmation from the modal
+  const handleModalConfirm = async () => {
+    if (!reasonInput) {
+      alert("Reason is required.");
+      return;
+    }
+    if (currentOrder && modalStatus) {
+      // Build the payload as expected by the API.
+      const payload = {
+        restaurant: currentOrder.restaurant,
+        total: currentOrder.total,
+        user_id: currentOrder.user_id,
+        reason: reasonInput
+      };
+      // Optimistically update the UI for orders
+      updateOrderStatusLocally(currentOrder.order_id, modalStatus);
+      // Also remove the queue item from local state since the order is no longer in queue.
+      removeQueueItem(currentOrder.order_id);
+      try {
+        if (modalStatus === "cancelled") {
+          await completeOrder.cancelOrder(currentOrder.order_id, payload);
+        } else if (modalStatus === "completed") {
+          await completeOrder.completeOrder(currentOrder.order_id, payload);
+        }
+      } catch (error) {
+        console.error("Failed to update order status", error);
+        // Optionally revert the optimistic update here if needed.
+      }
+    }
+    // Reset modal state
+    setReasonInput("");
+    setModalStatus(null);
+    setCurrentOrder(null);
+    setReasonModalOpen(false);
+  };
+
+  // Function to handle update for statuses that do not require a reason.
+  const handleDirectUpdate = async (order: any, newStatus: string) => {
+    updateOrderStatusLocally(order.order_id, newStatus);
     try {
       if (newStatus === "processing") {
         // No API call needed.
-      } else if (newStatus === "cancelled") {
-        await completeOrder.cancelOrder(orderId, {});
-      } else if (newStatus === "completed") {
-        await completeOrder.completeOrder(orderId, {});
       }
     } catch (error) {
       console.error("Failed to update order status", error);
-      // Optionally revert the optimistic update if necessary.
-      // updateOrderStatusLocally(orderId, "processing");
     }
   };
 
@@ -185,7 +235,9 @@ export default function BusinessHomePage() {
                       className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm"
                     >
                       <div>
-                        <div className="font-medium">Order ID: {order.order_id}</div>
+                        <div className="font-medium">
+                          Order ID: {order.order_id}
+                        </div>
                         <div className="text-muted-foreground">
                           User ID: {order.user_id}
                         </div>
@@ -228,22 +280,26 @@ export default function BusinessHomePage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handleUpdateOrderStatus(order.order_id, "processing")
+                                  handleDirectUpdate(order, "processing")
                                 }
                               >
                                 Processing
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  handleUpdateOrderStatus(order.order_id, "cancelled")
-                                }
+                                onClick={() => {
+                                  setCurrentOrder(order);
+                                  setModalStatus("cancelled");
+                                  setReasonModalOpen(true);
+                                }}
                               >
                                 Cancelled
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  handleUpdateOrderStatus(order.order_id, "completed")
-                                }
+                                onClick={() => {
+                                  setCurrentOrder(order);
+                                  setModalStatus("completed");
+                                  setReasonModalOpen(true);
+                                }}
                               >
                                 Completed
                               </DropdownMenuItem>
@@ -287,7 +343,10 @@ export default function BusinessHomePage() {
               {queueData.length ? (
                 <div className="space-y-4">
                   {queueData.map((queue) => (
-                    <div key={queue.queue_no} className="rounded border p-4 text-sm">
+                    <div
+                      key={queue.queue_no}
+                      className="rounded border p-4 text-sm"
+                    >
                       <div className="font-medium">
                         Order ID: {queue.order_id}
                       </div>
@@ -313,6 +372,47 @@ export default function BusinessHomePage() {
           </Card>
         </div>
       </main>
+
+      {/* Reason Modal */}
+      <Dialog open={reasonModalOpen} onOpenChange={setReasonModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {modalStatus === "cancelled"
+                ? "Cancel Order"
+                : modalStatus === "completed"
+                ? "Complete Order"
+                : ""}
+            </DialogTitle>
+            <DialogDescription>
+              Please enter a reason for setting the order as {modalStatus}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <input
+              type="text"
+              className="w-full rounded border p-2"
+              placeholder="Enter your reason..."
+              value={reasonInput}
+              onChange={(e) => setReasonInput(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setReasonInput("");
+                setModalStatus(null);
+                setCurrentOrder(null);
+                setReasonModalOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleModalConfirm}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

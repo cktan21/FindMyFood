@@ -14,6 +14,7 @@ import Shop from './pages/Shop';
 import Product from './pages/Product';
 import BusinessHomePage from './components/blocks/BusinessHomePage';
 import ConfirmationPage from './components/blocks/ConfirmationPage';
+import Recommendation from './pages/Recommendation';
 import './App.css'
 
 const stripePromise = loadStripe('STRIPE_PUBLIC_KEY');
@@ -35,6 +36,7 @@ const App = () => {
                         <Route path="/confirmation" element={<ConfirmationPage />} />
                         <Route path="/restaurants" element={<Restaurants />} />
                         <Route path="/business-home" element={<BusinessHomePage />} />
+                        <Route path="/recommendation" element={<Recommendation />} />
                     </Routes>
                 </Elements>
             </CartProvider>

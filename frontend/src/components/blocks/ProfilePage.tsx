@@ -17,7 +17,7 @@ import { orderFood } from "../../services/api";
 import { Badge } from "../ui/badge";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
-
+import { Credits } from "../../services/api";
 // Define a type for the order structure
 interface Order {
   order_id: string;
@@ -49,9 +49,23 @@ export default function ProfilePage() {
   // New state for orders
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
-
+  const [credits, setCredits] = useState<number | null>(null);
   // Fetch profile from the "User" table on mount
   useEffect(() => {
+    const getUserCredits = async () => {
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (!user) {
+          setLoadingProfile(false);
+          return;
+        }
+        const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
+        setCredits(data.message.currentcredits);
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+      }
+    }
     const fetchProfile = async () => {
       try {
         // Get the authenticated user first
@@ -82,13 +96,17 @@ export default function ProfilePage() {
         } else {
           setProfile(profileData);
         }
+
       } catch (error) {
         console.error("Unexpected error while fetching profile:", error);
       } finally {
         setLoadingProfile(false);
       }
+
+
     };
 
+    getUserCredits()
     fetchProfile();
   }, []);
 
@@ -165,6 +183,9 @@ export default function ProfilePage() {
               <h1 className="text-xl font-semibold">Profile</h1>
             </div>
             <div className="flex items-center gap-4">
+              <div>
+                Credits: {credits !== null ? credits : "Loading..."}
+              </div>
               <Link to="/cart">
                 <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                   <ShoppingBag className="mr-2 h-4 w-4" />
