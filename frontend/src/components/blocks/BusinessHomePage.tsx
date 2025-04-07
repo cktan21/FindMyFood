@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/supabaseClient";
 import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { orderFood, completeOrder } from "@/services/api";
+import { orderFood, completeOrder, Queue } from "@/services/api";
 import {
   Card,
   CardContent,
@@ -20,6 +20,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 export default function BusinessHomePage() {
   const { isLoggedIn } = useAuth();
@@ -30,27 +38,20 @@ export default function BusinessHomePage() {
 
   // State for filtering orders by status
   const [selectedFilter, setSelectedFilter] = useState("processing");
-
   // Orders state initially empty
   const [orders, setOrders] = useState<any[]>([]);
+  // Queue state initially empty
+  const [queueData, setQueueData] = useState<any[]>([]);
 
-  // Sample queue data (this could come from your API in a real app)
-  const [queueData] = useState([
-    {
-      id: "QUEUE-1",
-      description: "Order ORD-1001 is waiting in the queue",
-      time: "10 mins ago"
-    },
-    {
-      id: "QUEUE-2",
-      description: "Order ORD-1004 is waiting in the queue",
-      time: "5 mins ago"
-    }
-  ]);
+  // State for our Reason Modal
+  const [reasonModalOpen, setReasonModalOpen] = useState(false);
+  const [modalStatus, setModalStatus] = useState<string | null>(null);
+  const [reasonInput, setReasonInput] = useState("");
+  const [currentOrder, setCurrentOrder] = useState<any>(null);
 
-  // Fetch orders from API on mount, filtering by the restaurant associated with the user.
+  // Fetch orders and queue from API on mount, filtering by the restaurant associated with the user.
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchData = async () => {
       try {
         // Get current user
         const { data: userData, error: authError } = await supabase.auth.getUser();
@@ -64,7 +65,7 @@ export default function BusinessHomePage() {
           return;
         }
 
-        // Get the user's restaurant
+        // Get the user's restaurant from the "User" table
         const { data: restaurantData, error: profileError } = await supabase
           .from("User")
           .select("restaurant")
@@ -78,17 +79,17 @@ export default function BusinessHomePage() {
         console.log("User's restaurant:", restaurant);
 
         // Fetch all orders
-        const data = await orderFood.getAllOrders();
-        console.log("Fetched orders", data);
+        const ordersResponse = await orderFood.getAllOrders();
+        console.log("Fetched orders", ordersResponse);
         let ordersArray: any[] = [];
-        if (Array.isArray(data)) {
-          ordersArray = data;
-        } else if (data.orders && Array.isArray(data.orders)) {
-          ordersArray = data.orders;
-        } else if (data.message && Array.isArray(data.message)) {
-          ordersArray = data.message;
+        if (Array.isArray(ordersResponse)) {
+          ordersArray = ordersResponse;
+        } else if (ordersResponse.orders && Array.isArray(ordersResponse.orders)) {
+          ordersArray = ordersResponse.orders;
+        } else if (ordersResponse.message && Array.isArray(ordersResponse.message)) {
+          ordersArray = ordersResponse.message;
         } else {
-          console.error("Unexpected orders data format:", data);
+          console.error("Unexpected orders data format:", ordersResponse);
           ordersArray = [];
         }
 
@@ -99,11 +100,25 @@ export default function BusinessHomePage() {
           );
         }
         setOrders(ordersArray);
+
+        // Fetch the restaurant's queue using the getRestaurantQueue endpoint.
+        if (restaurant) {
+          const queueResponse = await Queue.getRestaurantQueue(restaurant);
+          console.log("Fetched queue", queueResponse);
+          // Assuming the response structure is { data: [...] }
+          if (queueResponse.data && Array.isArray(queueResponse.data)) {
+            setQueueData(queueResponse.data);
+          } else {
+            console.error("Unexpected queue response format:", queueResponse);
+            setQueueData([]);
+          }
+        }
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        console.error("Failed to fetch orders or queue:", error);
       }
     };
-    fetchOrders();
+
+    fetchData();
   }, []);
 
   // Further filter orders by selected status
@@ -121,18 +136,55 @@ export default function BusinessHomePage() {
     );
   };
 
-  // Async function to handle updating order status via API
-  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+  // Helper to remove a queue item from local state by order_id
+  const removeQueueItem = (orderId: string) => {
+    setQueueData((prevQueue) =>
+      prevQueue.filter((item) => item.order_id !== orderId)
+    );
+  };
+
+  // Function to handle confirmation from the modal
+  const handleModalConfirm = async () => {
+    if (!reasonInput) {
+      alert("Reason is required.");
+      return;
+    }
+    if (currentOrder && modalStatus) {
+      // Build the payload as expected by the API.
+      const payload = {
+        restaurant: currentOrder.restaurant,
+        total: currentOrder.total,
+        user_id: currentOrder.user_id,
+        reason: reasonInput
+      };
+      // Optimistically update the UI for orders
+      updateOrderStatusLocally(currentOrder.order_id, modalStatus);
+      // Also remove the queue item from local state since the order is no longer in queue.
+      removeQueueItem(currentOrder.order_id);
+      try {
+        if (modalStatus === "cancelled") {
+          await completeOrder.cancelOrder(currentOrder.order_id, payload);
+        } else if (modalStatus === "completed") {
+          await completeOrder.completeOrder(currentOrder.order_id, payload);
+        }
+      } catch (error) {
+        console.error("Failed to update order status", error);
+        // Optionally revert the optimistic update here if needed.
+      }
+    }
+    // Reset modal state
+    setReasonInput("");
+    setModalStatus(null);
+    setCurrentOrder(null);
+    setReasonModalOpen(false);
+  };
+
+  // Function to handle update for statuses that do not require a reason.
+  const handleDirectUpdate = async (order: any, newStatus: string) => {
+    updateOrderStatusLocally(order.order_id, newStatus);
     try {
       if (newStatus === "processing") {
-        // For processing, update locally.
-        updateOrderStatusLocally(orderId, newStatus);
-      } else if (newStatus === "cancelled") {
-        await completeOrder.cancelOrder(orderId, {});
-        updateOrderStatusLocally(orderId, newStatus);
-      } else if (newStatus === "completed") {
-        await completeOrder.completeOrder(orderId, {});
-        updateOrderStatusLocally(orderId, newStatus);
+        // No API call needed.
       }
     } catch (error) {
       console.error("Failed to update order status", error);
@@ -145,7 +197,7 @@ export default function BusinessHomePage() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold">FoodExpress Business</span>
+            <span className="text-xl font-bold">Business Dashboard</span>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" onClick={() => supabase.auth.signOut()}>
@@ -183,7 +235,9 @@ export default function BusinessHomePage() {
                       className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm"
                     >
                       <div>
-                        <div className="font-medium">Order ID: {order.order_id}</div>
+                        <div className="font-medium">
+                          Order ID: {order.order_id}
+                        </div>
                         <div className="text-muted-foreground">
                           User ID: {order.user_id}
                         </div>
@@ -226,22 +280,26 @@ export default function BusinessHomePage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handleUpdateOrderStatus(order.order_id, "processing")
+                                  handleDirectUpdate(order, "processing")
                                 }
                               >
                                 Processing
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  handleUpdateOrderStatus(order.order_id, "cancelled")
-                                }
+                                onClick={() => {
+                                  setCurrentOrder(order);
+                                  setModalStatus("cancelled");
+                                  setReasonModalOpen(true);
+                                }}
                               >
                                 Cancelled
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  handleUpdateOrderStatus(order.order_id, "completed")
-                                }
+                                onClick={() => {
+                                  setCurrentOrder(order);
+                                  setModalStatus("completed");
+                                  setReasonModalOpen(true);
+                                }}
                               >
                                 Completed
                               </DropdownMenuItem>
@@ -282,16 +340,29 @@ export default function BusinessHomePage() {
               <CardDescription>Current order queues</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {queueData.map((queue) => (
-                  <div key={queue.id} className="rounded border p-4 text-sm">
-                    <div className="font-medium">{queue.description}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {queue.time}
+              {queueData.length ? (
+                <div className="space-y-4">
+                  {queueData.map((queue) => (
+                    <div
+                      key={queue.queue_no}
+                      className="rounded border p-4 text-sm"
+                    >
+                      <div className="font-medium">
+                        Order ID: {queue.order_id}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {queue.time
+                          ? new Date(queue.time).toLocaleString()
+                          : "No time"}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No queues available.
+                </p>
+              )}
             </CardContent>
             <CardFooter>
               <Button variant="outline" className="w-full">
@@ -301,6 +372,47 @@ export default function BusinessHomePage() {
           </Card>
         </div>
       </main>
+
+      {/* Reason Modal */}
+      <Dialog open={reasonModalOpen} onOpenChange={setReasonModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {modalStatus === "cancelled"
+                ? "Cancel Order"
+                : modalStatus === "completed"
+                ? "Complete Order"
+                : ""}
+            </DialogTitle>
+            <DialogDescription>
+              Please enter a reason for setting the order as {modalStatus}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <input
+              type="text"
+              className="w-full rounded border p-2"
+              placeholder="Enter your reason..."
+              value={reasonInput}
+              onChange={(e) => setReasonInput(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setReasonInput("");
+                setModalStatus(null);
+                setCurrentOrder(null);
+                setReasonModalOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleModalConfirm}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

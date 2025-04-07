@@ -9,7 +9,7 @@ const About = () => {
         </h1>
         <p className="text-lg">
             No matter if it's break time, lunch time or I-really-need-a-coffee time, <br />
-            browse menus, check the queues, make payment and view order statuses all in one place.
+            browse menus, check queues, make payment and view order statuses all in one place.
         </p>
         </div>
         <div className="grid gap-6 md:grid-cols-2">
