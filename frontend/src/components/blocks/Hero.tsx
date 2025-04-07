@@ -28,6 +28,17 @@ export default function Hero() {
                 </p>
               </div>
 
+              <div className="mt-8 gap-3 flex justify-center">
+                <Link to="/register">
+                  <Button size={"lg"} className="bg-gradient-to-r from-blue-600 via-blue-400 to-purple-500">Get started</Button>
+                </Link>
+                <a href="#about">
+                  <Button size={"lg"} variant={"outline"}>
+                    Learn more
+                  </Button>
+                </a>
+              </div>
+
   <section className="bg-background py-16">
   <div className="mx-auto max-w-5xl px-6">
     <div className="mx-auto mt-20 flex max-w-4xl flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16 sm:gap-y-12">
@@ -100,16 +111,7 @@ export default function Hero() {
   </div>
 </section>
               
-              <div className="mt-8 gap-3 flex justify-center">
-                <Link to="/register">
-                  <Button size={"lg"} className="bg-gradient-to-r from-blue-600 via-blue-400 to-purple-500">Get started</Button>
-                </Link>
-                <a href="#about">
-                  <Button size={"lg"} variant={"outline"}>
-                    Learn more
-                  </Button>
-                </a>
-              </div>
+
             </div>
           </div>
         </div>
