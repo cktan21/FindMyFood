@@ -20,6 +20,7 @@ import { Switch } from "../ui/switch";
 import { Credits } from "../../services/api";
 // Define a type for the order structure
 interface Order {
+  timestamp: any;
   order_id: string;
   restaurant: string;
   status: string;
