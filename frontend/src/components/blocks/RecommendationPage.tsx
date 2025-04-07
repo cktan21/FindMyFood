@@ -1,58 +1,131 @@
-import { Link } from "react-router-dom"
+import { useState, useRef, useEffect } from "react";
+import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/supabaseClient";
 import {
   ChevronRight,
   Filter,
   Heart,
   Plus,
-  Search,
   Star,
-  Utensils,
   Clock,
   MapPin,
   Flame,
   Award,
   ThumbsUp,
   Sparkles,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+  ChevronLeft,
+  ShoppingBag,
+  User
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Credits } from "../../services/api";
 
 export default function RecommendationPage() {
+  const { isLoggedIn, loading } = useAuth();
+  const [credits, setCredits] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const getUserCredits = async () => {
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (user) {
+          const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
+          setCredits(data.message.currentcredits);
+        }
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+      }
+    };
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    getUserCredits();
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
+  const handleSignOut = async () => await supabase.auth.signOut();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" />;
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
-              <Utensils className="h-6 w-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500" />
-              <span className="text-xl font-bold">FoodExpress</span>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/home"
+              className="flex items-center gap-2 text-sm font-medium hover:text-blue-600 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Continue Shopping
             </Link>
           </div>
-          <div className="flex flex-1 items-center justify-center px-4">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for dishes or restaurants..."
-                className="w-full rounded-full bg-muted pl-8 md:w-[300px] lg:w-[400px]"
-              />
-            </div>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-semibold">Recommended For You</h1>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Heart className="h-5 w-5" />
-              <span className="sr-only">Favorites</span>
-            </Button>
-            <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-              View Cart
-            </Button>
+            <div>
+              Credits: {credits !== null ? credits : "Loading..."}
+            </div>
+            <Link to="/cart">
+              <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Cart
+              </Button>
+            </Link>
+            <div className="relative" ref={menuRef}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                onClick={toggleMenu}
+              >
+                <User className="h-5 w-5" />
+                <span className="sr-only">Account</span>
+              </Button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <Link to="/home">
+                    <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                      Home
+                    </button>
+                  </Link>
+                  <Link to="/profile">
+                    <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                      Profile
+                    </button>
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -440,5 +513,5 @@ export default function RecommendationPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

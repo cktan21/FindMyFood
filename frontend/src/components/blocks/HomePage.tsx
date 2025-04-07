@@ -202,12 +202,14 @@ export default function HomePage() {
                         View Restaurants
                       </Button>
                     </Link>
-                    <Button
-                      size="lg"
-                      className="bg-white font-semibold text-blue-600 hover:bg-white/90 transition-colors"
-                    >
-                      Customise Reccomendations
-                    </Button>
+                    <Link to="/recommendation">
+                      <Button
+                        size="lg"
+                        className="bg-white font-semibold text-blue-600 hover:bg-white/90 transition-colors"
+                      >
+                        Customise Reccomendations
+                      </Button>
+                    </Link>
                   </div>
                 </div>
                 <div className="hidden md:block">
