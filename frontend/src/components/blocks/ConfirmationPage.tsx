@@ -1,12 +1,14 @@
+// STILL BORKEN BRAH 
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Check, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Payment, orderFood } from "../../services/api"
+import { Payment, orderFood } from "../../services/api";
 import { useCart } from "@/hooks/useCart";
-import { supabase } from "@/supabaseClient"
+import { supabase } from "@/supabaseClient";
 
 // Define interfaces for type safety
 interface OrderItem {
@@ -50,138 +52,98 @@ export default function ConfirmationPage() {
         try {
           // Get stored order details from localStorage
           const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
-          
+        //   console.log(`raw order: ${pendingOrder}`)
           const response = await Payment.sessionStatus(sessionId);
-          
+
           if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
+            // i have strong reaon to suspect it send PER ORDER ITEM but whatever la it's not a bug it's a feature 
             try {
-              // Get stored order details from localStorage
-              const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
-              console.log('pendingOrder:', pendingOrder);
-              
               // Group items by restaurant for the orderFood API
               const itemsByRestaurant: Record<string, any[]> = {};
-              
-              // If items exist and have proper format
               if (Array.isArray(pendingOrder.items)) {
-                console.log('pendingOrder.items:', pendingOrder.items);
-                
                 pendingOrder.items.forEach((item: any) => {
-                  // Make sure we have a restaurant name - check both properties that might contain it
                   const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
-                  
                   if (!itemsByRestaurant[restaurantName]) {
                     itemsByRestaurant[restaurantName] = [];
                   }
-                  
                   itemsByRestaurant[restaurantName].push({
                     qty: item.quantity,
                     dish: item.name.replace(/ /g, '_'),
-                    price: parseFloat(item.price.toString())
+                    price: item.price,
                   });
                 });
+                // console.log(`item map: ${itemsByRestaurant}`)
               }
-              
-              const { data: userData, error: authError } = await supabase.auth.getUser()
-                    if (authError) {
-                      console.error("Error fetching user:", authError)
-                      return
-                    }
-                    const user = userData?.user
+
+              const { data: userData, error: authError } = await supabase.auth.getUser();
+              if (authError) {
+                console.error("Error fetching user:", authError);
+                return;
+              }
+              const user = userData?.user;
 
               // Create orderContent array for the API
-              const orderContent = Object.keys(itemsByRestaurant).map(restaurant => ({
-                user_id: user.id || 'guest@example.com',
+              const orderContent = Object.keys(itemsByRestaurant).map((restaurant) => ({
+                user_id: user.id,
                 info: {
-                  items: itemsByRestaurant[restaurant]
+                  items: itemsByRestaurant[restaurant],
                 },
                 restaurant: restaurant,
-                total: parseFloat(itemsByRestaurant[restaurant].reduce((sum, item) => 
-                  sum + (item.qty * item.price), 0).toFixed(2))
+                total: parseFloat(
+                  itemsByRestaurant[restaurant].reduce(
+                    (sum, item) => sum + item.qty * item.price,
+                    0
+                  ).toFixed(2)
+                ),
               }));
-              
+            //   console.log(`Content map: ${orderContent}`)
+
               // Only make API call if there are items to process
               if (orderContent.length > 0) {
                 const orderData = {
                   orderContent: orderContent,
-                  creditsContent: {}
+                  creditsContent: {}, // No credits used in this example
                 };
-                
+
                 console.log('Sending order data:', orderData);
-                
                 const orderResponse = await orderFood.addOrder(orderData);
-                
                 console.log('Order created:', orderResponse.data);
-                
-                // Get the first order ID from the response
-                // Log the entire response to see its structure
-                console.log('Full order response:', JSON.stringify(orderResponse.data));
-                
-                // Extract the order ID - make sure we're accessing the right property
-                const orderId = orderResponse.data.order && 
-                               orderResponse.data.order.length > 0 && 
-                               orderResponse.data.order[0].order_id;
-                
-                console.log('Extracted order ID:', orderId);
-                
-                // Create order data using both Stripe response and stored cart data
+
+                // Extract order IDs grouped by restaurant
+                const orderIdsByRestaurant = orderResponse.data.order.map((orderItem: any) => ({
+                  restaurant: orderItem.restaurant,
+                  orderId: orderItem.order_id,
+                }));
+
+                // Log the extracted order IDs
+                console.log('Extracted order IDs:', orderIdsByRestaurant);
+
+                // Set the order state with grouped order IDs
                 setOrder({
-                  orderNumber: orderId || `FE-${Date.now().toString().slice(-4)}`,
+                  orderNumber: orderIdsByRestaurant
+                    .map((o: any) => `${o.restaurant}: ${o.orderId}`)
+                    .join(', ') || 'N/A',
                   orderDate: new Date().toLocaleString(),
                   paymentMethod: 'Credit Card',
                   paymentId: sessionId,
                   items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
                   subtotal: pendingOrder.subtotal || 0,
-                  serviceFee: pendingOrder.serviceFee || 1.50,
-                  total: response.data.amount_total || 0
+                  serviceFee: pendingOrder.serviceFee || 1.5,
+                  total: response.data.amount_total || 0,
                 });
-                
-                // Log the order state to verify
-                console.log('Order state set to:', {
-                  orderNumber: orderId || `FE-${Date.now().toString().slice(-4)}`,
-                  // other properties...
-                });
+
+                // Clear the pending order from localStorage
+                localStorage.removeItem('pendingOrder');
+                clearCart();
               } else {
                 console.log('No items to process, skipping API call');
-                // Set order with generated ID
-                setOrder({
-                  orderNumber: `FE-${Date.now().toString().slice(-4)}`,
-                  orderDate: new Date().toLocaleString(),
-                  paymentMethod: 'Credit Card',
-                  paymentId: sessionId,
-                  items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
-                  subtotal: pendingOrder.subtotal || 0,
-                  serviceFee: pendingOrder.serviceFee || 1.50,
-                  total: response.data.amount_total || 0
-                });
+                setError('No items found to process the order.');
+                setTimeout(() => navigate('/cart'), 3000);
               }
-              
-              // Clear the pending order from localStorage
-              localStorage.removeItem('pendingOrder');
-              clearCart();
             } catch (orderErr: any) {
               console.error('Error creating order:', orderErr);
-              // Log more detailed error information
-              if (orderErr.response) {
-                console.error('Error response data:', orderErr.response.data);
-                console.error('Error status:', orderErr.response.status);
-              }
-              
-              // Still show confirmation but with generated order number
-              setOrder({
-                orderNumber: `FE-${Date.now().toString().slice(-4)}`,
-                orderDate: new Date().toLocaleString(),
-                paymentMethod: 'Credit Card',
-                paymentId: sessionId,
-                items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
-                subtotal: pendingOrder.subtotal || 0,
-                serviceFee: pendingOrder.serviceFee || 1.50,
-                total: response.data.amount_total || 0
-              });
-              
-              // Clear the pending order from localStorage
-              localStorage.removeItem('pendingOrder');
-              clearCart();
+              setError('Failed to create order. Please try again.');
+              setTimeout(() => navigate('/cart'), 3000);
             }
           } else {
             setError('Payment was not completed successfully.');
@@ -195,7 +157,7 @@ export default function ConfirmationPage() {
           setLoading(false);
         }
       };
-      
+
       fetchSessionDetails();
     }
   }, [location, navigate, state]);
@@ -232,6 +194,7 @@ export default function ConfirmationPage() {
           <h1 className="text-xl font-semibold">Order Confirmation</h1>
         </div>
       </header>
+
       {/* Main Content */}
       <main className="flex-1">
         <div className="container max-w-2xl py-8 px-4">
@@ -250,7 +213,7 @@ export default function ConfirmationPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
-                <span>Order Number</span>
+                <span>Order Number(s)</span>
                 <span className="font-medium">{order.orderNumber}</span>
               </div>
               <div className="flex justify-between text-sm">
@@ -266,7 +229,7 @@ export default function ConfirmationPage() {
                 order.items.map((item: OrderItem, index: number) => (
                   <div key={index} className="flex justify-between text-sm">
                     <span>
-                      {item.name || `Item ${index+1}`} x {item.quantity}
+                      {item.name || `Item ${index + 1}`} x {item.quantity}
                     </span>
                     <span>${typeof item.price === 'number' ? (item.price * item.quantity).toFixed(2) : '0.00'}</span>
                   </div>
@@ -282,7 +245,6 @@ export default function ConfirmationPage() {
                 <span>Subtotal</span>
                 <span>${(order.subtotal || 0).toFixed(2)}</span>
               </div>
-              
               <div className="flex justify-between text-sm">
                 <span>Service Fee</span>
                 <span>${(order.serviceFee || 0).toFixed(2)}</span>
@@ -295,7 +257,10 @@ export default function ConfirmationPage() {
             </CardContent>
             <CardFooter className="flex justify-center">
               <Link to="/home">
-                <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600" size="lg">
+                <Button
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                  size="lg"
+                >
                   Continue Shopping
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>

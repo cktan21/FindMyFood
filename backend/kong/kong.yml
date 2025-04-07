@@ -121,7 +121,7 @@ plugins:
         - Content-Length
         - Content-MD5
         - Content-Type
-        - Authorization
+        - Authorization # Maybe remove this
 
   - name: prometheus
     enabled: true

@@ -103,8 +103,13 @@ export const Credits = {
 }
 
 export const Queue = {
+    getRestaurantQueue: async (restaurant: string) => {
+        const response = await api.get(`/queue/${restaurant}`);
+        return response.data;
+    },
+
     getAllQueue: async () => {
-        const response = await api.get('/queue/qStatus');
+        const response = await api.get(`/queue/all`);
         return response.data;
     }
 }
