@@ -52,9 +52,11 @@ export default function ConfirmationPage() {
         try {
           // Get stored order details from localStorage
           const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
+        //   console.log(`raw order: ${pendingOrder}`)
           const response = await Payment.sessionStatus(sessionId);
 
           if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
+            // i have strong reaon to suspect it send PER ORDER ITEM but whatever la it's not a bug it's a feature 
             try {
               // Group items by restaurant for the orderFood API
               const itemsByRestaurant: Record<string, any[]> = {};
@@ -67,9 +69,10 @@ export default function ConfirmationPage() {
                   itemsByRestaurant[restaurantName].push({
                     qty: item.quantity,
                     dish: item.name.replace(/ /g, '_'),
-                    price: parseFloat(item.price.toString()),
+                    price: item.price,
                   });
                 });
+                // console.log(`item map: ${itemsByRestaurant}`)
               }
 
               const { data: userData, error: authError } = await supabase.auth.getUser();
@@ -93,6 +96,7 @@ export default function ConfirmationPage() {
                   ).toFixed(2)
                 ),
               }));
+            //   console.log(`Content map: ${orderContent}`)
 
               // Only make API call if there are items to process
               if (orderContent.length > 0) {
@@ -117,7 +121,7 @@ export default function ConfirmationPage() {
                 // Set the order state with grouped order IDs
                 setOrder({
                   orderNumber: orderIdsByRestaurant
-                    .map((o) => `${o.restaurant}: ${o.orderId}`)
+                    .map((o: any) => `${o.restaurant}: ${o.orderId}`)
                     .join(', ') || 'N/A',
                   orderDate: new Date().toLocaleString(),
                   paymentMethod: 'Credit Card',

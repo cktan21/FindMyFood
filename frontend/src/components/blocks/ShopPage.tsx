@@ -71,11 +71,11 @@ export default function ShopPage() {
 
         // Transform and sort the data
         const transformedQueueItems = queueArray
-          .map((item) => ({
+          .map((item: any) => ({
             name: `Order #${item.queue_no}: ${item.order_id}`,
             status: item.time, // Display time as status
           }))
-          .sort((a, b) => {
+          .sort((a: any, b: any) => {
             // Extract queue number from the name to sort numerically
             const queueNoA = parseInt(a.name.split("#")[1], 10);
             const queueNoB = parseInt(b.name.split("#")[1], 10);
@@ -242,7 +242,7 @@ export default function ShopPage() {
                 <h2 className="mb-2 text-lg font-semibold">Queue</h2>
                 <div className="max-h-48 overflow-y-auto border rounded-md p-2">
                   {queueItems.length > 0 ? (
-                    queueItems.map((item, index) => (
+                    queueItems.map((item: any, index) => ( //maybe add some type saftey LOL
                       <div
                         key={index}
                         className="flex items-center justify-between p-2 border-b last:border-b-0"
