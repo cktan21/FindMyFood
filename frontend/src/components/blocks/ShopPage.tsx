@@ -50,8 +50,8 @@ export default function ShopPage() {
   useEffect(() => {
     async function fetchQueueData() {
       try {
-        // Find the current restaurant
-        console.log(shopParam)
+        // // Find the current restaurant
+        // console.log(shopParam)
 
         if (!shopParam) {
             console.error("Restaurant not found.");
