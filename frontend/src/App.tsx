@@ -16,6 +16,8 @@ import BusinessHomePage from './components/blocks/BusinessHomePage';
 import ConfirmationPage from './components/blocks/ConfirmationPage';
 import Recommendation from './pages/Recommendation';
 import './App.css'
+import { Toaster } from '@/components/ui/toaster';
+import RealTimeNotifications from "@/components/blocks/Toasted"
 
 const stripePromise = loadStripe('STRIPE_PUBLIC_KEY');
 
@@ -23,6 +25,8 @@ const App = () => {
     return (
         <AuthProvider>
             <CartProvider>
+                {/* Include RealTimeNotifications globally */}
+                <RealTimeNotifications />
                 <Elements stripe={stripePromise}>
                     <Routes>
                         <Route path="/" element={<Landing />} />
@@ -38,6 +42,8 @@ const App = () => {
                         <Route path="/business-home" element={<BusinessHomePage />} />
                         <Route path="/recommendation" element={<Recommendation />} />
                     </Routes>
+                    {/* Added Toaster Routes */}
+                    <Toaster />
                 </Elements>
             </CartProvider>
         </AuthProvider>

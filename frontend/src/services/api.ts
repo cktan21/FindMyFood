@@ -35,6 +35,7 @@ export const socketInstance = socket;
 const notificationSubject = new Subject<any>();
 export const listenForNotifications = () => {
     socket.on("notification", (data) => {
+        // console.log(data)
         notificationSubject.next(data); // Emit the notification data
     });
 };
