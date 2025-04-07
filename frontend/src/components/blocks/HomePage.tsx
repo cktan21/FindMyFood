@@ -161,12 +161,6 @@ export default function HomePage() {
                     Order from your favorite restaurants and pickup your food by the time you reach.
                   </p>
                   <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button
-                      size="lg"
-                      className="bg-white font-semibold text-blue-600 hover:bg-white/90 transition-colors"
-                    >
-                      Order Now
-                    </Button>
                     <Link to="/restaurants">
                       <Button
                         size="lg"
@@ -175,6 +169,12 @@ export default function HomePage() {
                         View Restaurants
                       </Button>
                     </Link>
+                    <Button
+                      size="lg"
+                      className="bg-white font-semibold text-blue-600 hover:bg-white/90 transition-colors"
+                    >
+                      Customise Reccomendations
+                    </Button>
                   </div>
                 </div>
                 <div className="hidden md:block">
