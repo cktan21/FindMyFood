@@ -23,7 +23,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoggedIn || loading) return
-
+    
     const checkAndInsertProfile = async () => {
       const { data: userData, error: authError } = await supabase.auth.getUser()
       if (authError) {
