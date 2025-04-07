@@ -39,24 +39,11 @@ export default function CartPage() {
   }, [user?.id]);
 
   useEffect(() => {
-    const getUserCredits = async () => {
-      try {
-        const { data: authData } = await supabase.auth.getUser();
-        const user = authData?.user;
-        if (user) {
-          const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
-          setCredits(data.message.currentcredits);
-        }
-      } catch (error) {
-        console.error("Error fetching credits:", error);
-      }
-    };
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     };
-    getUserCredits();
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -98,13 +85,12 @@ export default function CartPage() {
     setIsProcessing(true);
     setError(null);
 
-
     // Format cart items to match the expected structure in confirmation page
     const formattedItems = cartItems.map(item => ({
       name: item.item.replace(/_/g, " "),
       quantity: item.quantity,
       price: item.details.price,
-      restaurant: item.restaurant // Ensure this property exists and is correctly set
+      restaurant: item.restaurant // Make sure this property exists and is correctly set
     }));
 
     localStorage.setItem('pendingOrder', JSON.stringify({
@@ -135,7 +121,6 @@ export default function CartPage() {
         domain: window.location.origin
       });
 
-
       // Redirect to Stripe Checkout
       window.location.href = response.data.url;
     } catch (err) {
@@ -162,9 +147,6 @@ export default function CartPage() {
             <h1 className="text-xl font-semibold">Your Cart</h1>
           </div>
           <div className="flex items-center gap-4">
-            <div>
-              Credits: {credits !== null ? credits : "Loading..."}
-            </div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                 <ShoppingBag className="mr-2 h-4 w-4" />
