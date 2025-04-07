@@ -22,7 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Queue } from "../../services/api";
+import { Queue, Credits } from "../../services/api";
 
 export default function ShopPage() {
   const { isLoggedIn, loading: authLoading } = useAuth();
@@ -33,14 +33,32 @@ export default function ShopPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [queueItems, setQueueItems] = useState([]); // State to hold queue items
   const menuRef = useRef<HTMLDivElement>(null);
-
+  const [credits, setCredits] = useState<number | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   // Handle clicks outside the menu to close it
   useEffect(() => {
+    const getUserCredits = async () => {
+      try {
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (!user) {
+
+          setLoadingProfile(false)
+        }
+        else {
+          const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
+          setCredits(data.message.currentcredits);
+        }
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+      }
+    }
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     };
+    getUserCredits()
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
@@ -54,12 +72,12 @@ export default function ShopPage() {
         console.log(shopParam)
 
         if (!shopParam) {
-            console.error("Restaurant not found.");
-            setQueueItems([]);
-            return;
+          console.error("Restaurant not found.");
+          setQueueItems([]);
+          return;
         }
         const restaurant = shopParam.toLowerCase()
-    
+
         // Fetch queue items for the specific restaurant using getRestaurantQueue
         const rawQueueItems = await Queue.getRestaurantQueue(restaurant);
 
@@ -132,6 +150,9 @@ export default function ShopPage() {
           </div>
           <div className="flex items-center gap-4"></div>
           <div className="flex items-center gap-4">
+            <div>
+              Credits: {credits !== null ? credits : "Loading..."}
+            </div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                 <ShoppingBag className="mr-2 h-4 w-4" />
@@ -191,11 +212,21 @@ export default function ShopPage() {
         <div className="container relative -mt-16 px-4">
           <Card>
             <CardContent className="p-6">
-              <div className="grid gap-4 md:grid-cols-2">
+              {/* Centered Name */}
+              <h1 className="text-2xl font-bold text-center">
+                {(restaurant.name || restaurant.id || "").replace(/_/g, " ")}
+              </h1>
+
+              {/* Centered Description */}
+              <p className="mt-2 text-center text-muted-foreground">
+                No description available
+              </p>
+
+              {/* Grid with reviews and right info */}
+              <div className="mt-4 grid gap-4 md:grid-cols-2 items-start">
                 {/* Left Column */}
                 <div>
-                  <h1 className="text-2xl font-bold">{(restaurant.name || restaurant.id || "").replace(/_/g, " ")}</h1>
-                  <div className="mt-2 flex items-center gap-4">
+                  <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
                       <Star className="h-5 w-5 fill-primary text-primary" />
                       <span className="font-medium">{restaurant.rating || "N/A"}</span>
@@ -203,12 +234,10 @@ export default function ShopPage() {
                     </div>
                     <Badge variant="secondary">$$</Badge>
                   </div>
-                  <p className="mt-2 text-muted-foreground">
-                    No description available
-                  </p>
                 </div>
+
                 {/* Right Column */}
-                <div className="flex flex-col items-start gap-2 md:items-end">
+                <div className="flex flex-col items-end gap-2">
                   <div className="flex items-center gap-1 text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     <span>{restaurant.deliveryTime || "N/A"} delivery</span>
@@ -237,20 +266,19 @@ export default function ShopPage() {
                   </TooltipProvider>
                 </div>
               </div>
-              {/* Scrollable Queue Component */}
+
+              {/* Queue Section */}
               <div className="mt-6">
                 <h2 className="mb-2 text-lg font-semibold">Queue</h2>
                 <div className="max-h-48 overflow-y-auto border rounded-md p-2">
                   {queueItems.length > 0 ? (
-                    queueItems.map((item: any, index) => ( //maybe add some type saftey LOL
+                    queueItems.map((item: any, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between p-2 border-b last:border-b-0"
                       >
                         <span className="text-sm font-medium">{item.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {item.status}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{item.status}</span>
                       </div>
                     ))
                   ) : (
@@ -262,9 +290,10 @@ export default function ShopPage() {
               </div>
             </CardContent>
           </Card>
+
+
         </div>
       </div>
-
       {/* Main Content: Menu Items */}
       <main className="flex-1">
         <div className="container py-8 px-4">

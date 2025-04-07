@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useRestaurants } from "@/context/RestaurantsContext";
 import {
@@ -10,6 +10,7 @@ import {
   MapPin,
   ChevronLeft
 } from "lucide-react";
+import { supabase } from "@/supabaseClient"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,19 +22,57 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import LoadingScreen from "@/components/blocks/LoadingScreen";
+import { Credits, Queue } from "@/services/api";
 
 export default function RestaurantsPage() {
-    const { restaurants, loading } = useRestaurants();
-    const [displayCount, setDisplayCount] = useState(8);
-    const [searchQuery, setSearchQuery] = useState("");
-
+  const { restaurants, loading } = useRestaurants();
+  const [displayCount, setDisplayCount] = useState(8);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [credits, setCredits] = useState<number | null>(null);
+  //const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants()
+  const [deliveryTimes, setDeliveryTimes] = useState<{ [key: string]: number }>({});
+  const filteredRestaurants = restaurants.filter((restaurant) =>
+    restaurant.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  useEffect(() => {
+    
+    const getUserCredits = async () => {
+      try {
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (!user) {
+        }
+        else {
+          const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
+          setCredits(data.message.currentcredits);
+        }
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+      }
+    }
+    const setdeliveryTime = async () => {
+            try {
+              const return_data: { [key: string]: number } = {};
+              console.log(filteredRestaurants)
+              const restaurants = filteredRestaurants.slice(0, displayCount).map(async (restaurant) => {
+                const data = await Queue.getRestaurantQueue(restaurant.id); 
+                
+                return_data[restaurant.id]= data.data.length
+              })
+              
+              setDeliveryTimes(return_data)
+            } catch (error) {
+              console.error("Error fetching credits:", error);
+            }
+          }
+    setdeliveryTime()
+    getUserCredits()
+  }, []);
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 8);
   };
 
-  const filteredRestaurants = restaurants.filter((restaurant) =>
-    restaurant.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  
 
   if (loading) {
     return <LoadingScreen />;
@@ -63,6 +102,9 @@ export default function RestaurantsPage() {
             />
           </div>
           <Sheet>
+            <div>
+              Credits: {credits !== null ? credits : "Loading..."}
+            </div>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="flex items-center gap-2">
                 <SlidersHorizontal className="h-4 w-4" />
@@ -154,30 +196,12 @@ export default function RestaurantsPage() {
       </header>
       <main className="flex-1">
         <div className="container py-6">
-          <div className="mb-6 overflow-x-auto">
-            <div className="flex gap-2 min-w-max px-4">
-              {["All", "Pizza", "Burgers", "Sushi", "Chinese", "Italian", "Mexican", "Indian", "Thai", "Desserts"].map(
-                (category) => (
-                  <Button
-                    key={category}
-                    variant={category === "All" ? "default" : "outline"}
-                    className={
-                      category === "All"
-                        ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                        : ""
-                    }
-                  >
-                    {category}
-                  </Button>
-                )
-              )}
-            </div>
-          </div>
+
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
             {filteredRestaurants.slice(0, displayCount).map((restaurant) => (
-              <Link 
-                to={`/shop/?shop=${restaurant.id}`} 
-                key={restaurant.id} 
+              <Link
+                to={`/shop/?shop=${restaurant.id}`}
+                key={restaurant.id}
                 className="overflow-hidden"
               >
                 <Card>
@@ -207,11 +231,11 @@ export default function RestaurantsPage() {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {restaurant.deliveryTime} mins
+                        { deliveryTimes[restaurant.id]*3 + " mins" }
                       </div>
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        {restaurant.distance} km
+                        
                       </div>
                     </div>
                   </CardContent>

@@ -6,12 +6,13 @@ import { useAuth } from "@/context/AuthContext"
 import { useRestaurants } from "@/context/RestaurantsContext"
 import { supabase } from "@/supabaseClient"
 import { Search, ShoppingBag, User, ChevronRight, Star, Clock, MapPin } from "lucide-react"
-
+import { Credits, Queue } from "@/services/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import LoadingScreen from "@/components/blocks/LoadingScreen.tsx"
+
 
 export default function HomePage() {
   const { isLoggedIn, loading } = useAuth()
@@ -20,8 +21,11 @@ export default function HomePage() {
   const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants()
   const [displayCount, setDisplayCount] = useState(8)
   const navigate = useNavigate()
-
+  const [credits, setCredits] = useState<number | null>(null);
+  const [deliveryTimes, setDeliveryTimes] = useState<{ [key: string]: number }>({});
+  
   useEffect(() => {
+    
     if (!isLoggedIn || loading) return
 
     const checkAndInsertProfile = async () => {
@@ -30,7 +34,7 @@ export default function HomePage() {
         console.error("Error fetching user:", authError)
         return
       }
-      const user = userData?.user
+      const user = userData?.user 
       if (!user) {
         console.log("No user is logged in.")
         return
@@ -63,11 +67,38 @@ export default function HomePage() {
       if (user.user_metadata?.role === "Business") {
         navigate("/business-home")
       }
+      const getUserCredits = async () => {
+        try {
+          const data = await Credits.getUserCredits(user.id); 
+          setCredits(data.message.currentcredits);
+        } catch (error) {
+          console.error("Error fetching credits:", error);
+        }
+      }
+      const setdeliveryTime = async () => {
+        try {
+          const return_data: { [key: string]: number } = {};
+          console.log(featuredRestaurants)
+          const restaurants = featuredRestaurants.slice(0, displayCount).map(async (restaurant) => {
+            const data = await Queue.getRestaurantQueue(restaurant.id); 
+            
+            return_data[restaurant.id]= data.data.length
+          })
+          
+          setDeliveryTimes(return_data)
+        } catch (error) {
+          console.error("Error fetching credits:", error);
+        }
+      }
+      setdeliveryTime()
+      getUserCredits()
     }
     checkAndInsertProfile()
+    
   }, [isLoggedIn, loading])
 
   useEffect(() => {
+    
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false)
@@ -92,7 +123,7 @@ export default function HomePage() {
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 8)
   }
-
+  console.log(deliveryTimes)
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -112,6 +143,9 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <div>
+              Credits: {credits !== null ? credits : "Loading..."}
+            </div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                 <ShoppingBag className="mr-2 h-4 w-4" />
@@ -204,7 +238,8 @@ export default function HomePage() {
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {featuredRestaurants.slice(0, displayCount).map((restaurant) => {
-                  console.log("Restaurant data:", restaurant)
+                  
+                  //console.log("Restaurant data:", restaurant)
                   return (
                     <Link to={`/shop/?shop=${encodeURIComponent(restaurant.id || "restaurant")}`} key={restaurant.id}>
                       <Card className="overflow-hidden h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 group">
@@ -252,11 +287,11 @@ export default function HomePage() {
                             <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
                               <div className="flex items-center">
                                 <Clock className="mr-1 h-3 w-3 text-blue-500" />
-                                <span>{restaurant.deliveryTime || "20-30 min"}</span>
+                                <span>{ deliveryTimes[restaurant.id]*3 + " mins" }</span>
                               </div>
                               <div className="flex items-center">
                                 <MapPin className="mr-1 h-3 w-3 text-purple-500" />
-                                <span>{restaurant.distance || "1.2 km"}</span>
+                                
                               </div>
                             </div>
                           </div>
