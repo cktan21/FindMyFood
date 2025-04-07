@@ -321,9 +321,9 @@ export default function ProfilePage() {
                                     Order ID: {order.order_id}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    {order.timestamp
+                                    {/* {order.timestamp
                                       ? new Date(order.timestamp).toLocaleString()
-                                      : "No time"}
+                                      : "No time"} */}
                                   </div>
                                 </div>
                                 <div>
