@@ -9,7 +9,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoadingScreen from "@/components/blocks/LoadingScreen.tsx";
@@ -37,6 +37,7 @@ export default function ProfilePage() {
   const { isLoggedIn, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [selectedFilter, setSelectedFilter] = useState("processing");
 
   // State to hold the profile data
   const [profile, setProfile] = useState<{
@@ -109,15 +110,23 @@ export default function ProfilePage() {
     getUserCredits()
     fetchProfile();
   }, []);
+  const filteredOrders = orders.filter(
+    (order) => order.status === selectedFilter
+  );
+  console.log(filteredOrders);
 
   // Fetch orders when profile is available
   useEffect(() => {
     const fetchOrders = async () => {
       if (profile?.name) {
         try {
-          const response = await orderFood.getOrdersByFilter(profile.name, '', '');
-          if (response && response.data) {
-            setOrders(response.data);
+
+          const response = await orderFood.getOrdersByFilter(profile.id, '', '');
+          console.log(response.message)
+          //const response = await orderFood.getAllOrders();
+          if (response.message) {
+
+            setOrders(response.message);
           } else {
             console.error("Invalid response from getOrdersByFilter:", response);
           }
@@ -283,40 +292,70 @@ export default function ProfilePage() {
                   <div>Loading orders...</div>
                 ) : orders.length ? (
                   <div className="grid gap-4">
-                    {orders.map((order: any) => (
-                      <Card key={order.order_id}>
-                        <CardHeader className="pb-4 flex items-center justify-between">
-                          <div className="flex flex-col gap-1">
-                            <CardTitle className="text-base">
-                              {order.restaurant}
-                            </CardTitle>
-                            <CardDescription className="text-sm">
-                              Order ID: {order.order_id}
-                            </CardDescription>
-                          </div>
-                          <Badge
-                            variant="secondary"
-                            className="bg-green-100 text-green-700 hover:bg-green-100"
-                          >
-                            {order.status}
-                          </Badge>
-                        </CardHeader>
-                        <CardContent className="grid gap-4">
-                          <ul className="list-disc ml-4">
-                            {order.info.items.map((item: any, index: number) => (
-                              <li key={index} className="text-sm">
-                                {item.qty} x {item.dish.replace(/_/g, " ")} - ${item.price}
-                              </li>
+                    <Card>
+                      <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <CardTitle>Orders</CardTitle>
+                        <div className="flex gap-2">
+                          {["processing", "cancelled", "completed"].map((filter) => (
+                            <Button
+                              key={filter}
+                              variant={selectedFilter === filter ? "default" : "outline"}
+                              onClick={() => setSelectedFilter(filter)}
+                            >
+                              {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                            </Button>
+                          ))}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        {filteredOrders.length ? (
+                          <div className="space-y-4">
+                            {filteredOrders.map((order) => (
+                              <div
+                                key={order.order_id}
+                                className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm"
+                              >
+                                <div>
+                                  <div className="font-medium">
+                                    Order ID: {order.order_id}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {order.timestamp
+                                      ? new Date(order.timestamp).toLocaleString()
+                                      : "No time"}
+                                  </div>
+                                </div>
+                                <div>
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      order.status === "processing"
+                                        ? "border-blue-500 text-blue-500"
+                                        : order.status === "completed"
+                                          ? "border-green-500 text-green-500"
+                                          : "border-red-500 text-red-500"
+                                    }
+                                  >
+                                    {order.status}
+                                  </Badge>
+                                </div>
+                                <div>
+                                  Total: {order.total || order.restaurant}
+                                </div>
+                                <div className="flex justify-end">
+                                  
+                                </div>
+                              </div>
                             ))}
-                          </ul>
-                          <div className="flex items-center justify-between">
-                            <div className="text-sm font-medium">
-                              Total: ${order.total}
-                            </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            No orders with status &quot;{selectedFilter}&quot;
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
                   </div>
                 ) : (
                   <div>No orders found.</div>
