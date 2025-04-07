@@ -16,6 +16,7 @@ import BusinessHomePage from './components/blocks/BusinessHomePage';
 import ConfirmationPage from './components/blocks/ConfirmationPage';
 import Recommendation from './pages/Recommendation';
 import './App.css'
+
 import { Toaster } from '@/components/ui/toaster';
 import RealTimeNotifications from "@/components/blocks/Toasted"
 

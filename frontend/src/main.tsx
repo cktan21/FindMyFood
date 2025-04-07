@@ -5,9 +5,10 @@ import App from './App';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+// turns out vibe code wasn't the problem
+//   <React.StrictMode>
     <HashRouter>
       <App />
     </HashRouter>
-  </React.StrictMode>
+//   </React.StrictMode>
 );

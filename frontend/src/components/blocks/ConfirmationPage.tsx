@@ -29,139 +29,137 @@ interface Order {
 }
 
 export default function ConfirmationPage() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const { state } = location;
-  const { clearCart } = useCart();
-
-  useEffect(() => {
-    // Check if we have order data from state
-    if (state?.order) {
-      setOrder(state.order);
-      return;
-    }
-
-    // Otherwise, check for session_id in URL
-    const sessionId = new URLSearchParams(location.search).get('session_id');
-    if (sessionId) {
-      const fetchSessionDetails = async () => {
-        setLoading(true);
-        try {
-          // Get stored order details from localStorage
-          const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
-        //   console.log(`raw order: ${pendingOrder}`)
-          const response = await Payment.sessionStatus(sessionId);
-
-          if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
-            // i have strong reaon to suspect it send PER ORDER ITEM but whatever la it's not a bug it's a feature 
-            try {
-              // Group items by restaurant for the orderFood API
-              const itemsByRestaurant: Record<string, any[]> = {};
-              if (Array.isArray(pendingOrder.items)) {
-                pendingOrder.items.forEach((item: any) => {
-                  const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
-                  if (!itemsByRestaurant[restaurantName]) {
-                    itemsByRestaurant[restaurantName] = [];
-                  }
-                  itemsByRestaurant[restaurantName].push({
-                    qty: item.quantity,
-                    dish: item.name.replace(/ /g, '_'),
-                    price: item.price,
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [order, setOrder] = useState<Order | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [isProcessed, setIsProcessed] = useState<boolean>(false); // Flag to prevent duplicate API calls
+    const { state } = location;
+    const { clearCart } = useCart();
+  
+    useEffect(() => {
+      if (isProcessed) return; // Exit early if already processed
+  
+      // Check if we have order data from state
+      if (state?.order) {
+        setOrder(state.order);
+        setIsProcessed(true); // Mark as processed
+        return;
+      }
+  
+      // Otherwise, check for session_id in URL
+      const sessionId = new URLSearchParams(location.search).get('session_id');
+      if (sessionId) {
+        const fetchSessionDetails = async () => {
+          setLoading(true);
+          try {
+            // Get stored order details from localStorage
+            const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
+  
+            const response = await Payment.sessionStatus(sessionId);
+            if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
+              try {
+                // Group items by restaurant for the orderFood API
+                const itemsByRestaurant: Record<string, any[]> = {};
+                if (Array.isArray(pendingOrder.items)) {
+                  pendingOrder.items.forEach((item: any) => {
+                    const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
+                    if (!itemsByRestaurant[restaurantName]) {
+                      itemsByRestaurant[restaurantName] = [];
+                    }
+                    itemsByRestaurant[restaurantName].push({
+                      qty: item.quantity,
+                      dish: item.name.replace(/ /g, '_'),
+                      price: item.price,
+                    });
                   });
-                });
-                // console.log(`item map: ${itemsByRestaurant}`)
-              }
-
-              const { data: userData, error: authError } = await supabase.auth.getUser();
-              if (authError) {
-                console.error("Error fetching user:", authError);
-                return;
-              }
-              const user = userData?.user;
-
-              // Create orderContent array for the API
-              const orderContent = Object.keys(itemsByRestaurant).map((restaurant) => ({
-                user_id: user.id,
-                info: {
-                  items: itemsByRestaurant[restaurant],
-                },
-                restaurant: restaurant,
-                total: parseFloat(
-                  itemsByRestaurant[restaurant].reduce(
-                    (sum, item) => sum + item.qty * item.price,
-                    0
-                  ).toFixed(2)
-                ),
-              }));
-            //   console.log(`Content map: ${orderContent}`)
-
-              // Only make API call if there are items to process
-              if (orderContent.length > 0) {
-                const orderData = {
-                  orderContent: orderContent,
-                  creditsContent: {}, // No credits used in this example
-                };
-
-                console.log('Sending order data:', orderData);
-                const orderResponse = await orderFood.addOrder(orderData);
-                console.log('Order created:', orderResponse.data);
-
-                // Extract order IDs grouped by restaurant
-                const orderIdsByRestaurant = orderResponse.data.order.map((orderItem: any) => ({
-                  restaurant: orderItem.restaurant,
-                  orderId: orderItem.order_id,
+                }
+  
+                const { data: userData, error: authError } = await supabase.auth.getUser();
+                if (authError) {
+                  console.error("Error fetching user:", authError);
+                  return;
+                }
+                const user = userData?.user;
+  
+                // Create orderContent array for the API
+                const orderContent = Object.keys(itemsByRestaurant).map((restaurant) => ({
+                  user_id: user.id,
+                  info: {
+                    items: itemsByRestaurant[restaurant],
+                  },
+                  restaurant: restaurant,
+                  total: parseFloat(
+                    itemsByRestaurant[restaurant].reduce(
+                      (sum, item) => sum + item.qty * item.price,
+                      0
+                    ).toFixed(2)
+                  ),
                 }));
-
-                // Log the extracted order IDs
-                console.log('Extracted order IDs:', orderIdsByRestaurant);
-
-                // Set the order state with grouped order IDs
-                setOrder({
-                  orderNumber: orderIdsByRestaurant
-                    .map((o: any) => `${o.restaurant}: ${o.orderId}`)
-                    .join(', ') || 'N/A',
-                  orderDate: new Date().toLocaleString(),
-                  paymentMethod: 'Credit Card',
-                  paymentId: sessionId,
-                  items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
-                  subtotal: pendingOrder.subtotal || 0,
-                  serviceFee: pendingOrder.serviceFee || 1.5,
-                  total: response.data.amount_total || 0,
-                });
-
-                // Clear the pending order from localStorage
-                localStorage.removeItem('pendingOrder');
-                clearCart();
-              } else {
-                console.log('No items to process, skipping API call');
-                setError('No items found to process the order.');
+  
+                // Only make API call if there are items to process
+                if (orderContent.length > 0) {
+                  const orderData = {
+                    orderContent: orderContent,
+                    creditsContent: {}, // No credits used in this example
+                  };
+  
+                  console.log('Sending order data:', orderData);
+                  const orderResponse = await orderFood.addOrder(orderData);
+                  console.log('Order created:', orderResponse.data);
+  
+                  // Extract order IDs grouped by restaurant
+                  const orderIdsByRestaurant = orderResponse.data.order.map((orderItem: any) => ({
+                    restaurant: orderItem.restaurant,
+                    orderId: orderItem.order_id,
+                  }));
+  
+                  // Set the order state with grouped order IDs
+                  setOrder({
+                    orderNumber: orderIdsByRestaurant
+                      .map((o: any) => `${o.restaurant}: ${o.orderId}`)
+                      .join(', ') || 'N/A',
+                    orderDate: new Date().toLocaleString(),
+                    paymentMethod: 'Credit Card',
+                    paymentId: sessionId,
+                    items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
+                    subtotal: pendingOrder.subtotal || 0,
+                    serviceFee: pendingOrder.serviceFee || 1.5,
+                    total: response.data.amount_total || 0,
+                  });
+  
+                  // Clear the pending order from localStorage
+                  localStorage.removeItem('pendingOrder');
+                  clearCart();
+                  setIsProcessed(true); // Mark as processed
+                } else {
+                  setError('No items found to process the order.');
+                  setTimeout(() => navigate('/cart'), 3000);
+                }
+              } catch (orderErr: any) {
+                console.error('Error creating order:', orderErr);
+                setError('Failed to create order. Please try again.');
                 setTimeout(() => navigate('/cart'), 3000);
               }
-            } catch (orderErr: any) {
-              console.error('Error creating order:', orderErr);
-              setError('Failed to create order. Please try again.');
+            } else {
+              setError('Payment was not completed successfully.');
               setTimeout(() => navigate('/cart'), 3000);
             }
-          } else {
-            setError('Payment was not completed successfully.');
+          } catch (err) {
+            console.error('Error fetching session details:', err);
+            setError('Failed to verify payment details.');
             setTimeout(() => navigate('/cart'), 3000);
+          } finally {
+            setLoading(false);
           }
-        } catch (err) {
-          console.error('Error fetching session details:', err);
-          setError('Failed to verify payment details.');
-          setTimeout(() => navigate('/cart'), 3000);
-        } finally {
-          setLoading(false);
-        }
-      };
+        };
+  
+        fetchSessionDetails();
+      }
+    }, [location.search, state]); // Removed `navigate` from dependencies
 
-      fetchSessionDetails();
-    }
-  }, [location, navigate, state]);
-
+    
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center">Loading order details...</div>;
   }
