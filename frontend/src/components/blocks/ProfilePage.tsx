@@ -54,7 +54,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const getUserCredits = async () => {
       try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const { data: authData } = await supabase.auth.getUser();
         const user = authData?.user;
         if (!user) {
           setLoadingProfile(false);

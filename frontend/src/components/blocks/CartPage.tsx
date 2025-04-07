@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
-import { Payment, Credits } from "../../services/api"
+import { Payment, Credits } from "../../services/api";
 
 export default function CartPage() {
   const { isLoggedIn, loading, user } = useAuth();
@@ -18,33 +18,26 @@ export default function CartPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
-  const [loadingProfile, setLoadingProfile] = useState(true);
-
-
 
   useEffect(() => {
     const getUserCredits = async () => {
       try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const { data: authData } = await supabase.auth.getUser();
         const user = authData?.user;
-        if (!user) {
-
-          setLoadingProfile(false)
-        }
-        else {
+        if (user) {
           const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
           setCredits(data.message.currentcredits);
         }
       } catch (error) {
         console.error("Error fetching credits:", error);
       }
-    }
+    };
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     };
-    getUserCredits()
+    getUserCredits();
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -73,12 +66,11 @@ export default function CartPage() {
     setError(null);
 
     // Format cart items to match the expected structure in confirmation page
-    // In CartPage.tsx where you store items in localStorage
     const formattedItems = cartItems.map(item => ({
       name: item.item.replace(/_/g, " "),
       quantity: item.quantity,
       price: item.details.price,
-      restaurant: item.restaurant // Make sure this property exists and is correctly set
+      restaurant: item.restaurant // Ensure this property exists and is correctly set
     }));
 
     localStorage.setItem('pendingOrder', JSON.stringify({
@@ -87,7 +79,6 @@ export default function CartPage() {
       serviceFee: serviceFee,
       total: total
     }));
-
 
     try {
       const response = await Payment.createCheckout({

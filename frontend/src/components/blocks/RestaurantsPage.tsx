@@ -10,8 +10,7 @@ import {
   MapPin,
   ChevronLeft
 } from "lucide-react";
-import { supabase } from "@/supabaseClient"
-
+import { supabase } from "@/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -29,50 +28,50 @@ export default function RestaurantsPage() {
   const [displayCount, setDisplayCount] = useState(8);
   const [searchQuery, setSearchQuery] = useState("");
   const [credits, setCredits] = useState<number | null>(null);
-  //  const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants()
   const [deliveryTimes, setDeliveryTimes] = useState<{ [key: string]: number }>({});
+
   const filteredRestaurants = restaurants.filter((restaurant) =>
     restaurant.id.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   useEffect(() => {
-    
     const getUserCredits = async () => {
       try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const { data: authData } = await supabase.auth.getUser();
         const user = authData?.user;
-        if (!user) {
-        }
-        else {
+        if (user) {
           const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
           setCredits(data.message.currentcredits);
         }
       } catch (error) {
         console.error("Error fetching credits:", error);
       }
-    }
+    };
+
     const setdeliveryTime = async () => {
-            try {
-              const return_data: { [key: string]: number } = {};
-              console.log(filteredRestaurants)
-              const restaurants = filteredRestaurants.slice(0, displayCount).map(async (restaurant) => {
-                const data = await Queue.getRestaurantQueue(restaurant.id); 
-                
-                return_data[restaurant.id]= data.data.length
-              })
-              
-              setDeliveryTimes(return_data)
-            } catch (error) {
-              console.error("Error fetching credits:", error);
-            }
-          }
-    setdeliveryTime()
-    getUserCredits()
-  }, []);
+      try {
+        const return_data: { [key: string]: number } = {};
+        console.log(filteredRestaurants);
+        // Use Promise.all to await all async operations without assigning to an unused variable
+        await Promise.all(
+          filteredRestaurants.slice(0, displayCount).map(async (restaurant) => {
+            const data = await Queue.getRestaurantQueue(restaurant.id);
+            return_data[restaurant.id] = data.data.length;
+          })
+        );
+        setDeliveryTimes(return_data);
+      } catch (error) {
+        console.error("Error fetching delivery times:", error);
+      }
+    };
+
+    setdeliveryTime();
+    getUserCredits();
+  }, []); // Adjust dependencies as needed
+
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 8);
   };
-
-  
 
   if (loading) {
     return <LoadingScreen />;
@@ -196,7 +195,6 @@ export default function RestaurantsPage() {
       </header>
       <main className="flex-1">
         <div className="container py-6">
-
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
             {filteredRestaurants.slice(0, displayCount).map((restaurant) => (
               <Link
@@ -231,11 +229,10 @@ export default function RestaurantsPage() {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        { deliveryTimes[restaurant.id]*3 + " mins" }
+                        {deliveryTimes[restaurant.id] * 3 + " mins"}
                       </div>
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        
                       </div>
                     </div>
                   </CardContent>
