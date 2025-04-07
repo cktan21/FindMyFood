@@ -97,7 +97,7 @@ export const orderFood = {
 
 export const Credits = {
     getUserCredits: async (userId: string) => {
-        const response = await api.get(`/order-food/credits/${userId}`);
+        const response = await api.get(`/order-food/order/credits/${userId}`);
         return response.data;
     },
 }
