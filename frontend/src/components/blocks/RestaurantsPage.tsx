@@ -29,7 +29,7 @@ export default function RestaurantsPage() {
   const [displayCount, setDisplayCount] = useState(8);
   const [searchQuery, setSearchQuery] = useState("");
   const [credits, setCredits] = useState<number | null>(null);
-  //const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants()
+  //  const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants()
   const [deliveryTimes, setDeliveryTimes] = useState<{ [key: string]: number }>({});
   const filteredRestaurants = restaurants.filter((restaurant) =>
     restaurant.id.toLowerCase().includes(searchQuery.toLowerCase())
