@@ -196,7 +196,7 @@ export default function RestaurantsPage() {
                     <div className="flex items-start justify-between">
                       <h3 className="font-semibold">
                         <span className="text-sm text-muted-foreground">
-                          {restaurant.id}
+                          {(restaurant.name || restaurant.id || "").replace(/_/g, " ")}
                         </span>
                       </h3>
                       <Badge variant="secondary" className="flex gap-1">

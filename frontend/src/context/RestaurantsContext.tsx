@@ -41,8 +41,7 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
         const restaurantsArray: Restaurant[] = Object.entries(data).map(
           ([id, restaurant]) => {
             const { id: _, ...restaurantData } = restaurant as Restaurant;
-            return { id, ...restaurantData };
-          }
+            return { id, ...restaurantData };          }
         );
         setRestaurants(restaurantsArray);
         localStorage.setItem("restaurants", JSON.stringify(restaurantsArray));
@@ -58,8 +57,7 @@ export const RestaurantsProvider: React.FC<{ children: ReactNode }> = ({ childre
           const restaurantsArray: Restaurant[] = Object.entries(data).map(
             ([id, restaurant]) => {
               const { id: _, ...restaurantData } = restaurant as Restaurant;
-              return { id, ...restaurantData };
-            }
+              return { id, ...restaurantData };            }
           );
           setRestaurants(restaurantsArray);
           localStorage.setItem("restaurants", JSON.stringify(restaurantsArray));

@@ -194,7 +194,7 @@ export default function ShopPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 {/* Left Column */}
                 <div>
-                  <h1 className="text-2xl font-bold">{restaurant.id}</h1>
+                  <h1 className="text-2xl font-bold">{(restaurant.name || restaurant.id || "").replace(/_/g, " ")}</h1>
                   <div className="mt-2 flex items-center gap-4">
                     <div className="flex items-center gap-1">
                       <Star className="h-5 w-5 fill-primary text-primary" />

@@ -231,7 +231,7 @@ export default function HomePage() {
                         <CardContent className="p-4 flex flex-col h-full">
                           <div className="space-y-2 flex-1">
                             <h3 className="font-bold text-lg group-hover:text-blue-600 transition-colors">
-                              {restaurant.name}
+                             {(restaurant.name || restaurant.id || "").replace(/_/g, " ")}
                             </h3>
                             <div className="flex flex-wrap gap-1">
                               {(restaurant.tags || []).slice(0, 3).map((tag) => (
