@@ -53,6 +53,8 @@ export default function RecommendationPage() {
     try {
       // Use the user's id to generate recommendations
       const data = await recommendFood.getChatGPTRecommendations(user.id);
+      // Log to verify the nested structure:
+      console.log(data.foodReccomendation.foodReccomendation);
       setRecommendations(data);
     } catch (error) {
       console.error("Error generating recommendations:", error);
@@ -69,10 +71,12 @@ export default function RecommendationPage() {
     return <Navigate to="/login" />;
   }
 
-  // Convert the recommendations object into an array of suggestion entries
+  // Access the suggestions from the nested property
   const suggestionEntries =
-    recommendations && recommendations.foodReccomendation
-      ? Object.entries(recommendations.foodReccomendation)
+    recommendations &&
+    recommendations.foodReccomendation &&
+    recommendations.foodReccomendation.foodReccomendation
+      ? Object.entries(recommendations.foodReccomendation.foodReccomendation)
       : [];
 
   return (
@@ -157,7 +161,7 @@ export default function RecommendationPage() {
                   <CardHeader className="p-0">
                     <div className="relative">
                       <img
-                        src="/placeholder.svg?height=200&width=300"
+                        src={suggestion.photo || "/placeholder.svg?height=200&width=300"}
                         alt={suggestion.food_item}
                         width="300"
                         height="200"
@@ -169,7 +173,7 @@ export default function RecommendationPage() {
                     <h3 className="font-semibold text-lg">
                       {(suggestion.food_item || "").replace(/_/g, " ")}
                     </h3>
-                    <p className="text-sm text-muted-foreground">{suggestion.restaurant}</p>
+                    <p className="text-sm text-muted-foreground">{(suggestion.restaurant).replace(/_/g, " ")}</p>
                     <p className="text-sm mt-2">{suggestion.desc}</p>
                   </CardContent>
                   <div className="px-4 pb-4">
