@@ -26,7 +26,7 @@ export default function ProductPage() {
   useEffect(() => {
     const getUserCredits = async () => {
       try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const { data: authData } = await supabase.auth.getUser();
         const user = authData?.user;
         if (!user) { }
         else {

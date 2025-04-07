@@ -34,31 +34,29 @@ export default function ShopPage() {
   const [queueItems, setQueueItems] = useState([]); // State to hold queue items
   const menuRef = useRef<HTMLDivElement>(null);
   const [credits, setCredits] = useState<number | null>(null);
-  const [loadingProfile, setLoadingProfile] = useState(true);
+
   // Handle clicks outside the menu to close it
   useEffect(() => {
     const getUserCredits = async () => {
       try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
+        const { data: authData } = await supabase.auth.getUser();
         const user = authData?.user;
-        if (!user) {
-
-          setLoadingProfile(false)
-        }
-        else {
+        if (user) {
           const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
           setCredits(data.message.currentcredits);
         }
       } catch (error) {
         console.error("Error fetching credits:", error);
       }
-    }
+    };
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     };
-    getUserCredits()
+
+    getUserCredits();
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
@@ -68,15 +66,12 @@ export default function ShopPage() {
   useEffect(() => {
     async function fetchQueueData() {
       try {
-        // Find the current restaurant
-        console.log(shopParam)
-
         if (!shopParam) {
           console.error("Restaurant not found.");
           setQueueItems([]);
           return;
         }
-        const restaurant = shopParam.toLowerCase()
+        const restaurant = shopParam.toLowerCase();
 
         // Fetch queue items for the specific restaurant using getRestaurantQueue
         const rawQueueItems = await Queue.getRestaurantQueue(restaurant);
@@ -290,8 +285,6 @@ export default function ShopPage() {
               </div>
             </CardContent>
           </Card>
-
-
         </div>
       </div>
       {/* Main Content: Menu Items */}

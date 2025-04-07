@@ -78,18 +78,17 @@ export default function HomePage() {
       const setdeliveryTime = async () => {
         try {
           const return_data: { [key: string]: number } = {};
-          console.log(featuredRestaurants)
-          const restaurants = featuredRestaurants.slice(0, displayCount).map(async (restaurant) => {
-            const data = await Queue.getRestaurantQueue(restaurant.id); 
-            
-            return_data[restaurant.id]= data.data.length
-          })
-          
-          setDeliveryTimes(return_data)
+          console.log(featuredRestaurants);
+          featuredRestaurants.slice(0, displayCount).forEach(async (restaurant) => {
+            const data = await Queue.getRestaurantQueue(restaurant.id);
+            return_data[restaurant.id] = data.data.length;
+          });
+          setDeliveryTimes(return_data);
         } catch (error) {
           console.error("Error fetching credits:", error);
         }
-      }
+      };
+      
       setdeliveryTime()
       getUserCredits()
     }

@@ -94,7 +94,9 @@ export const orderFood = {
         attach = attach.slice(0, -1)
 
         const response = await api.get(`/order-food/order/graborder?${attach}`);
+
         // const response = await api.get(`/order-food/order/graborder?uid=${userId}&restaurant=${restaurant}&oid=${orderId}`);
+
         return response.data;
     },
     cancelOrder: async (orderId: string, restaurant: string) => {
