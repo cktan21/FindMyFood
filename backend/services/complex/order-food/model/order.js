@@ -25,18 +25,17 @@ async function SendRabbitMQ(message) {
     } catch (error) {
         // Error Handling
         console.error("❌ Error occurred while connecting to RabbitMQ or publishing the message:", error.message);
-    } 
-    // finally {
-    //     // Close the connection to free resources
-    //     if (connection) {
-    //         try {
-    //             await connection.close();
-    //             console.log("✅ RabbitMQ connection closed");
-    //         } catch (closeError) {
-    //             console.error("❌ Error occurred while closing RabbitMQ connection:", closeError.message);
-    //         }
-    //     }
-    // }
+    } finally {
+        // Close the connection to free resources
+        if (connection) {
+            try {
+                await connection.close();
+                console.log("✅ RabbitMQ connection closed");
+            } catch (closeError) {
+                console.error("❌ Error occurred while closing RabbitMQ connection:", closeError.message);
+            }
+        }
+    }
 }
 
 async function getAllOrders() {

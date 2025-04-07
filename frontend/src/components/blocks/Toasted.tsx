@@ -4,7 +4,7 @@ import { listenForNotifications, getNotifications } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 // import { Navigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
-import { ToastAction } from "@/components/ui/toast"
+// import { ToastAction } from "@/components/ui/toast"
 
 export default function RealTimeNotifications() {
     const { toast } = useToast();

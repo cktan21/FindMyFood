@@ -1,3 +1,5 @@
+"use client"
+
 import { Routes, Route } from 'react-router-dom';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -44,7 +46,7 @@ const App = () => {
                         <Route path="/recommendation" element={<Recommendation />} />
                     </Routes>
                     {/* Added Toaster Routes */}
-                    <Toaster />
+                    <Toaster/>
                 </Elements>
             </CartProvider>
         </AuthProvider>
