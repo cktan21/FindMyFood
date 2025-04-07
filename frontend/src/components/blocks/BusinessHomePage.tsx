@@ -121,21 +121,22 @@ export default function BusinessHomePage() {
     );
   };
 
-  // Async function to handle updating order status via API
+  // Async function to handle updating order status via API using optimistic update.
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+    // Optimistically update the UI first
+    updateOrderStatusLocally(orderId, newStatus);
     try {
       if (newStatus === "processing") {
-        // For processing, update locally.
-        updateOrderStatusLocally(orderId, newStatus);
+        // No API call required for processing in this case.
       } else if (newStatus === "cancelled") {
         await completeOrder.cancelOrder(orderId, {});
-        updateOrderStatusLocally(orderId, newStatus);
       } else if (newStatus === "completed") {
         await completeOrder.completeOrder(orderId, {});
-        updateOrderStatusLocally(orderId, newStatus);
       }
     } catch (error) {
       console.error("Failed to update order status", error);
+      // Optionally, revert the optimistic update if needed:
+      // updateOrderStatusLocally(orderId, "processing");
     }
   };
 
