@@ -80,7 +80,20 @@ export const orderFood = {
     },
 
     getOrdersByFilter: async (userId: string, orderId: string, restaurant: string ) => {
-        const response = await api.get(`/order-food/graborder/user/uid=${userId}&restaurant=${restaurant}&oid=${orderId}`);
+        let attach = ''
+        if (userId != ''){
+            attach = attach.concat(`uid=${userId}&`)
+        }
+        if (orderId != ''){
+            attach = attach.concat(`oid=${orderId}&`)
+        }
+        if (restaurant !=''){
+            attach = attach.concat(`restaurant=${restaurant}&`)
+        }
+        
+        attach = attach.slice(0, -1)
+
+        const response = await api.get(`/order-food/order/graborder?${attach}`);
         return response.data;
     },
 
