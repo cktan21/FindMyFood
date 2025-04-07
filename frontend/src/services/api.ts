@@ -80,10 +80,25 @@ export const orderFood = {
     },
 
     getOrdersByFilter: async (userId: string, orderId: string, restaurant: string ) => {
-        const response = await api.get(`/order-food/graborder/user/uid=${userId}&restaurant=${restaurant}&oid=${orderId}`);
+        let attach = ''
+        if (userId != ''){
+            attach = attach.concat(`uid=${userId}&`)
+        }
+        if (orderId != ''){
+            attach = attach.concat(`oid=${orderId}&`)
+        }
+        if (restaurant !=''){
+            attach = attach.concat(`restaurant=${restaurant}7`)
+        }
+        
+        attach = attach.slice(0, -1)
+
+        const response = await api.get(`/order-food/order/graborder?${attach}`);
+
+        // const response = await api.get(`/order-food/order/graborder?uid=${userId}&restaurant=${restaurant}&oid=${orderId}`);
+
         return response.data;
     },
-
     cancelOrder: async (orderId: string, restaurant: string) => {
         const response = await api.put(`/order-food/order/cancel/${orderId}/${restaurant}`);
         return response.data;
@@ -103,8 +118,13 @@ export const Credits = {
 }
 
 export const Queue = {
+    getRestaurantQueue: async (restaurant: string) => {
+        const response = await api.get(`/queue/${restaurant}`);
+        return response.data;
+    },
+
     getAllQueue: async () => {
-        const response = await api.get('/queue/qStatus');
+        const response = await api.get(`/queue/all`);
         return response.data;
     }
 }
