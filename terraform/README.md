@@ -34,6 +34,7 @@ kubectl apply -f kubernetes/jobs/ -n esd
 kubectl get svc -n esd
 
 kubectl expose deployment kong --type=LoadBalancer --name=kong-deployment -n esd
+kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd
 ```
 
 > To access Grafana

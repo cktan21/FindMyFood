@@ -7,7 +7,6 @@ import {
   Clock,
   ChevronDown,
   SlidersHorizontal,
-  MapPin,
   ChevronLeft
 } from "lucide-react";
 import { supabase } from "@/supabaseClient";
@@ -33,8 +32,10 @@ export default function RestaurantsPage() {
   const filteredRestaurants = restaurants.filter((restaurant) =>
     restaurant.id.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
+  const deliveryCache: { [key: string]: number } = {};
+  console.log(filteredRestaurants)
   useEffect(() => {
+    if (!filteredRestaurants.length || loading) return;
     const getUserCredits = async () => {
       try {
         const { data: authData } = await supabase.auth.getUser();
@@ -51,23 +52,27 @@ export default function RestaurantsPage() {
     const setdeliveryTime = async () => {
       try {
         const return_data: { [key: string]: number } = {};
-        console.log(filteredRestaurants);
-        // Use Promise.all to await all async operations without assigning to an unused variable
-        await Promise.all(
-          filteredRestaurants.slice(0, displayCount).map(async (restaurant) => {
+        console.log(restaurants);
+        const promises = filteredRestaurants.slice(0, displayCount).map(async (restaurant) => {
+          if (deliveryCache[restaurant.id]) {
+            return_data[restaurant.id] = deliveryCache[restaurant.id];
+          } else {
             const data = await Queue.getRestaurantQueue(restaurant.id);
             return_data[restaurant.id] = data.data.length;
-          })
-        );
+            deliveryCache[restaurant.id] = data.data.length; // Cache the result
+          }
+        });
+        await Promise.all(promises);
         setDeliveryTimes(return_data);
       } catch (error) {
         console.error("Error fetching delivery times:", error);
       }
     };
 
+
     setdeliveryTime();
     getUserCredits();
-  }, []); // Adjust dependencies as needed
+  },[restaurants, displayCount]); // Adjust dependencies as needed
 
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 8);
@@ -229,10 +234,12 @@ export default function RestaurantsPage() {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {deliveryTimes[restaurant.id] * 3 + " mins"}
+                        {deliveryTimes[restaurant.id] !== undefined
+                                  ? deliveryTimes[restaurant.id] * 3 + " mins"
+                                  : "Loading..."}
                       </div>
                       <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
+                        
                       </div>
                     </div>
                   </CardContent>
