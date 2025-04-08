@@ -18,20 +18,24 @@ export default function CartPage() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [credits, setCredits] = useState<number | null>(null);
   const [creditsAmount, setCreditsAmount] = useState<number>(0); // Store user credits
   const [useCredits, setUseCredits] = useState<boolean>(false); // Toggle for using credits
 
   // Fetch user credits using useEffect
   useEffect(() => {
-
-    const getUserCredits = async () => { 
+    const getUserCredits = async () => {
       try {
         const { data: authData } = await supabase.auth.getUser();
         const user = authData?.user;
         if (user) {
           const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
           setCredits(data.message.currentcredits);
-
+        }
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+      }
+    };
     const fetchCredits = async () => {
       if (user?.id) {
         try {
@@ -43,6 +47,7 @@ export default function CartPage() {
         }
       }
     };
+    getUserCredits();
     fetchCredits();
   }, [user?.id]);
 
@@ -177,6 +182,9 @@ export default function CartPage() {
             <h1 className="text-xl font-semibold">Your Cart</h1>
           </div>
           <div className="flex items-center gap-4">
+            <div>
+              Credits: {credits !== null ? credits : "Loading..."}
+            </div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                 <ShoppingBag className="mr-2 h-4 w-4" />
