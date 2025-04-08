@@ -64,7 +64,7 @@ export default function RealTimeNotifications() {
         };
 
         setupNotifications();
-    }, [isLoggedIn, loading, toast]);
+    }, [toast]); // perfect restricted use state
 
     return null; // Component does not render anything
 }
