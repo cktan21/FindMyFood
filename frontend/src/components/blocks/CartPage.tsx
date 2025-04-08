@@ -20,7 +20,7 @@ export default function CartPage() {
   const [credits, setCredits] = useState<number | null>(null);
 
   useEffect(() => {
-    const getUserCredits = async () => {
+    const getUserCredits = async () => { 
       try {
         const { data: authData } = await supabase.auth.getUser();
         const user = authData?.user;
