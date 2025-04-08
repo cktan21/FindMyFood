@@ -23,18 +23,18 @@ export default function HomePage() {
   const navigate = useNavigate()
   const [credits, setCredits] = useState<number | null>(null);
   const [deliveryTimes, setDeliveryTimes] = useState<{ [key: string]: number }>({});
-  
+
   useEffect(() => {
-    
+
     if (!isLoggedIn || loading) return
-    
+
     const checkAndInsertProfile = async () => {
       const { data: userData, error: authError } = await supabase.auth.getUser()
       if (authError) {
         console.error("Error fetching user:", authError)
         return
       }
-      const user = userData?.user 
+      const user = userData?.user
       if (!user) {
         console.log("No user is logged in.")
         return
@@ -69,35 +69,36 @@ export default function HomePage() {
       }
       const getUserCredits = async () => {
         try {
-          const data = await Credits.getUserCredits(user.id); 
+          const data = await Credits.getUserCredits(user.id);
           setCredits(data.message.currentcredits);
         } catch (error) {
           console.error("Error fetching credits:", error);
         }
       }
-      const setdeliveryTime = async () => {
+      const setDeliveryTime = async () => {
         try {
+          
           const return_data: { [key: string]: number } = {};
-          console.log(featuredRestaurants);
-          featuredRestaurants.slice(0, displayCount).forEach(async (restaurant) => {
+          const promises = featuredRestaurants.map(async (restaurant) => {
             const data = await Queue.getRestaurantQueue(restaurant.id);
             return_data[restaurant.id] = data.data.length;
           });
+          await Promise.all(promises);
           setDeliveryTimes(return_data);
         } catch (error) {
-          console.error("Error fetching credits:", error);
+          console.error("Error fetching delivery times:", error);
         }
       };
-      
-      setdeliveryTime()
+
+      setDeliveryTime()
       getUserCredits()
     }
     checkAndInsertProfile()
-    
-  }, [isLoggedIn, loading])
+
+  }, [isLoggedIn, loading, featuredRestaurants])
 
   useEffect(() => {
-    
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false)
@@ -239,7 +240,7 @@ export default function HomePage() {
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {featuredRestaurants.slice(0, displayCount).map((restaurant) => {
-                  
+
                   //console.log("Restaurant data:", restaurant)
                   return (
                     <Link to={`/shop/?shop=${encodeURIComponent(restaurant.id || "restaurant")}`} key={restaurant.id}>
@@ -267,7 +268,7 @@ export default function HomePage() {
                         <CardContent className="p-4 flex flex-col h-full">
                           <div className="space-y-2 flex-1">
                             <h3 className="font-bold text-lg group-hover:text-blue-600 transition-colors">
-                             {(restaurant.name || restaurant.id || "").replace(/_/g, " ")}
+                              {(restaurant.name || restaurant.id || "").replace(/_/g, " ")}
                             </h3>
                             <div className="flex flex-wrap gap-1">
                               {(restaurant.tags || []).slice(0, 3).map((tag) => (
@@ -288,11 +289,14 @@ export default function HomePage() {
                             <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
                               <div className="flex items-center">
                                 <Clock className="mr-1 h-3 w-3 text-blue-500" />
-                                <span>{ deliveryTimes[restaurant.id]*3 + " mins" }</span>
+                                <span>{deliveryTimes[restaurant.id] !== undefined
+                                  ? deliveryTimes[restaurant.id] * 3 + " mins"
+                                  : "Loading..."}
+                                </span>
                               </div>
                               <div className="flex items-center">
                                 <MapPin className="mr-1 h-3 w-3 text-purple-500" />
-                                
+
                               </div>
                             </div>
                           </div>
