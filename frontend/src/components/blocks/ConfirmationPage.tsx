@@ -231,7 +231,7 @@ export default function ConfirmationPage() {
                 order.items.map((item, index: number) => (
                   <div key={index} className="flex justify-between text-sm">
                     <span>
-                      {item.item || `Item ${index + 1}`} x {item.quantity}
+                      {(item.item || `Item ${index + 1}`).replace(/_/g, ' ')} x {item.quantity}
                     </span>
                     <span>
                       ${
@@ -242,7 +242,7 @@ export default function ConfirmationPage() {
                     </span>
                   </div>
                 ))
-              ) : (
+              )  : (
                 <div className="flex justify-between text-sm">
                   <span>Items</span>
                   <span>${order.subtotal.toFixed(2)}</span>
