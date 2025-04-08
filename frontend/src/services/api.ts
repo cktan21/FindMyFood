@@ -182,8 +182,8 @@ export const Menu = {
         const response = await api.get('/menu/all');
         return response.data;
     },
-    getMenuRestraunt: async (restraunt: string) =>  {
-        const response = await api.get(`/menu/${restraunt}`);
+    getMenuByRestaurant: async (restaurant: string) =>  {
+        const response = await api.get(`/menu/${restaurant}`);
         return response.data;      
     }
     
