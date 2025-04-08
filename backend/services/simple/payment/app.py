@@ -64,7 +64,8 @@ def create_checkout_session():
             coupon = stripe.Coupon.create(
                 amount_off=discount_cents,
                 currency="usd",
-                duration="once"
+                duration="once",
+                name="Credits Coupon"
             )
             discounts = [{"coupon": coupon.id}]
 

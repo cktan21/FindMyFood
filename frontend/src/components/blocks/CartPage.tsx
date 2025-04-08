@@ -65,10 +65,18 @@ export default function CartPage() {
   );
   const serviceFee = 1.50;
   const totalWithoutCredits = subtotal + serviceFee;
-  const totalWithCredits = Math.max(totalWithoutCredits - creditsAmount, serviceFee);
+  const totalWithCredits = Math.max(totalWithoutCredits - creditsAmount, 0);
+  var filteredCredit = 0;
 
   console.log("With Credits:", totalWithCredits);
   console.log("Without Credits:", totalWithoutCredits);
+  console.log("Credits: ", creditsAmount)
+  if (creditsAmount > totalWithoutCredits) {
+    filteredCredit = totalWithoutCredits;
+  } else {
+    filteredCredit = creditsAmount;
+  }
+
 
   // Function to update user credits (if you want to deduct credits after checkout)
   const updateUserCredits = async (userId: string, credit: number) => {
@@ -105,21 +113,22 @@ export default function CartPage() {
         subtotal,
         serviceFee,
         total: useCredits ? totalWithCredits : totalWithoutCredits,
-        creditsUsed: useCredits ? creditsAmount : 0
+        creditsUsed: useCredits ? filteredCredit : 0
       })
     );
 
     try {
       if (useCredits && user?.id) {
         // Deduct used credits before proceeding to payment
-        if (creditsAmount > subtotal) {
-          await updateUserCredits(user.id, -subtotal);
+        if (creditsAmount > totalWithoutCredits) {
+          await updateUserCredits(user.id, -totalWithoutCredits);
         } else {
           await updateUserCredits(user.id, -creditsAmount);
         }
         console.log("User credits updated successfully.");
       }
 
+      console.log(creditsAmount)
       // Build payload including creditsUsed field
       const payload = {
         cartItems: formattedItems,
@@ -127,7 +136,7 @@ export default function CartPage() {
         total: useCredits ? totalWithCredits : totalWithoutCredits,
         customerEmail: user?.email || "guest@example.com",
         domain: window.location.origin,
-        creditsUsed: useCredits ? creditsAmount : 0
+        creditsUsed: useCredits ? filteredCredit : 0
       };
 
       console.log("Checkout payload:", payload);

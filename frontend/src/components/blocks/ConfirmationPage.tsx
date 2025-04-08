@@ -8,9 +8,8 @@ import { Payment, orderFood } from "../../services/api";
 import { useCart } from "@/hooks/useCart";
 import { supabase } from "@/supabaseClient";
 
-// Define interfaces for type safety
 interface OrderItem {
-  item: string; // Using "item" for consistency with the pendingOrder format
+  item: string;
   quantity: number;
   details: {
     price: number;
@@ -29,6 +28,7 @@ interface Order {
   items: OrderItem[];
   subtotal: number;
   serviceFee: number;
+  creditsUsed: number;
 }
 
 export default function ConfirmationPage() {
@@ -42,24 +42,20 @@ export default function ConfirmationPage() {
   const orderProcessedRef = useRef(false);
 
   useEffect(() => {
-    // If order data was passed via state, use it and skip further processing.
     if (state?.order) {
       setOrder(state.order);
       return;
     }
 
-    // Get the session_id from the URL
     const sessionId = new URLSearchParams(location.search).get('session_id');
     if (!sessionId) return;
 
-    // Prevent multiple runs of the order processing
     if (orderProcessedRef.current) return;
     orderProcessedRef.current = true;
 
     const fetchSessionDetails = async () => {
       setLoading(true);
       try {
-        // Retrieve pending order from localStorage
         const pendingOrderRaw = localStorage.getItem('pendingOrder');
         if (!pendingOrderRaw) {
           console.log("No pending order found.");
@@ -68,7 +64,6 @@ export default function ConfirmationPage() {
           return;
         }
         const pendingOrder = JSON.parse(pendingOrderRaw);
-        // Ensure we have a valid items array
         if (!pendingOrder.items || !Array.isArray(pendingOrder.items) || pendingOrder.items.length === 0) {
           console.log("No items to process, skipping API call");
           setError('No items found to process the order.');
@@ -76,11 +71,9 @@ export default function ConfirmationPage() {
           return;
         }
 
-        // Verify payment session details from the Payment API
         const response = await Payment.sessionStatus(sessionId);
         if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
           try {
-            // Group order items by restaurant
             const itemsByRestaurant: Record<string, any[]> = {};
             pendingOrder.items.forEach((item: any) => {
               const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
@@ -94,7 +87,6 @@ export default function ConfirmationPage() {
               });
             });
 
-            // Fetch the authenticated user from Supabase
             const { data: userData, error: authError } = await supabase.auth.getUser();
             if (authError) {
               console.error("Error fetching user:", authError);
@@ -106,7 +98,6 @@ export default function ConfirmationPage() {
               return;
             }
 
-            // Build orderContent for each restaurant
             const orderContent = Object.keys(itemsByRestaurant).map((restaurant) => ({
               user_id: user.id,
               info: {
@@ -120,24 +111,20 @@ export default function ConfirmationPage() {
               ),
             }));
 
-            // Only proceed if there are items to process
             if (orderContent.length > 0) {
               const orderData = {
                 orderContent: orderContent,
-                creditsContent: {}, // Adjust if credits were applied
+                creditsContent: {},
               };
 
               console.log('Sending order data:', orderData);
               const orderResponse = await orderFood.addOrder(orderData);
               console.log('Order created:', orderResponse.data);
-
-              // Extract order IDs from the response and group them by restaurant
               const orderIdsByRestaurant = orderResponse.data.order.map((orderItem: any) => ({
                 restaurant: orderItem.restaurant,
                 orderId: orderItem.order_id,
               }));
 
-              // Set the order state with the details from pending order and payment session
               setOrder({
                 orderNumber: orderIdsByRestaurant
                   .map((o: any) => `${o.restaurant}: ${o.orderId}`)
@@ -149,9 +136,9 @@ export default function ConfirmationPage() {
                 subtotal: pendingOrder.subtotal || 0,
                 serviceFee: pendingOrder.serviceFee || 1.5,
                 total: response.data.amount_total || 0,
+                creditsUsed: pendingOrder.creditsUsed || 0,
               });
 
-              // Clear the pending order from localStorage and clear the cart
               localStorage.removeItem('pendingOrder');
               clearCart();
             } else {
@@ -206,14 +193,11 @@ export default function ConfirmationPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-center">
           <h1 className="text-xl font-semibold">Order Confirmation</h1>
         </div>
       </header>
-
-      {/* Main Content */}
       <main className="flex-1">
         <div className="container max-w-2xl py-8 px-4">
           <div className="text-center mb-8">
@@ -273,6 +257,12 @@ export default function ConfirmationPage() {
                 <span>Service Fee</span>
                 <span>${(order.serviceFee || 0).toFixed(2)}</span>
               </div>
+              {order.creditsUsed > 0 && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span>Credits Applied</span>
+                  <span>-${order.creditsUsed.toFixed(2)}</span>
+                </div>
+              )}
               <Separator />
               <div className="flex justify-between font-medium">
                 <span>Total</span>
