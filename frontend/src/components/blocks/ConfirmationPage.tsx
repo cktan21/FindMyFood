@@ -83,7 +83,7 @@ export default function ConfirmationPage() {
 
                 const response = await Payment.sessionStatus(sessionId);
                 if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
-                    const itemsByRestaurant = {};
+                    const itemsByRestaurant: any = {};
                     pendingOrder.items.forEach((item: any) => {
                         const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
                         if (!itemsByRestaurant[restaurantName]) {
@@ -120,7 +120,7 @@ export default function ConfirmationPage() {
                         restaurant: restaurant,
                         total: parseFloat(
                             itemsByRestaurant[restaurant]
-                                .reduce((sum, item) => sum + item.qty * item.price, 0)
+                                .reduce((sum: any, item: any) => sum + item.qty * item.price, 0)
                                 .toFixed(2)
                         ),
                     }));
@@ -135,14 +135,14 @@ export default function ConfirmationPage() {
                         const orderResponse = await orderFood.addOrder(orderData);
                         console.log('Order created:', orderResponse.data);
 
-                        const orderIdsByRestaurant = orderResponse.data.order.map((orderItem) => ({
+                        const orderIdsByRestaurant = orderResponse.data.order.map((orderItem: any) => ({
                             restaurant: orderItem.restaurant,
                             orderId: orderItem.order_id,
                         }));
 
                         setOrder({
                             orderNumber: orderIdsByRestaurant
-                                .map((o) => `${o.restaurant}: ${o.orderId}`)
+                                .map((o: any ) => `${o.restaurant}: ${o.orderId}`)
                                 .join(', ') || 'N/A',
                             orderDate: new Date().toLocaleString(),
                             paymentMethod: 'Credit Card',

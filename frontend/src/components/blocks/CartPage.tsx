@@ -80,7 +80,7 @@ export default function CartPage() {
   const serviceFee = 1.50;
   const totalWithoutCredits = subtotal + serviceFee;
   const totalWithCredits = Math.max(totalWithoutCredits - creditsAmount, 0);
-  var filteredCredit = 0;
+  let filteredCredit = 0;
 
   console.log("With Credits:", totalWithCredits);
   console.log("Without Credits:", totalWithoutCredits);
