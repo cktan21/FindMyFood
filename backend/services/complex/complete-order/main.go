@@ -17,7 +17,12 @@ import (
 
 // Helper function to connect to RabbitMQ
 func connectToRabbitMQ() (*amqp.Connection, error) {
-    conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672")
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+    if rabbitMQURL == "" {
+        // Provide a default value if the environment variable is not set
+        rabbitMQURL = "amqp://guest:guest@rabbitmq:5672"
+    }
+    conn, err := amqp.Dial(rabbitMQURL)
     if err != nil {
         return nil, fmt.Errorf("failed to connect to RabbitMQ: %v", err)
     }
@@ -26,29 +31,32 @@ func connectToRabbitMQ() (*amqp.Connection, error) {
 
 // Helper function to publish a message to RabbitMQ
 func publishToQueue(conn *amqp.Connection, queueName string, message []byte) error {
+    // Open a channel
     ch, err := conn.Channel()
     if err != nil {
         return fmt.Errorf("failed to open a channel: %v", err)
     }
     defer ch.Close()
 
-    q, err := ch.QueueDeclare(
+    // Assert the queue (ensures the queue exists, creates it if necessary)
+    _, err = ch.QueueDeclare(
         queueName, // Queue name
-        true,     // Durable
-        false,     // Delete when unused
-        false,     // Exclusive
-        false,     // No-wait
-        nil,       // Arguments
+        true,      // Durable: Survives broker restarts
+        false,     // Auto-delete: Deleted when no consumers
+        false,     // Exclusive: Used by only one connection
+        false,     // No-wait: Non-blocking
+        nil,       // Arguments: Optional configuration
     )
     if err != nil {
-        return fmt.Errorf("failed to declare a queue: %v", err)
+        return fmt.Errorf("failed to assert queue: %v", err)
     }
 
+    // Publish the message directly to the queue using the default exchange
     err = ch.Publish(
-        "main",     // Exchange
-        q.Name,     // Routing key
-        false,      // Mandatory
-        false,      // Immediate
+        "",         // Exchange: Use the default exchange
+        queueName,  // Routing key: Matches the queue name
+        false,      // Mandatory: Return undeliverable messages
+        false,      // Immediate: Fail if no consumer is available
         amqp.Publishing{
             ContentType: "application/json",
             Body:        message,
