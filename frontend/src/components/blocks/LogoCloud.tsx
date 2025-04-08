@@ -1,10 +1,13 @@
-
-
 export default function LogoCloud() {
     return (
       <div className="relative overflow-hidden min-h-screen flex items-center justify-center py-24 lg:py-32">
         <section className="bg-background py-16">
-        <div className="mx-auto max-w-5xl px-6">
+          <div className="mt-5 max-w-2xl mx-auto text-center">
+            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+              Our Partnered Shops
+            </h1>
+          </div>
+          <div className="mx-auto max-w-5xl px-6">
             <div className="mx-auto mt-20 flex max-w-4xl flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16 sm:gap-y-12">
             <img
             className="h-auto w-auto max-h-24 max-w-[200px] object-contain"
@@ -72,10 +75,10 @@ export default function LogoCloud() {
             alt="King Kong Curry"
             />
             </div>
-        </div>
+          </div>
         </section>
-        </div>
-
+      </div>
     );
   }
   
+
