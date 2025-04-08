@@ -1,3 +1,5 @@
+"use client"
+
 import { Routes, Route } from 'react-router-dom';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -16,6 +18,7 @@ import BusinessHomePage from './components/blocks/BusinessHomePage';
 import ConfirmationPage from './components/blocks/ConfirmationPage';
 import Recommendation from './pages/Recommendation';
 import './App.css'
+
 import { Toaster } from '@/components/ui/toaster';
 import RealTimeNotifications from "@/components/blocks/Toasted"
 
@@ -43,7 +46,7 @@ const App = () => {
                         <Route path="/recommendation" element={<Recommendation />} />
                     </Routes>
                     {/* Added Toaster Routes */}
-                    <Toaster />
+                    <Toaster/>
                 </Elements>
             </CartProvider>
         </AuthProvider>

@@ -28,6 +28,7 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
+import { Toaster } from '@/components/ui/toaster';
 
 export default function BusinessHomePage() {
   const { isLoggedIn } = useAuth();
@@ -413,6 +414,7 @@ export default function BusinessHomePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Toaster/>
     </div>
   );
 }

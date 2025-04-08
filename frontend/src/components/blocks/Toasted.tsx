@@ -4,6 +4,7 @@ import { listenForNotifications, getNotifications } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 // import { Navigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
+// import { ToastAction } from "@/components/ui/toast"
 
 export default function RealTimeNotifications() {
     const { toast } = useToast();
@@ -51,9 +52,9 @@ export default function RealTimeNotifications() {
                 // Check if the notification is for the current user
                 if (notificationUserId && notificationUserId === currentUserId) {
                     toast({
-                        title: notification.title || "You Got a New Notification!",
+                        title: "You Got a New Notification!",
                         description: notification.message || "No details available.",
-                        variant: notification.type || "default",
+                        // action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
                     });
                 }
             });
