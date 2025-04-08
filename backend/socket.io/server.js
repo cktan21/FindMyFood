@@ -4,28 +4,15 @@ import http from "http";
 import amqp from "amqplib";
 
 const server = http.createServer();
+// Optimize Server Configuration [[3]]
 const io = new Server(server, {
-    cors: { origin: "*" }
+    cors: { origin: "*" },
+    pingTimeout: 60000, // 60 seconds
+    pingInterval: 25000, // 25 seconds
 });
 
 // Uses env variable from docker if available, otherwise use localhost with guest credentials
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5672";
-
-async function connectRabbitMQ() {
-    try {
-        const connection = await amqp.connect(RABBITMQ_URL);
-        const channel = await connection.createChannel();
-        await channel.assertQueue("notifications");
-        // // prefetch how many messages before acknowledging them
-        // const PREFETCH_COUNT = 10; // Adjust as needed
-        // channel.prefetch(PREFETCH_COUNT);
-        console.log("✅ Connected to RabbitMQ");
-        return channel;
-    } catch (error) {
-        console.error("❌ Failed to connect to RabbitMQ:", error);
-    }
-}
-
 const KONG_URL = process.env.KONG_URL || "http://localhost:8000"; // Kong API Gateway URL
 
 async function sendToKong(endpoint, payload) {
@@ -47,51 +34,53 @@ async function startServer() {
         await channel.assertQueue("notifications");
         console.log("✅ Connected to RabbitMQ");
 
+        // Fix RabbitMQ Consumer Logic [[1]]
+        channel.consume("notifications", (msg) => {
+            if (msg !== null) {
+                let messageData;
+                try {
+                    messageData = JSON.parse(msg.content.toString());
+                } catch (error) {
+                    console.error("❌ Failed to parse JSON:", error.message);
+                    channel.ack(msg); // Acknowledge the message even if parsing fails
+                    return;
+                }
+
+                console.log("📥 Received from RabbitMQ:", messageData);
+                io.emit("notification", messageData); // Broadcast to all clients
+                channel.ack(msg); // Acknowledge the message
+            }
+        });
+
+
+
         io.on("connection", (socket) => {
             console.log("⚡ Client connected:", socket.id);
 
-            // Consume messages from RabbitMQ queue
-            channel.consume("notifications", (msg) => {
-                if (msg !== null) {
-                    let messageData;
-                    try {
-                        messageData = JSON.parse(msg.content.toString());
-                    } catch (error) {
-                        console.error("❌ Failed to parse JSON:", error.message);
-                        channel.ack(msg); // Acknowledge the message even if parsing fails
-                        return;
-                    }
+                                // // Handle "allQueue" event
+            // socket.on("allQueue", (message) => {
+            //     console.log("📩 allQueue Message received:", message);
+            //     sendToKong("/queue/all", message);
+            //     io.emit("receivedAllQueue", message);
+            // });
 
-                    console.log("📥 Received from RabbitMQ:", messageData);
-                    io.emit("notification", messageData);
-                    channel.ack(msg); // Acknowledge the message
-                }
-            });
+            // // Handle "addQueue" event
+            // socket.on("addQueue", (message) => {
+            //     console.log("📩 addQueue Message received:", message);
+            //     sendToKong("/queue/add", message);
+            //     io.emit("QAdded", message);
+            // });
 
-            // Handle "allQueue" event
-            socket.on("allQueue", (message) => {
-                console.log("📩 allQueue Message received:", message);
-                sendToKong("/queue/all", message);
-                io.emit("receivedAllQueue", message);
-            });
+            // // Handle "deleteQueue" event
+            // socket.on("deleteQueue", (message) => {
+            //     console.log("📩 deleteQueue Message received:", message);
+            //     sendToKong("/queue/delete", message);
+            //     io.emit("Qdeleted", message);
+            // });
 
-            // Handle "addQueue" event
-            socket.on("addQueue", (message) => {
-                console.log("📩 addQueue Message received:", message);
-                sendToKong("/queue/add", message);
-                io.emit("QAdded", message);
-            });
-
-            // Handle "deleteQueue" event
-            socket.on("deleteQueue", (message) => {
-                console.log("📩 deleteQueue Message received:", message);
-                sendToKong("/queue/delete", message);
-                io.emit("Qdeleted", message);
-            });
-
-            // Handle client disconnection
-            socket.on("disconnect", () => {
-                console.log("🔌 Client disconnected:", socket.id);
+            // Monitor and Debug [[4]]
+            socket.on("disconnect", (reason) => {
+                console.log(`🔌 Client ${socket.id} disconnected. Reason: ${reason}`);
             });
         });
 

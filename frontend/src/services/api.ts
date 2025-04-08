@@ -190,22 +190,4 @@ export const Menu = {
 }
 
 
-// // Queue Service (Routed through Kong)
-// export const queueService = {
-//     addToQueue: async (data: any) => {
-//         const response = await api.post('/queue/add', data);
-//         return response.data;
-//     },
-//     removeFromQueue: async (data: any) => {
-//         const response = await api.post('/queue/delete', data);
-//         return response.data;
-//     },
-//     getAllQueues: async () => {
-//         const response = await api.post('/queue/all');
-//         return response.data;
-//     },
-
-
-
-
 export default api;
