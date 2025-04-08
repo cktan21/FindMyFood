@@ -1,14 +1,16 @@
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast'; // Adjust the import path based on your project structure [[8]]
 import { listenForNotifications, getNotifications } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
 // import { Navigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
-// import { ToastAction } from "@/components/ui/toast"
+import { ToastAction } from "@/components/ui/toast"
 
 export default function RealTimeNotifications() {
     const { toast } = useToast();
-    const { isLoggedIn, loading } = useAuth();
+
+    // const { isLoggedIn, loading } = useAuth();
+    // if (!isLoggedIn || loading) return
 
     // // Ensure the user is authenticated before proceeding
     //     if (loading) {
@@ -33,6 +35,7 @@ export default function RealTimeNotifications() {
             }
         };
 
+
         // Start listening for notifications
         const setupNotifications = async () => {
             const currentUserId = await getCurrentUserId();
@@ -46,15 +49,16 @@ export default function RealTimeNotifications() {
 
             // Subscribe to the notification stream
             const subscription = getNotifications().subscribe(notification => {
-                console.log(notification)
-                const notificationUserId = notification?.userId; // Extract the userId from the payload
+                
+                const notificationUserId = notification?.user_id; // Extract the userId from the payload
+                console.log(notificationUserId)
 
                 // Check if the notification is for the current user
                 if (notificationUserId && notificationUserId === currentUserId) {
                     toast({
                         title: "You Got a New Notification!",
                         description: notification.message || "No details available.",
-                        // action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
+                        action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
                     });
                 }
             });
