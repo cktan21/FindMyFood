@@ -62,6 +62,7 @@ func publishToQueue(conn *amqp.Connection, queueName string, message []byte) err
             Body:        message,
         },
     )
+	fmt.Println("lgtm")
     if err != nil {
         return fmt.Errorf("failed to publish a message: %v", err)
     }
