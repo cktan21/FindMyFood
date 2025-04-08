@@ -23,6 +23,15 @@ export default function CartPage() {
 
   // Fetch user credits using useEffect
   useEffect(() => {
+
+    const getUserCredits = async () => { 
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (user) {
+          const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
+          setCredits(data.message.currentcredits);
+
     const fetchCredits = async () => {
       if (user?.id) {
         try {
