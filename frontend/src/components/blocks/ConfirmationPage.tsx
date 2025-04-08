@@ -1,6 +1,4 @@
-// STILL BORKEN BRAH 
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Check, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,9 +10,14 @@ import { supabase } from "@/supabaseClient";
 
 // Define interfaces for type safety
 interface OrderItem {
-  name: string;
+  item: string; // Using "item" for consistency with the pendingOrder format
   quantity: number;
-  price: number;
+  details: {
+    price: number;
+    desc: string;
+    photo?: string;
+  };
+  restaurant?: string;
 }
 
 interface Order {
@@ -224,12 +227,18 @@ export default function ConfirmationPage() {
               </div>
               <Separator />
               {order.items && order.items.length > 0 ? (
-                order.items.map((item: OrderItem, index: number) => (
+                order.items.map((item, index: number) => (
                   <div key={index} className="flex justify-between text-sm">
                     <span>
-                      {item.name || `Item ${index + 1}`} x {item.quantity}
+                      {item.item || `Item ${index + 1}`} x {item.quantity}
                     </span>
-                    <span>${typeof item.price === 'number' ? (item.price * item.quantity).toFixed(2) : '0.00'}</span>
+                    <span>
+                      ${
+                        typeof item.details?.price === 'number'
+                          ? (item.details.price * item.quantity).toFixed(2)
+                          : '0.00'
+                      }
+                    </span>
                   </div>
                 ))
               ) : (

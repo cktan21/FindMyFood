@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/useCart";
 import { Payment, Credits } from "../../services/api";
+import axios from "axios";
 
 export default function CartPage() {
   const { isLoggedIn, loading, user } = useAuth();
@@ -17,27 +18,31 @@ export default function CartPage() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [credits, setCredits] = useState<number | null>(null);
+  const [creditsAmount, setCreditsAmount] = useState<number>(0); // Store user credits
+  const [useCredits, setUseCredits] = useState<boolean>(false); // Toggle for using credits
 
+  // Fetch user credits using useEffect
   useEffect(() => {
-    const getUserCredits = async () => {
-      try {
-        const { data: authData } = await supabase.auth.getUser();
-        const user = authData?.user;
-        if (user) {
-          const data = await Credits.getUserCredits(user.id); // Assuming this returns a number
-          setCredits(data.message.currentcredits);
+    const fetchCredits = async () => {
+      if (user?.id) {
+        try {
+          const response = await Credits.getUserCredits(user.id);
+          setCreditsAmount(response.message?.currentcredits || 0);
+          console.log("User credits:", response.message?.currentcredits);
+        } catch (err) {
+          console.error("Error fetching user credits:", err);
         }
-      } catch (error) {
-        console.error("Error fetching credits:", error);
       }
     };
+    fetchCredits();
+  }, [user?.id]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     };
-    getUserCredits();
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -53,47 +58,86 @@ export default function CartPage() {
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleSignOut = async () => await supabase.auth.signOut();
 
-  // Calculate subtotal and total
+  // Calculate subtotal and totals
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.details.price * item.quantity,
     0
   );
   const serviceFee = 1.50;
-  const total = subtotal + serviceFee;
+  const totalWithoutCredits = subtotal + serviceFee;
+  const totalWithCredits = Math.max(totalWithoutCredits - creditsAmount, serviceFee);
+
+  console.log("With Credits:", totalWithCredits);
+  console.log("Without Credits:", totalWithoutCredits);
+
+  // Function to update user credits (if you want to deduct credits after checkout)
+  const updateUserCredits = async (userId: string, credit: number) => {
+    try {
+      const url = `https://personal-3mms7vqv.outsystemscloud.com/CreditMicroservice/rest/RESTAPI1/credit?userid=${userId}&credit=${credit}`;
+      const response = await axios.post(url);
+      console.log("Updated credits response:", response.data);
+    } catch (err) {
+      console.error("Error updating user credits:", err);
+    }
+  };
 
   const handleCheckout = async () => {
     setIsProcessing(true);
     setError(null);
 
-    // Format cart items to match the expected structure in confirmation page
+    // Format cart items to match expected structure
     const formattedItems = cartItems.map(item => ({
-      name: item.item.replace(/_/g, " "),
+      item: item.item, // still using the internal id/name
       quantity: item.quantity,
-      price: item.details.price,
-      restaurant: item.restaurant // Ensure this property exists and is correctly set
+      details: {
+        price: item.details.price,
+        desc: item.details.desc,
+        photo: item.details.photo
+      },
+      restaurant: item.restaurant
     }));
 
-    localStorage.setItem('pendingOrder', JSON.stringify({
-      items: formattedItems,
-      subtotal: subtotal,
-      serviceFee: serviceFee,
-      total: total
-    }));
+    // Save pending order for later use if needed
+    localStorage.setItem(
+      "pendingOrder",
+      JSON.stringify({
+        items: formattedItems,
+        subtotal,
+        serviceFee,
+        total: useCredits ? totalWithCredits : totalWithoutCredits,
+        creditsUsed: useCredits ? creditsAmount : 0
+      })
+    );
 
     try {
-      const response = await Payment.createCheckout({
-        cartItems,
-        serviceFee,
-        total,
-        customerEmail: user?.email || 'guest@example.com',
-        domain: window.location.origin
-      });
+      if (useCredits && user?.id) {
+        // Deduct used credits before proceeding to payment
+        if (creditsAmount > subtotal) {
+          await updateUserCredits(user.id, -subtotal);
+        } else {
+          await updateUserCredits(user.id, -creditsAmount);
+        }
+        console.log("User credits updated successfully.");
+      }
 
+      // Build payload including creditsUsed field
+      const payload = {
+        cartItems: formattedItems,
+        serviceFee,
+        total: useCredits ? totalWithCredits : totalWithoutCredits,
+        customerEmail: user?.email || "guest@example.com",
+        domain: window.location.origin,
+        creditsUsed: useCredits ? creditsAmount : 0
+      };
+
+      console.log("Checkout payload:", payload);
+
+      const response = await Payment.createCheckout(payload);
       // Redirect to Stripe Checkout
       window.location.href = response.data.url;
     } catch (err) {
-      console.error('Error creating checkout session:', err);
-      setError('Failed to initialize payment. Please try again.');
+      console.error("Error creating checkout session:", err);
+      setError("Failed to initialize payment. Please try again.");
       setIsProcessing(false);
     }
   };
@@ -115,9 +159,6 @@ export default function CartPage() {
             <h1 className="text-xl font-semibold">Your Cart</h1>
           </div>
           <div className="flex items-center gap-4">
-            <div>
-              Credits: {credits !== null ? credits : "Loading..."}
-            </div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                 <ShoppingBag className="mr-2 h-4 w-4" />
@@ -288,9 +329,7 @@ export default function CartPage() {
                   <Separator className="my-4" />
                   <CardFooter className="justify-between">
                     <div className="text-sm text-muted-foreground">
-                      Subtotal (
-                      {cartItems.reduce((acc, item) => acc + item.quantity, 0)}{" "}
-                      items)
+                      Subtotal ({cartItems.reduce((acc, item) => acc + item.quantity, 0)} items)
                     </div>
                     <div className="font-medium">${subtotal.toFixed(2)}</div>
                   </CardFooter>
@@ -305,6 +344,7 @@ export default function CartPage() {
           </div>
           {cartItems.length > 0 && (
             <div className="space-y-6">
+              {/* Order Summary */}
               <Card>
                 <CardHeader>
                   <CardTitle>Order Summary</CardTitle>
@@ -314,22 +354,37 @@ export default function CartPage() {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">${subtotal.toFixed(2)}</span>
                   </div>
-
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Service Fee</span>
                     <span className="font-medium">$1.50</span>
                   </div>
+                  {/* Dropdown for Using Credits */}
+                  {creditsAmount >= 0 && (
+                    <>
+                      <Separator />
+                      <label htmlFor="useCredits" className="flex items-center gap-x-2 cursor-pointer">
+                        Use Credits:
+                        <select
+                          id="useCredits"
+                          value={useCredits ? "yes" : "no"}
+                          onChange={(e) => setUseCredits(e.target.value === "yes")}
+                          className="ml-2 border rounded p-1"
+                        >
+                          <option value="no">Do Not Use Credits</option>
+                          <option value="yes">Credits: (${creditsAmount.toFixed(2)})</option>
+                        </select>
+                      </label>
+                    </>
+                  )}
                   <Separator />
                   <div className="flex justify-between font-medium">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>${(useCredits ? totalWithCredits : totalWithoutCredits).toFixed(2)}</span>
                   </div>
                 </CardContent>
                 <CardFooter>
                   {error && (
-                    <div className="text-red-500 text-sm mb-2 w-full">
-                      {error}
-                    </div>
+                    <div className="text-red-500 text-sm mb-2 w-full">{error}</div>
                   )}
                   <Button
                     onClick={handleCheckout}
@@ -337,7 +392,7 @@ export default function CartPage() {
                     className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
                     size="lg"
                   >
-                    {isProcessing ? 'Processing...' : 'Proceed to Checkout'}
+                    {isProcessing ? "Processing..." : "Proceed to Checkout"}
                   </Button>
                 </CardFooter>
               </Card>
