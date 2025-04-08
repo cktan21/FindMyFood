@@ -7,7 +7,6 @@ import {
   Clock,
   ChevronDown,
   SlidersHorizontal,
-  MapPin,
   ChevronLeft
 } from "lucide-react";
 import { supabase } from "@/supabaseClient";
