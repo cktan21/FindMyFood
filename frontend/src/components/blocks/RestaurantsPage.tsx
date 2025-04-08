@@ -240,7 +240,7 @@ export default function RestaurantsPage() {
                                   : "Loading..."}
                       </div>
                       <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
+                        
                       </div>
                     </div>
                   </CardContent>

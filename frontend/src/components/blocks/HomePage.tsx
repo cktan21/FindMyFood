@@ -295,8 +295,7 @@ export default function HomePage() {
                                 </span>
                               </div>
                               <div className="flex items-center">
-                                <MapPin className="mr-1 h-3 w-3 text-purple-500" />
-
+                              
                               </div>
                             </div>
                           </div>
