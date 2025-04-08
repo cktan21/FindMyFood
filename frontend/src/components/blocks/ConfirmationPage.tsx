@@ -1,6 +1,4 @@
-// STILL BORKEN BRAH 
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Check, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,9 +10,14 @@ import { supabase } from "@/supabaseClient";
 
 // Define interfaces for type safety
 interface OrderItem {
-  name: string;
+  item: string; // Using "item" for consistency with the pendingOrder format
   quantity: number;
-  price: number;
+  details: {
+    price: number;
+    desc: string;
+    photo?: string;
+  };
+  restaurant?: string;
 }
 
 interface Order {
@@ -36,131 +39,146 @@ export default function ConfirmationPage() {
   const [error, setError] = useState<string | null>(null);
   const { state } = location;
   const { clearCart } = useCart();
+  const orderProcessedRef = useRef(false);
 
   useEffect(() => {
-    // Check if we have order data from state
+    // If order data was passed via state, use it and skip further processing.
     if (state?.order) {
       setOrder(state.order);
       return;
     }
 
-    // Otherwise, check for session_id in URL
+    // Get the session_id from the URL
     const sessionId = new URLSearchParams(location.search).get('session_id');
-    if (sessionId) {
-      const fetchSessionDetails = async () => {
-        setLoading(true);
-        try {
-          // Get stored order details from localStorage
-          const pendingOrder = JSON.parse(localStorage.getItem('pendingOrder') || '{}');
-        //   console.log(`raw order: ${pendingOrder}`)
-          const response = await Payment.sessionStatus(sessionId);
+    if (!sessionId) return;
 
-          if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
-            // i have strong reaon to suspect it send PER ORDER ITEM but whatever la it's not a bug it's a feature 
-            try {
-              // Group items by restaurant for the orderFood API
-              const itemsByRestaurant: Record<string, any[]> = {};
-              if (Array.isArray(pendingOrder.items)) {
-                pendingOrder.items.forEach((item: any) => {
-                  const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
-                  if (!itemsByRestaurant[restaurantName]) {
-                    itemsByRestaurant[restaurantName] = [];
-                  }
-                  itemsByRestaurant[restaurantName].push({
-                    qty: item.quantity,
-                    dish: item.name.replace(/ /g, '_'),
-                    price: item.price,
-                  });
-                });
-                // console.log(`item map: ${itemsByRestaurant}`)
+    // Prevent multiple runs of the order processing
+    if (orderProcessedRef.current) return;
+    orderProcessedRef.current = true;
+
+    const fetchSessionDetails = async () => {
+      setLoading(true);
+      try {
+        // Retrieve pending order from localStorage
+        const pendingOrderRaw = localStorage.getItem('pendingOrder');
+        if (!pendingOrderRaw) {
+          console.log("No pending order found.");
+          setError('No pending order found.');
+          setTimeout(() => navigate('/cart'), 3000);
+          return;
+        }
+        const pendingOrder = JSON.parse(pendingOrderRaw);
+        // Ensure we have a valid items array
+        if (!pendingOrder.items || !Array.isArray(pendingOrder.items) || pendingOrder.items.length === 0) {
+          console.log("No items to process, skipping API call");
+          setError('No items found to process the order.');
+          setTimeout(() => navigate('/cart'), 3000);
+          return;
+        }
+
+        // Verify payment session details from the Payment API
+        const response = await Payment.sessionStatus(sessionId);
+        if (response.data.status === 'complete' && response.data.payment_status === 'paid') {
+          try {
+            // Group order items by restaurant
+            const itemsByRestaurant: Record<string, any[]> = {};
+            pendingOrder.items.forEach((item: any) => {
+              const restaurantName = item.restaurant || item.restaurantName || 'Unknown';
+              if (!itemsByRestaurant[restaurantName]) {
+                itemsByRestaurant[restaurantName] = [];
               }
+              itemsByRestaurant[restaurantName].push({
+                qty: item.quantity,
+                dish: (item.item || "").replace(/ /g, '_'),
+                price: item.details?.price || 0,
+              });
+            });
 
-              const { data: userData, error: authError } = await supabase.auth.getUser();
-              if (authError) {
-                console.error("Error fetching user:", authError);
-                return;
-              }
-              const user = userData?.user;
+            // Fetch the authenticated user from Supabase
+            const { data: userData, error: authError } = await supabase.auth.getUser();
+            if (authError) {
+              console.error("Error fetching user:", authError);
+              return;
+            }
+            const user = userData?.user;
+            if (!user) {
+              console.error("User not found.");
+              return;
+            }
 
-              // Create orderContent array for the API
-              const orderContent = Object.keys(itemsByRestaurant).map((restaurant) => ({
-                user_id: user.id,
-                info: {
-                  items: itemsByRestaurant[restaurant],
-                },
-                restaurant: restaurant,
-                total: parseFloat(
-                  itemsByRestaurant[restaurant].reduce(
-                    (sum, item) => sum + item.qty * item.price,
-                    0
-                  ).toFixed(2)
-                ),
+            // Build orderContent for each restaurant
+            const orderContent = Object.keys(itemsByRestaurant).map((restaurant) => ({
+              user_id: user.id,
+              info: {
+                items: itemsByRestaurant[restaurant],
+              },
+              restaurant: restaurant,
+              total: parseFloat(
+                itemsByRestaurant[restaurant]
+                  .reduce((sum: number, item: any) => sum + item.qty * item.price, 0)
+                  .toFixed(2)
+              ),
+            }));
+
+            // Only proceed if there are items to process
+            if (orderContent.length > 0) {
+              const orderData = {
+                orderContent: orderContent,
+                creditsContent: {}, // Adjust if credits were applied
+              };
+
+              console.log('Sending order data:', orderData);
+              const orderResponse = await orderFood.addOrder(orderData);
+              console.log('Order created:', orderResponse.data);
+
+              // Extract order IDs from the response and group them by restaurant
+              const orderIdsByRestaurant = orderResponse.data.order.map((orderItem: any) => ({
+                restaurant: orderItem.restaurant,
+                orderId: orderItem.order_id,
               }));
-            //   console.log(`Content map: ${orderContent}`)
 
-              // Only make API call if there are items to process
-              if (orderContent.length > 0) {
-                const orderData = {
-                  orderContent: orderContent,
-                  creditsContent: {}, // No credits used in this example
-                };
+              // Set the order state with the details from pending order and payment session
+              setOrder({
+                orderNumber: orderIdsByRestaurant
+                  .map((o: any) => `${o.restaurant}: ${o.orderId}`)
+                  .join(', ') || 'N/A',
+                orderDate: new Date().toLocaleString(),
+                paymentMethod: 'Credit Card',
+                paymentId: sessionId,
+                items: pendingOrder.items,
+                subtotal: pendingOrder.subtotal || 0,
+                serviceFee: pendingOrder.serviceFee || 1.5,
+                total: response.data.amount_total || 0,
+              });
 
-                console.log('Sending order data:', orderData);
-                const orderResponse = await orderFood.addOrder(orderData);
-                console.log('Order created:', orderResponse.data);
-
-                // Extract order IDs grouped by restaurant
-                const orderIdsByRestaurant = orderResponse.data.order.map((orderItem: any) => ({
-                  restaurant: orderItem.restaurant,
-                  orderId: orderItem.order_id,
-                }));
-
-                // Log the extracted order IDs
-                console.log('Extracted order IDs:', orderIdsByRestaurant);
-
-                // Set the order state with grouped order IDs
-                setOrder({
-                  orderNumber: orderIdsByRestaurant
-                    .map((o: any) => `${o.restaurant}: ${o.orderId}`)
-                    .join(', ') || 'N/A',
-                  orderDate: new Date().toLocaleString(),
-                  paymentMethod: 'Credit Card',
-                  paymentId: sessionId,
-                  items: Array.isArray(pendingOrder.items) ? pendingOrder.items : [],
-                  subtotal: pendingOrder.subtotal || 0,
-                  serviceFee: pendingOrder.serviceFee || 1.5,
-                  total: response.data.amount_total || 0,
-                });
-
-                // Clear the pending order from localStorage
-                localStorage.removeItem('pendingOrder');
-                clearCart();
-              } else {
-                console.log('No items to process, skipping API call');
-                setError('No items found to process the order.');
-                setTimeout(() => navigate('/cart'), 3000);
-              }
-            } catch (orderErr: any) {
-              console.error('Error creating order:', orderErr);
-              setError('Failed to create order. Please try again.');
+              // Clear the pending order from localStorage and clear the cart
+              localStorage.removeItem('pendingOrder');
+              clearCart();
+            } else {
+              console.log('No items to process, skipping API call');
+              setError('No items found to process the order.');
               setTimeout(() => navigate('/cart'), 3000);
             }
-          } else {
-            setError('Payment was not completed successfully.');
+          } catch (orderErr: any) {
+            console.error('Error creating order:', orderErr);
+            setError('Failed to create order. Please try again.');
             setTimeout(() => navigate('/cart'), 3000);
           }
-        } catch (err) {
-          console.error('Error fetching session details:', err);
-          setError('Failed to verify payment details.');
+        } else {
+          setError('Payment was not completed successfully.');
           setTimeout(() => navigate('/cart'), 3000);
-        } finally {
-          setLoading(false);
         }
-      };
+      } catch (err) {
+        console.error('Error fetching session details:', err);
+        setError('Failed to verify payment details.');
+        setTimeout(() => navigate('/cart'), 3000);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchSessionDetails();
-    }
-  }, [location, navigate, state]);
+    fetchSessionDetails();
+  }, [location, navigate, state, clearCart]);
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center">Loading order details...</div>;
@@ -226,12 +244,18 @@ export default function ConfirmationPage() {
               </div>
               <Separator />
               {order.items && order.items.length > 0 ? (
-                order.items.map((item: OrderItem, index: number) => (
+                order.items.map((item, index: number) => (
                   <div key={index} className="flex justify-between text-sm">
                     <span>
-                      {item.name || `Item ${index + 1}`} x {item.quantity}
+                      {item.item || `Item ${index + 1}`} x {item.quantity}
                     </span>
-                    <span>${typeof item.price === 'number' ? (item.price * item.quantity).toFixed(2) : '0.00'}</span>
+                    <span>
+                      ${
+                        typeof item.details?.price === 'number'
+                          ? (item.details.price * item.quantity).toFixed(2)
+                          : '0.00'
+                      }
+                    </span>
                   </div>
                 ))
               ) : (
