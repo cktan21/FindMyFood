@@ -1,9 +1,11 @@
 import os
 import json
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import stripe
 from dotenv import load_dotenv
+from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 # Load environment variables
 load_dotenv()
@@ -12,12 +14,19 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+metrics = PrometheusMetrics(app)
+metrics.info('payment_service_info', 'Payment service with Stripe integration', version='1.0.0')
+
 # Configure Stripe with secret key from environment variables
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 @app.route("/", methods=["GET"])
 def test():
     return "alive (AW yeah 😎😎)"
+
+@app.route("/metrics")
+def metrics_endpoint():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 @app.route("/create-checkout-session", methods=["POST"])
 def create_checkout_session():
@@ -64,7 +73,8 @@ def create_checkout_session():
             coupon = stripe.Coupon.create(
                 amount_off=discount_cents,
                 currency="usd",
-                duration="once"
+                duration="once",
+                name="Credits Coupon"
             )
             discounts = [{"coupon": coupon.id}]
 

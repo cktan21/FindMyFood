@@ -55,6 +55,9 @@ services:
       - esd-net
     ports:
       - "1010:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
 
   complete-order:
     build: ./services/complex/complete-order
