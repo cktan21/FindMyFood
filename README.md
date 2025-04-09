@@ -3,6 +3,9 @@
 ## FindMyFood
 <img width="1710" alt="Screenshot 2025-03-24 at 3 03 06 PM" src="https://github.com/user-attachments/assets/db93c561-8024-4827-abeb-1718294aa09e" />
 
+## Presentation Documents
+<a href="https://drive.google.com/file/d/1bsgPcYtslgF8uEUbBRzECZPIUfe3wo02/view?usp=drive_link">Presentation Slides</a>
+
 ## Prerequisite
 IDE (Any) <br>
 Node Package Manager (npm) <br>
