@@ -42,29 +42,31 @@ export const listenForNotifications = () => {
 // Adds a listener for react hooks to listen to realtime change
 export const getNotifications = () => notificationSubject.asObservable();
 
-// Queue Updates Stream
-const queueUpdateSubject = new Subject<any>();
-export const ioQueueUpdates = (callback: any) => {
-    socket.on("QAdded", (data: any) => {
-        console.log("Queue item added:", data);
-        callback({ action: "added", data });
-    });
+// // Queue Updates Stream
+// const queueUpdateSubject = new Subject<any>();
+// export const ioQueueUpdates = (callback: any) => {
+//     socket.on("QAdded", (data: any) => {
+//         console.log("Queue item added:", data);
+//         callback({ action: "added", data });
+//     });
 
-    socket.on("Qdeleted", (data: any) => {
-        console.log("Queue item deleted:", data);
-        callback({ action: "deleted", data });
-    });
-};
-export const getQueueUpdates = () => queueUpdateSubject.asObservable();
+//     socket.on("Qdeleted", (data: any) => {
+//         console.log("Queue item deleted:", data);
+//         callback({ action: "deleted", data });
+//     });
+// };
+// export const getQueueUpdates = () => queueUpdateSubject.asObservable();
 
 // All Queue Updates Stream
 const queueAllSubject = new Subject<any>();
-export const ioAllQueue = (callback: any) => {
+
+export const ioAllQueue = () => {
     socket.on("receivedAllQueue", (data: any) => {
-        console.log("All queue items:", data);
-        callback(data);
+        console.log("All queue items received:", data); // Log the received queue data
+        queueAllSubject.next(data); // Emit the data to the subject
     });
 };
+
 export const allQueueUpdates = () => queueAllSubject.asObservable();
     
 

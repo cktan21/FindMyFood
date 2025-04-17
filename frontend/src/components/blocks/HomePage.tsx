@@ -1,6 +1,5 @@
 "use client"
-
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 import { useRestaurants } from "@/context/RestaurantsContext"
@@ -12,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import LoadingScreen from "@/components/blocks/LoadingScreen.tsx"
-
+import { ioAllQueue, allQueueUpdates} from '../../services/api';
 
 export default function HomePage() {
   const { isLoggedIn, loading } = useAuth()
@@ -21,13 +20,74 @@ export default function HomePage() {
   const { restaurants: featuredRestaurants, loading: restaurantsLoading } = useRestaurants()
   const [displayCount, setDisplayCount] = useState(8)
   const navigate = useNavigate()
-  const [credits, setCredits] = useState<number | null>(null);
-  const [deliveryTimes, setDeliveryTimes] = useState<{ [key: string]: number }>({});
+  const [credits, setCredits] = useState<number | null>(null)
+  const [deliveryTimes, setDeliveryTimes] = useState<{ [key: string]: number }>({})
+
+  // Memoize user credits to avoid unnecessary recalculations
+  const memoizedCredits = useMemo(() => {
+    return credits !== null ? credits : "Loading..."
+  }, [credits])
+
+  // Memoize delivery times to prevent redundant updates
+  const memoizedDeliveryTimes = useMemo(() => {
+    return deliveryTimes
+  }, [deliveryTimes])
+
+  // Optimize async functions with useCallback
+  const getUserCredits = useCallback(async (user: any) => {
+    try {
+      const data = await Credits.getUserCredits(user.id)
+      setCredits(data.message.currentcredits)
+    } catch (error) {
+      console.error("Error fetching credits:", error)
+    }
+  }, [])
+
+      // Function to process queue data
+    const handleQueueUpdate = (queueData: any) => {
+        console.log("Processing received queue data:", queueData); // Log received data
+        const counts: Record<string, number> = {};
+        for (const [restaurant, orders] of Object.entries(queueData.data)) {
+            if (Array.isArray(orders)) {
+                counts[restaurant] = orders.length; // Calculate queue length for each restaurant
+            } else {
+                counts[restaurant] = 0; // Fallback or handle error
+            }
+        }
+        setDeliveryTimes(counts); // Update the delivery times state
+    };
+
+
+  const intialfetchAndSetAllQueues = useCallback(async () => {
+    try {
+      const queueData = await Queue.getAllQueue()
+      if (queueData && queueData.data) {
+        handleQueueUpdate(queueData)
+      }
+    } catch (error) {
+      console.error("Error fetching all queues:", error)
+    }
+  }, [])
+
+    // Effect to listen for real-time queue updates
+    useEffect(() => {
+        // Subscribe to the observable stream
+        const subscription = allQueueUpdates().subscribe((queueData: any) => {
+            handleQueueUpdate(queueData); // Process the incoming queue data
+        });
+
+        // Trigger the initial subscription to `receivedAllQueue`
+        ioAllQueue();
+
+        // Cleanup the subscription when the component unmounts
+        return () => {
+            subscription.unsubscribe(); // Unsubscribe from the observable
+            console.log("Cleaned up 'receivedAllQueue' subscription."); // Log cleanup
+        };
+    }, []);
 
   useEffect(() => {
-
     if (!isLoggedIn || loading) return
-
     const checkAndInsertProfile = async () => {
       const { data: userData, error: authError } = await supabase.auth.getUser()
       if (authError) {
@@ -63,49 +123,16 @@ export default function HomePage() {
       } else {
         console.log("Profile already exists:", profileData)
       }
-
       if (user.user_metadata?.role === "Business") {
         navigate("/business-home")
       }
-      const getUserCredits = async () => {
-        try {
-          const data = await Credits.getUserCredits(user.id);
-          setCredits(data.message.currentcredits);
-        } catch (error) {
-          console.error("Error fetching credits:", error);
-        }
-      }
-      const fetchAndSetAllQueues = async () => {
-        try {
-          const queueData = await Queue.getAllQueue();
-          
-          if (queueData && queueData.data) {
-            // For each restaurant, set deliveryTimes[restaurantId] = queue length
-            const counts: Record<string, number> = {};
-            
-            for (const [restaurant, orders] of Object.entries(queueData.data)) {
-              if (Array.isArray(orders)) {
-                counts[restaurant] = orders.length;
-              } else {
-                counts[restaurant] = 0; // fallback or handle error
-              }
-          }
-           setDeliveryTimes(counts);
-          }
-        } catch (error) {
-          console.error("Error fetching all queues:", error);
-        }
-      };
-  
-      fetchAndSetAllQueues();
-      getUserCredits()
+      intialfetchAndSetAllQueues()
+      getUserCredits(user)
     }
     checkAndInsertProfile()
-
-  }, [isLoggedIn, loading, featuredRestaurants])
+  }, [isLoggedIn, loading, featuredRestaurants]) // DO NOT AND I REPEAT DO NOT ADD DELIVERY TIME HERE OR IT WILL CAUSE IT TO RERENDER CONTOUNSLY
 
   useEffect(() => {
-
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false)
@@ -130,7 +157,7 @@ export default function HomePage() {
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 8)
   }
-  console.log(deliveryTimes)
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -150,9 +177,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div>
-              Credits: {credits !== null ? credits : "Loading..."}
-            </div>
+            <div>Credits: {memoizedCredits}</div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                 <ShoppingBag className="mr-2 h-4 w-4" />
@@ -189,7 +214,7 @@ export default function HomePage() {
         </div>
       </header>
       <main className="flex-1">
-        {/* Other sections remain unchanged */}
+        {/* Hero Section */}
         <section className="w-full py-6 md:py-12 lg:py-16 xl:py-20">
           <div className="container px-4 md:px-6">
             <div className="relative rounded-xl bg-gradient-to-r from-blue-600 via-blue-400 to-purple-500 p-6 text-white shadow-lg md:p-8 lg:p-10">
@@ -233,15 +258,16 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Featured Restaurants Section */}
         <section className="w-full py-8 md:py-12 bg-gradient-to-b from-white to-blue-50/30">
           <div className="container px-4 md:px-6">
             <div className="mb-8">
-              <h2 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+              <h2 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-500">
                 Restaurants Near You
               </h2>
               <p className="text-muted-foreground mt-2">Discover the best food options around your campus</p>
             </div>
-
             {restaurantsLoading ? (
               <LoadingScreen />
             ) : (
@@ -296,13 +322,11 @@ export default function HomePage() {
                             <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
                               <div className="flex items-center">
                                 <Clock className="mr-1 h-3 w-3 text-blue-500" />
-                                <span>{deliveryTimes[restaurant.id.toLowerCase()] !== undefined
-                                  ? deliveryTimes[restaurant.id.toLowerCase()] * 3 + " mins"
-                                  : "Loading..."}
+                                <span>
+                                  {memoizedDeliveryTimes[restaurant.id.toLowerCase()] !== undefined
+                                    ? memoizedDeliveryTimes[restaurant.id.toLowerCase()] * 3 + " mins"
+                                    : "Loading..."}
                                 </span>
-                              </div>
-                              <div className="flex items-center">
-                              
                               </div>
                             </div>
                           </div>
@@ -323,7 +347,6 @@ export default function HomePage() {
                 })}
               </div>
             )}
-
             {/* Show Load More button only if there are more restaurants to load */}
             {displayCount < featuredRestaurants.length && (
               <div className="flex justify-center mt-8">
@@ -338,6 +361,8 @@ export default function HomePage() {
             )}
           </div>
         </section>
+
+        {/* Special Offers Section */}
         <section className="w-full bg-muted/50 py-8 md:py-12">
           <div className="container px-4 md:px-6">
             <h2 className="text-2xl font-bold tracking-tight">Today's Special Offers</h2>
@@ -382,6 +407,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Features Section */}
         <section className="w-full py-8 md:py-12">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -389,12 +415,12 @@ export default function HomePage() {
                 {
                   title: "Easy Ordering",
                   description: "Browse through hundreds of restaurants and dishes",
-                  icon: "🍽️",
+                  icon: "🍔",
                 },
                 {
                   title: "Live Queue Viewer",
                   description: "Know exactly when your order is ready",
-                  icon: "📍",
+                  icon: "📱",
                 },
                 {
                   title: "Secure Payment",
@@ -411,7 +437,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-        {/* Other sections remain unchanged */}
       </main>
       <footer className="w-full border-t bg-background py-6">
         <div className="container px-4 md:px-6">
@@ -550,7 +575,6 @@ export default function HomePage() {
             © {new Date().getFullYear()} FoodExpress. All rights reserved.
           </div>
         </div>
-        {/* Footer code remains unchanged */}
       </footer>
     </div>
   )

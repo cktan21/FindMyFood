@@ -57,12 +57,12 @@ async function startServer() {
         io.on("connection", (socket) => {
             console.log("⚡ Client connected:", socket.id);
 
-                                // // Handle "allQueue" event
-            // socket.on("allQueue", (message) => {
-            //     console.log("📩 allQueue Message received:", message);
-            //     sendToKong("/queue/all", message);
-            //     io.emit("receivedAllQueue", message);
-            // });
+            // Handle "allQueue" event
+            socket.on("allQueue", (message) => {
+                console.log("📩 allQueue Message received:", message);
+                // sendToKong("/queue/all", message);
+                io.emit("receivedAllQueue", message);
+            });
 
             // // Handle "addQueue" event
             // socket.on("addQueue", (message) => {

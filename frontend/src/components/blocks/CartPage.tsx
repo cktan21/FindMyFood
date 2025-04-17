@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/supabaseClient";
@@ -22,6 +22,10 @@ export default function CartPage() {
   const [creditsAmount, setCreditsAmount] = useState<number>(0); // Store user credits
   const [useCredits, setUseCredits] = useState<boolean>(false); // Toggle for using credits
 
+    // Memoize user credits to avoid unnecessary recalculations
+      const memoizedCredits = useMemo(() => {
+          return credits !== null ? credits : "Loading..."
+      }, [credits])
   // Fetch user credits using useEffect
   useEffect(() => {
     const getUserCredits = async () => {
@@ -183,7 +187,7 @@ export default function CartPage() {
           </div>
           <div className="flex items-center gap-4">
             <div>
-              Credits: {credits !== null ? credits : "Loading..."}
+              Credits: {memoizedCredits !== null ? memoizedCredits : "Loading..."}
             </div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
