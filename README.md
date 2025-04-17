@@ -193,11 +193,11 @@ Switch to your branch before starting to code <br>
 <div align="center">
     <table>
         <tr>
-            <th>Ryan Bangras</th>
-            <th>Saurabh Maskara</th>
-            <th>Kendrick Poon</th>
-            <th>Kevin Tan</th>
-            <th>Ewan</th>
+            <th><a href="https://www.linkedin.com/in/ryanbangras/">Ryan Bangras</a></th>
+            <th><a href="https://www.linkedin.com/in/saurabh-maskara/">Saurabh Maskara</a></th>
+            <th><a href="https://www.linkedin.com/in/kendrick-poon/">Kendrick Poon</a></th>
+            <th><a href="https://www.linkedin.com/in/kevin-tan-513a9b207/">Kevin Tan</a></th>
+            <th><a href="https://www.linkedin.com/in/ewan-lim-chee-chong/">Ewan</a></th>
         </tr>
         <tr>
             <td><img src="https://github.com/user-attachments/assets/80d01dda-0d39-4648-b695-5ed0367d2777" alt="Ryan" width="120" height="120" style="display:block; margin:0 auto;"></td>
