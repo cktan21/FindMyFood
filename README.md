@@ -167,7 +167,7 @@ Switch to your branch before starting to code <br>
 <a href="https://grafana.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a1/Grafana_logo.svg" alt="Grafana" height="60"/></a>&nbsp;&nbsp;
 <a href="https://prometheus.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg" alt="Prometheus" height="60"/></a>&nbsp;&nbsp;
 <a href="https://www.terraform.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Terraform_Logo.svg" alt="Terraform" height="55"/></a>&nbsp;&nbsp;
-<a href="https://argoproj.github.io/cd/"><img src="https://www.opsmx.com/wp-content/uploads/2022/07/Argo-1-e1630327305635-1.png" alt="ArgoCD" height="50"/></a>&nbsp;&nbsp;
+<a href="https://argoproj.github.io/cd/"><img src="https://www.opsmx.com/wp-content/uploads/2022/07/Argo-1-e1630327305635-1.png" alt="ArgoCD" height="70"/></a>&nbsp;&nbsp;
 <br>
 <i>Github Actions · Snyk · Checkov · Grafana · Prometheus · Terraform · ArgoCD</i>
 </p> 
