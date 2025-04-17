@@ -142,6 +142,14 @@ Switch to your branch before starting to code <br>
 </p>
 <br> 
 
+<p align="center"><strong>Low Code Platform</strong></p>
+<p align="center">
+<a href="https://www.outsystems.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/8/82/OS-logo-color_500x108.png" alt="outsystems" width="88"/></a>
+<br>
+<i>outsystems</i>
+</p>
+<br> 
+
 <p align="center"><strong>Inter-service Communications</strong></p>
 <p align="center">
 <a href="https://grpc.io/"><img src="https://grpc.io/img/logos/grpc-icon-color.png" alt="gRPC" height="60"/></a>&nbsp;&nbsp;
@@ -185,11 +193,11 @@ Switch to your branch before starting to code <br>
 <div align="center">
     <table>
         <tr>
-            <th>Ryan Bangras</th>
-            <th>Saurabh Maskara</th>
-            <th>Kendrick Poon</th>
-            <th>Kevin Tan</th>
-            <th>Ewan</th>
+            <th><a href="https://www.linkedin.com/in/ryanbangras/">Ryan Bangras</a></th>
+            <th><a href="https://www.linkedin.com/in/saurabh-maskara/">Saurabh Maskara</a></th>
+            <th><a href="https://www.linkedin.com/in/kendrick-poon/">Kendrick Poon</a></th>
+            <th><a href="https://www.linkedin.com/in/kevin-tan-513a9b207/">Kevin Tan</a></th>
+            <th><a href="https://www.linkedin.com/in/ewan-lim-chee-chong/">Ewan</a></th>
         </tr>
         <tr>
             <td><img src="https://github.com/user-attachments/assets/80d01dda-0d39-4648-b695-5ed0367d2777" alt="Ryan" width="120" height="120" style="display:block; margin:0 auto;"></td>
