@@ -33,7 +33,7 @@ Switch to your branch before starting to code <br>
 ```
 
 ## Technical Architecture Diagram
-![image](https://github.com/user-attachments/assets/8bb03a33-40f2-44eb-b421-ae1162802181)
+<img width="894" alt="Screenshot 2025-04-18 at 2 02 30 AM" src="https://github.com/user-attachments/assets/5ff8352a-3db9-4bf0-b106-f57adeec5f03" />
 
 ## Cloud Architecture Diagram
 <img width="1146" alt="Screenshot 2025-04-04 at 11 18 18 PM" src="https://github.com/user-attachments/assets/a0ca9c10-a321-432b-b6c4-0cf608cfdc0c" />
@@ -42,7 +42,7 @@ Switch to your branch before starting to code <br>
 <img width="1000" alt="Screenshot 2025-04-01 at 2 38 43 PM" src="https://github.com/user-attachments/assets/5ed8cf54-6960-48b1-91a3-099e6fcc792f" />
 
 ## Development CI/CD Pipelines
-<img width="1000" alt="Screenshot 2025-04-01 at 3 02 19 PM" src="https://github.com/user-attachments/assets/abe00d53-ef5d-40db-8bd0-a2d5a7e2c3e4" />
+<img width="1000" alt="Screenshot 2025-04-18 at 2 16 19 AM" src="https://github.com/user-attachments/assets/ca2da8b9-80e0-4fe9-afb8-bf8741b436a4" />
 
 ## Notable Technical Implementations
 ### Backend
