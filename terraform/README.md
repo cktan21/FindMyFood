@@ -31,11 +31,14 @@ kubectl apply -f kubernetes/deployments/ -n esd
 # 6. Jobs (like rabbitmq setup)
 kubectl apply -f kubernetes/jobs/ -n esd
 
+# 7. Argo CD
+kubectl apply -f kubernetes/argocd/ -n esd
+
 kubectl get svc -n esd
 
 kubectl expose deployment kong --type=LoadBalancer --name=kong-deployment -n esd
 kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd
-kubectl expose deployment rabbitmq --type=LoadBalancer --name=rabbitmq-deployment -n esd
+kubectl expose deployment argocd-server --type=LoadBalancer --name=argocd-server -n esd
 ```
 
 > To access Grafana
