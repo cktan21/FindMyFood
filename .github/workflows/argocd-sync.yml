@@ -7,6 +7,8 @@ on:
     paths:
       - 'backend/kubernetes/**'
       - '.github/workflows/argocd-sync.yml'
+      
+  workflow_dispatch:
 
 jobs:
   deploy:
