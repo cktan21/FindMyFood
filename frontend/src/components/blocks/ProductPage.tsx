@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useRestaurants } from "@/context/RestaurantsContext";
@@ -22,6 +22,12 @@ export default function ProductPage() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { addToCart } = useCart();
+
+      // Memoize user credits to avoid unnecessary recalculations
+    const memoizedCredits = useMemo(() => {
+        return credits !== null ? credits : "Loading..."
+    }, [credits])
+
 
   useEffect(() => {
     const getUserCredits = async () => {
@@ -109,7 +115,7 @@ export default function ProductPage() {
           <div className="flex items-center gap-4"></div>
           <div className="flex items-center gap-4">
             <div>
-              Credits: {credits !== null ? credits : "Loading..."}
+              Credits: {memoizedCredits !== null ? memoizedCredits : "Loading..."}
             </div>
             <Link to="/cart">
               <Button className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
