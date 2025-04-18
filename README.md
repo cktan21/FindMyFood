@@ -58,6 +58,7 @@ Switch to your branch before starting to code <br>
 - <b>CI/CD pipeline</b> to automate Image and Container building on Cloud
 - <b>CI/CD pipeline</b> to run automated static code testing with Snyk and Checkov
 - <b>Kubernetes Deployment</b> via declarative yaml files
+- Argo CD intergrated within pipelines to sync kubenernetes declarative files to cloud
 - Application fully deployed onto Cloud Services using Google Cloud Platform
 - Google Cloud Services provisioned via Terraform
 - Backend microservices are deployed onto Google Kubernetes Engine
