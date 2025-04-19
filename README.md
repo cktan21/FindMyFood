@@ -53,6 +53,9 @@ Switch to your branch before starting to code <br>
 - Mix of <b>SQL and NoSQL Databases</b>
 - <b>RabbitMQ as message broker</b> for real time changes
 - Websocket as message consumer of RabbitMQ
+- Stripe API for payment system
+- OpenAI API for recommendation service
+- Outsystems as low code provider and acts as external microservice
 - <b>Kong API Gateway</b> for aggregating requests and routing
 - <b>Grafana + Prometheus</b> for data ingestion and monitoring of microservices and Kong
 - <b>CI/CD pipeline</b> to automate Image and Container building on Cloud
