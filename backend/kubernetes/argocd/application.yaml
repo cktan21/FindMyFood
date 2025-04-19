@@ -10,8 +10,8 @@ spec:
     targetRevision: HEAD
     path: backend/kubernetes
   destination: # where the application is gonna be deployed
-    server: 'https://kubernetes.esd.svc' 
-    namespace: esd #in this case we still want it to be deployed in the esd namespace
+    server: 'https://kubernetes.default.svc' # default here is the api server url ie WHERE the cluster is deployed under
+    namespace: esd #you want to deploy your application in the esd namespace of the cluster => namespace is your logical PARTITION within that cluster
   syncPolicy:
     automated:
       prune: true
