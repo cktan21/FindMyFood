@@ -1,6 +1,16 @@
 ## Instructions
 ```bash
 go run main.go
+
+# Checking for race condition 
+set CGO_ENABLED=1
+gcc --version # check if gcc is installed otherwise install it
+
+# live Monitoring
+go run -race main.go
+
+# using the tester
+go test -race ./...
 ```
 
 > Health Check
