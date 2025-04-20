@@ -9,9 +9,9 @@ spec:
     repoURL: 'https://github.com/Thykp/ESD_Team8'
     targetRevision: HEAD
     path: backend/kubernetes
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: default
+  destination: # where the application is gonna be deployed
+    server: 'https://kubernetes.default.svc' # default here is the api server url ie WHERE the cluster is deployed under
+    namespace: esd #you want to deploy your application in the esd namespace of the cluster => namespace is your logical PARTITION within that cluster
   syncPolicy:
     automated:
       prune: true

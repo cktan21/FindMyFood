@@ -53,11 +53,15 @@ Switch to your branch before starting to code <br>
 - Mix of <b>SQL and NoSQL Databases</b>
 - <b>RabbitMQ as message broker</b> for real time changes
 - Websocket as message consumer of RabbitMQ
+- Stripe API for payment system
+- OpenAI API for recommendation service
+- Outsystems as low code provider and acts as external microservice
 - <b>Kong API Gateway</b> for aggregating requests and routing
 - <b>Grafana + Prometheus</b> for data ingestion and monitoring of microservices and Kong
 - <b>CI/CD pipeline</b> to automate Image and Container building on Cloud
 - <b>CI/CD pipeline</b> to run automated static code testing with Snyk and Checkov
 - <b>Kubernetes Deployment</b> via declarative yaml files
+- Argo CD intergrated within pipelines to sync kubenernetes declarative files to cloud
 - Application fully deployed onto Cloud Services using Google Cloud Platform
 - Google Cloud Services provisioned via Terraform
 - Backend microservices are deployed onto Google Kubernetes Engine
@@ -167,7 +171,7 @@ Switch to your branch before starting to code <br>
 <a href="https://grafana.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a1/Grafana_logo.svg" alt="Grafana" height="60"/></a>&nbsp;&nbsp;
 <a href="https://prometheus.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg" alt="Prometheus" height="60"/></a>&nbsp;&nbsp;
 <a href="https://www.terraform.io/"><img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Terraform_Logo.svg" alt="Terraform" height="55"/></a>&nbsp;&nbsp;
-<a href="https://argoproj.github.io/cd/"><img src="https://www.opsmx.com/wp-content/uploads/2022/07/Argo-1-e1630327305635-1.png" alt="ArgoCD" height="70"/></a>&nbsp;&nbsp;
+<a href="https://argoproj.github.io/cd/"><img src="https://user-images.githubusercontent.com/25306803/43103633-a5d61dc4-8e83-11e8-9f0e-7ccdbee01eb6.png" alt="ArgoCD" height="70"/></a>&nbsp;&nbsp;
 <br>
 <i>Github Actions · Snyk · Checkov · Grafana · Prometheus · Terraform · ArgoCD</i>
 </p> 
