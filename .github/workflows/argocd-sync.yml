@@ -22,13 +22,18 @@ jobs:
           curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
           chmod +x /usr/local/bin/argocd
 
+      - name: Retrieve Argo CD Password
+        id: argocd_password
+        run: |
+          ARGOCD_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n esd -o jsonpath="{.data.password}" | base64 -d)
+          echo "ARGOCD_PASSWORD=$ARGOCD_PASSWORD" >> $GITHUB_ENV
+
       - name: Login to Argo CD
         env:
           ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
           ARGOCD_USERNAME: admin
-          ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
         run: |
-          argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+          argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password ${{ env.ARGOCD_PASSWORD }} --insecure
 
       - name: Sync Application
         run: |
