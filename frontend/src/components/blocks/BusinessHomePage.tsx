@@ -327,7 +327,7 @@ export default function BusinessHomePage() {
                         <div className="mt-2 bg-gray-100 p-4 rounded shadow">
                           <h3 className="text-lg font-bold mb-2">Order Details</h3>
                           <ul>
-                            {order.info.items.map((item) => (
+                            {order.info.items.map((item: any) => (
                               <li key={item.dish} className="mb-2">
                                 <p><strong>{item.dish}</strong></p>
                                 <p>Quantity: {item.qty}</p>
