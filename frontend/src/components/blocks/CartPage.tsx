@@ -81,7 +81,7 @@ export default function CartPage() {
     (acc, item) => acc + item.details.price * item.quantity,
     0
   );
-  const serviceFee = 1.50;
+  const serviceFee = parseFloat((0.03*subtotal).toFixed(2));
   const totalWithoutCredits = subtotal + serviceFee;
   const totalWithCredits = Math.max(totalWithoutCredits - creditsAmount, 0);
   let filteredCredit = 0;
@@ -386,7 +386,7 @@ export default function CartPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Service Fee</span>
-                    <span className="font-medium">$1.50</span>
+                    <span className="font-medium">${serviceFee}</span>
                   </div>
                   {/* Dropdown for Using Credits */}
                   {creditsAmount >= 0 && (

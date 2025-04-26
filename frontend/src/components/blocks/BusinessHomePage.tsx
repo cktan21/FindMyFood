@@ -32,15 +32,16 @@ import { Toaster } from '@/components/ui/toaster';
 
 export default function BusinessHomePage() {
   const { isLoggedIn } = useAuth();
-
   if (!isLoggedIn) {
     return <Navigate to="/login" />;
   }
 
   // State for filtering orders by status
   const [selectedFilter, setSelectedFilter] = useState("processing");
+
   // Orders state initially empty
   const [orders, setOrders] = useState<any[]>([]);
+
   // Queue state initially empty
   const [queueData, setQueueData] = useState<any[]>([]);
 
@@ -49,6 +50,9 @@ export default function BusinessHomePage() {
   const [modalStatus, setModalStatus] = useState<string | null>(null);
   const [reasonInput, setReasonInput] = useState("");
   const [currentOrder, setCurrentOrder] = useState<any>(null);
+
+  // State to track which order is expanded
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   // Fetch orders and queue from API on mount, filtering by the restaurant associated with the user.
   useEffect(() => {
@@ -65,7 +69,6 @@ export default function BusinessHomePage() {
           console.log("No user is logged in.");
           return;
         }
-
         // Get the user's restaurant from the "User" table
         const { data: restaurantData, error: profileError } = await supabase
           .from("User")
@@ -78,7 +81,6 @@ export default function BusinessHomePage() {
         }
         const restaurant = restaurantData?.restaurant;
         console.log("User's restaurant:", restaurant);
-
         // Fetch all orders
         const ordersResponse = await orderFood.getAllOrders();
         console.log("Fetched orders", ordersResponse);
@@ -93,7 +95,6 @@ export default function BusinessHomePage() {
           console.error("Unexpected orders data format:", ordersResponse);
           ordersArray = [];
         }
-
         // Filter orders to only those from the user's restaurant
         if (restaurant) {
           ordersArray = ordersArray.filter(
@@ -101,7 +102,6 @@ export default function BusinessHomePage() {
           );
         }
         setOrders(ordersArray);
-
         // Fetch the restaurant's queue using the getRestaurantQueue endpoint.
         if (restaurant) {
           const queueResponse = await Queue.getRestaurantQueue(restaurant);
@@ -118,7 +118,6 @@ export default function BusinessHomePage() {
         console.error("Failed to fetch orders or queue:", error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -126,7 +125,6 @@ export default function BusinessHomePage() {
   const filteredOrders = orders.filter(
     (order) => order.status === selectedFilter
   );
-  console.log(filteredOrders);
 
   // Function to update order status locally (using order_id as key)
   const updateOrderStatusLocally = (orderId: string, newStatus: string) => {
@@ -207,7 +205,6 @@ export default function BusinessHomePage() {
           </div>
         </div>
       </header>
-
       {/* Main Content: Orders & Queues Sections */}
       <main className="flex flex-1 flex-col gap-4 p-4 md:p-8">
         <div className="grid gap-4 md:grid-cols-2">
@@ -233,7 +230,14 @@ export default function BusinessHomePage() {
                   {filteredOrders.map((order) => (
                     <div
                       key={order.order_id}
-                      className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm"
+                      className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm cursor-pointer"
+                      onClick={() => {
+                        setExpandedOrder(
+                          expandedOrder === order.order_id
+                            ? null
+                            : order.order_id
+                        );
+                      }}
                     >
                       <div>
                         <div className="font-medium">
@@ -318,6 +322,21 @@ export default function BusinessHomePage() {
                           </Button>
                         )}
                       </div>
+                      {/* Dropdown for order details */}
+                      {expandedOrder === order.order_id && (
+                        <div className="mt-2 bg-gray-100 p-4 rounded shadow">
+                          <h3 className="text-lg font-bold mb-2">Order Details</h3>
+                          <ul>
+                            {order.info.items.map((item: any) => (
+                              <li key={item.dish} className="mb-2">
+                                <p><strong>{item.dish}</strong></p>
+                                <p>Quantity: {item.qty}</p>
+                                <p>Price: ${item.price.toFixed(2)}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -333,7 +352,6 @@ export default function BusinessHomePage() {
               </Button>
             </CardFooter>
           </Card>
-
           {/* Queues Section */}
           <Card>
             <CardHeader>
@@ -373,7 +391,6 @@ export default function BusinessHomePage() {
           </Card>
         </div>
       </main>
-
       {/* Reason Modal */}
       <Dialog open={reasonModalOpen} onOpenChange={setReasonModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -414,7 +431,7 @@ export default function BusinessHomePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Toaster/>
+      <Toaster />
     </div>
   );
 }

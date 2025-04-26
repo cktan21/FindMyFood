@@ -18,6 +18,7 @@ import { Badge } from "../ui/badge";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
 import { Credits } from "../../services/api";
+
 // Define a type for the order structure
 interface Order {
   timestamp: any;
@@ -39,7 +40,6 @@ export default function ProfilePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [selectedFilter, setSelectedFilter] = useState("processing");
-
   // State to hold the profile data
   const [profile, setProfile] = useState<{
     id: string;
@@ -47,11 +47,13 @@ export default function ProfilePage() {
     email: string;
   } | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
-
   // New state for orders
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [credits, setCredits] = useState<number | null>(null);
+  // State to track which order is expanded
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+
   // Fetch profile from the "User" table on mount
   useEffect(() => {
     const getUserCredits = async () => {
@@ -67,66 +69,55 @@ export default function ProfilePage() {
       } catch (error) {
         console.error("Error fetching credits:", error);
       }
-    }
+    };
+
     const fetchProfile = async () => {
       try {
         // Get the authenticated user first
         const { data: authData, error: authError } = await supabase.auth.getUser();
-
         if (authError) {
           console.error("Error fetching user:", authError);
           setLoadingProfile(false);
           return;
         }
-
         const user = authData?.user;
-
         if (!user) {
           setLoadingProfile(false);
           return;
         }
-
         // Query the "User" table for this user's profile.
         const { data: profileData, error: profileError } = await supabase
           .from("User")
           .select("*")
           .eq("id", user.id)
           .maybeSingle();
-
         if (profileError) {
           console.error("Error fetching profile:", profileError);
         } else {
           setProfile(profileData);
         }
-
       } catch (error) {
         console.error("Unexpected error while fetching profile:", error);
       } finally {
         setLoadingProfile(false);
       }
-
-
     };
 
-    getUserCredits()
+    getUserCredits();
     fetchProfile();
   }, []);
+
   const filteredOrders = orders.filter(
     (order) => order.status === selectedFilter
   );
-  console.log(filteredOrders);
 
   // Fetch orders when profile is available
   useEffect(() => {
     const fetchOrders = async () => {
       if (profile?.name) {
         try {
-
           const response = await orderFood.getOrdersByFilter(profile.id, '', '');
-          console.log(response.message)
-          //const response = await orderFood.getAllOrders();
           if (response.message) {
-
             setOrders(response.message);
           } else {
             console.error("Invalid response from getOrdersByFilter:", response);
@@ -138,7 +129,6 @@ export default function ProfilePage() {
         }
       }
     };
-
     fetchOrders();
   }, [profile?.name]);
 
@@ -149,7 +139,6 @@ export default function ProfilePage() {
         setMenuOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -157,7 +146,6 @@ export default function ProfilePage() {
   if (loadingProfile || loading) {
     return <LoadingScreen />;
   }
-
   if (!isLoggedIn) {
     return <Navigate to="/login" />;
   }
@@ -314,17 +302,24 @@ export default function ProfilePage() {
                             {filteredOrders.map((order) => (
                               <div
                                 key={order.order_id}
-                                className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm"
+                                className="grid grid-cols-[1fr_100px_100px_80px] gap-4 text-sm cursor-pointer"
+                                onClick={() => {
+                                  setExpandedOrder(
+                                    expandedOrder === order.order_id
+                                      ? null
+                                      : order.order_id
+                                  );
+                                }}
                               >
                                 <div>
                                   <div className="font-medium">
                                     Order ID: {order.order_id}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    {/* {order.timestamp
-                                      ? new Date(order.timestamp).toLocaleString()
-                                      : "No time"} */}
-                                  </div>
+                                      {/* {order.timestamp
+                                        ? new Date(order.timestamp).toLocaleString()
+                                        : "No time"} */}
+                                    </div>
                                 </div>
                                 <div>
                                   <Badge
@@ -344,8 +339,22 @@ export default function ProfilePage() {
                                   Total: {order.total || order.restaurant}
                                 </div>
                                 <div className="flex justify-end">
-                                  
                                 </div>
+                                {/* Dropdown for order details */}
+                                {expandedOrder === order.order_id && (
+                                  <div className="mt-2 bg-gray-100 p-4 rounded shadow">
+                                    <h3 className="text-lg font-bold mb-2 text-center">Order Details</h3>
+                                    <ul className="text-center">
+                                      {order.info.items.map((item) => (
+                                        <li key={item.dish} className="mb-2">
+                                          <p><strong>{item.dish.replace(/_/g, " ")}</strong></p>
+                                          <p>Quantity: {item.qty}</p>
+                                          <p>Price: ${item.price.toFixed(2)}</p>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -356,7 +365,6 @@ export default function ProfilePage() {
                         )}
                       </CardContent>
                     </Card>
-
                   </div>
                 ) : (
                   <div>No orders found.</div>
