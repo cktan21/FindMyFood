@@ -4,6 +4,9 @@
 const { Markup }   = require('telegraf');
 const { supabase } = require('../util/db');
 const logger       = require('../util/logger');
+const fs   = require('fs');
+const path = require('path');
+const axios = require('axios');
 
 // In‐memory session store
 const sessions = new Map();
@@ -15,13 +18,26 @@ function getSession(ctx) {
 
 module.exports = (bot) => {
   // 1) /start → prompt for email
-  bot.start(ctx => {
+  bot.start(async ctx => {
     const session = getSession(ctx);
     session.state = 'awaiting_email';
     delete session.email;
     delete session.password;
     delete session.uid;
-    return ctx.reply('👋 Welcome! Please enter your email to log in:');
+  
+    const response = await axios.get('https://findmyfood-telegram.vercel.app/FindMyFood.png', {
+      responseType: 'stream'
+    });
+
+    await ctx.replyWithPhoto(
+      { source: response.data },
+      {
+      caption: "Welcome! Please enter your email to log in:",
+      parse_mode: 'HTML',
+    });
+  
+    // 2) then send the login prompt
+    // return ctx.reply('👋 Welcome! Please enter your email to log in:');
   });
 
   // 2) Handle email input
