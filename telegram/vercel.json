@@ -1,0 +1,25 @@
+{
+    "version": 2,
+    "builds": [
+      { "src": "api/telegram.js", "use": "@vercel/node" },
+      {
+        "src": "public/**",
+        "use": "@vercel/static"
+    }
+    ],
+    "routes": [
+      {
+        "src": "/user/webhook/([0-9a-f-]+)$",
+        "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        "headers": {
+          "Access-Control-Allow-Origin": "*"
+        },
+        "dest": "api/telegram.js"
+      },
+      {
+        "src": "/(.+\\.[a-z]+)$",
+        "dest": "/public/$1"
+      }
+    ]
+  }
+  
