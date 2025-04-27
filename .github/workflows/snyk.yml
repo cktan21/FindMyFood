@@ -13,23 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Node setup
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      # Install Node deps for order service
       - name: Install deps for order
         working-directory: backend/services/simple/order
         run: npm install
 
-      # Install Node deps for frontend (if needed)
       - name: Install deps for frontend
         working-directory: frontend
         run: npm install
 
-      # Python setup
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -41,7 +37,6 @@ jobs:
       - name: Install Python deps for payment
         run: pip install -r backend/services/simple/payment/requirements.txt
 
-      # Snyk CLI
       - name: Install Snyk CLI
         run: npm install -g snyk
 
