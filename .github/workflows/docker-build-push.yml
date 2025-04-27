@@ -8,6 +8,7 @@ on:
       - 'backend/socket.io/Dockerfile'
       - 'backend/rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push.yml'
+  pull_request:
   workflow_dispatch:
     inputs:
       branch:
