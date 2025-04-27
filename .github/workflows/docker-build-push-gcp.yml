@@ -9,6 +9,8 @@ on:
       - 'socket.io/Dockerfile'
       - 'rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push-gcp.yml'
+  
+  pull_request:
 
   workflow_dispatch:
 
