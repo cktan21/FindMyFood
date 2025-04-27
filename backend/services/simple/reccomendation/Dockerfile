@@ -4,16 +4,27 @@ FROM python:3.14-rc-slim-bookworm
 # Set working directory
 WORKDIR /app
 
-# Copy and install dependencies
-RUN apt-get update && apt-get install -y build-essential
+# Install system dependencies needed for building Python native modules
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust (needed for pydantic-core and others)
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Copy Python dependencies first
 COPY requirements.txt ./
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
+# Copy the rest of your application code
 COPY . .
 
-# Expose port (assuming FastAPI runs on 8000)
+# Expose FastAPI port
 EXPOSE 4000
 
-# Run the application
+# Command to run app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "4000"]
