@@ -142,7 +142,7 @@ Switch to your branch before starting to code <br>
 <p align="center">
 <a href="https://www.rabbitmq.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/2560px-RabbitMQ_logo.svg.png" alt="RabbitMQ" width="100"/></a>
 <br>
-<i>rabbitMQ</i>
+<i>RabbitMQ</i>
 </p>
 <br> 
 
@@ -150,9 +150,18 @@ Switch to your branch before starting to code <br>
 <p align="center">
 <a href="https://www.outsystems.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/8/82/OS-logo-color_500x108.png" alt="outsystems" width="88"/></a>
 <br>
-<i>outsystems</i>
+<iOutsystems</i>
 </p>
 <br> 
+
+<p align="center"><strong>Cloud Services</strong></p>
+<p align="center">
+<a href="https://cloud.google.com/storage/"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="Google Cloud Platform" height="30"/></a>&nbsp;&nbsp;
+<a href="https://vercel.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Vercel_logo_black.svg" alt="Vercel" height="30"/></a>&nbsp;&nbsp;
+<br>
+<i>Google Cloud Platform · Vercel</i>
+</p> 
+<br>
 
 <p align="center"><strong>Inter-service Communications</strong></p>
 <p align="center">
