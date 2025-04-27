@@ -2,14 +2,14 @@ name: Build and Push to GHCR
 
 on:
   push:
-    branches: [main]
+    branches: [main] # Only triggers on pushes to the main branch
     paths:
       - 'backend/services/**/Dockerfile'
       - 'backend/socket.io/Dockerfile'
       - 'backend/rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push.yml'
-  pull_request:
-  workflow_dispatch:
+      - 'backend/'
+  workflow_dispatch: # Allows manual triggering
     inputs:
       branch:
         description: 'Branch to build'
