@@ -36,7 +36,12 @@ Switch to your branch before starting to code <br>
 <img width="912" alt="Screenshot 2025-04-27 at 2 16 34 AM" src="https://github.com/user-attachments/assets/396d54b6-ea5e-4ae7-a3b2-cda9e9aac1e6" />
 
 ## Cloud Architecture Diagram
+### Website on GCP
 <img width="1146" alt="Screenshot 2025-04-04 at 11 18 18 PM" src="https://github.com/user-attachments/assets/a0ca9c10-a321-432b-b6c4-0cf608cfdc0c" />
+
+### Website and Telegram on GCP + Vercel
+<img width="1119" alt="Screenshot 2025-04-27 at 3 44 18 PM" src="https://github.com/user-attachments/assets/81b5c9e0-4dd0-464d-b841-a38d8b6baf48" />
+
 
 ## Kubernetes Architecture Diagram
 <img width="1000" alt="Screenshot 2025-04-01 at 2 38 43 PM" src="https://github.com/user-attachments/assets/5ed8cf54-6960-48b1-91a3-099e6fcc792f" />
@@ -66,6 +71,7 @@ Switch to your branch before starting to code <br>
 - Google Cloud Services provisioned via Terraform
 - Backend microservices are deployed onto Google Kubernetes Engine
 - Frontend deployed as static asset on Google Cloud Storage and accessed via Google CDN
+- Telegram Backend deployed on Vercel Serverless Function and interacts with GCP GKE
 
 ### Frontend
 - React + Tailwind + TypeScript + ShadCN Web UI
