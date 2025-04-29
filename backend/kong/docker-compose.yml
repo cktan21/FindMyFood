@@ -1,0 +1,219 @@
+volumes:
+  pgdata:
+    name: esd_pgdata
+  rabbitmq_data:
+    name: esd_rabbitmq_data
+
+networks:
+  esd-net:
+    driver: bridge
+    name: esd-net
+
+services:
+  kong:
+    image: kong/kong-gateway:3.9.0.1
+    container_name: kong-dbless
+    restart: always
+    networks:
+      - esd-net
+    volumes:
+      - ./kong:/kong/declarative
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: "/kong/declarative/kong.yml"
+      KONG_PROXY_ACCESS_LOG: "/dev/stdout"
+      KONG_ADMIN_ACCESS_LOG: "/dev/stdout"
+      KONG_PROXY_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_GUI_URL: "http://localhost:8002"
+      KONG_LICENSE_DATA: ""
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+      - "8002:8002"
+      - "8445:8445"
+      - "8003:8003"
+      - "8004:8004"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    networks:
+      - esd-net
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks:
+      - esd-net
+    ports:
+      - "1010:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+
+  complete-order:
+    build: ./services/complex/complete-order
+    container_name: complete-order
+    networks:
+      - esd-net
+    ports:
+      - "7070:7070"
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
+
+  reccomend-food:
+    build: ./services/complex/reccomend-food
+    container_name: reccomend-food
+    networks:
+      - esd-net
+    ports:
+      - "8080:8080"
+    depends_on:
+      - reccomendation
+      - menu
+
+  order-food:
+    build: ./services/complex/order-food
+    container_name: order-food
+    networks:
+      - esd-net
+    ports:
+      - "8090:8090"
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
+
+  chatgpt:
+    build: ./services/simple/chatgpt
+    container_name: chatgpt
+    networks:
+      - esd-net
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./services/simple/chatgpt/.env
+
+  menu:
+    build: ./services/simple/menu
+    container_name: menu
+    networks:
+      - esd-net
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./services/simple/menu/firebase_credentials.json:/app/firebase_credentials.json
+
+  reccomendation:
+    build: ./services/simple/reccomendation
+    container_name: reccomendation
+    networks:
+      - esd-net
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./services/simple/reccomendation/.env
+
+# not longer necessary
+#   credit:
+#     build: ./services/simple/credit
+#     container_name: credit
+#     networks:
+#       - esd-net
+#     ports:
+#       - "4040:4040"
+#     env_file:
+#       - ./services/simple/credit/.env
+
+  payment:
+    build: ./services/simple/payment
+    container_name: payment
+    networks:
+      - esd-net
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./services/simple/payment/.env
+
+  order:
+    build: ./services/simple/order
+    container_name: order
+    networks:
+      - esd-net
+    ports:
+      - "6369:6369"
+    env_file:
+      - ./services/simple/order/.env
+
+  queue:
+    build: ./services/simple/queue
+    container_name: queue
+    networks:
+      - esd-net
+    ports:
+      - "8008:8008" #Make sure your ports are the same future self => if you serve it on 8008 it will serve on the :8008
+    depends_on:
+      - socketio
+    env_file:
+      - ./services/simple/queue/.env
+    environment:
+      - SOCKET_IO_URL=http://socketio:3300
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: foodapp-rabbit
+    restart: always
+    ports:
+      - "5672:5672" # RabbitMQ Client Connection
+      - "15672:15672" # RabbitMQ Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - esd-net
+    healthcheck: # Good Code
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
+
+  rabbitmq-setup:
+    build: ./rabbitmq-setup
+    container_name: amqp-setup
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - esd-net
+
+  socketio:
+    build: ./socket.io
+    container_name: socket.io
+    networks:
+      - esd-net
+    ports:
+      - "3300:3300"
+    depends_on:
+      rabbitmq:
+        condition: service_started # Checks if service started + running properly
+      rabbitmq-setup:
+        condition: service_completed_successfully #check if service has completed
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
+      - KONG_URL=http://kong:8000
+
+  frontend:
+    build: ../frontend
+    container_name: frontend
+    ports:
+      - "3001:80"
+    networks:
+      - esd-net
+

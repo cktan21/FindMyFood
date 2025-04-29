@@ -79,30 +79,6 @@ services:
         paths:
           - /complete-order
 
-  - name: notification-send
-    url: http://frontend:5173
-    routes:
-      - name: notification-route
-        paths:
-          - /notifications
-        methods: [POST]
-
-  - name: queue-send
-    url: http://frontend:5173
-    routes:
-      - name: queue-add-route
-        paths:
-          - /queue/add
-        methods: [POST]
-      - name: queue-delete-route
-        paths:
-          - /queue/delete
-        methods: [POST]
-      - name: queue-all
-        paths:
-          - /queue/all
-        methods: [POST]
-
 plugins:
   - name: rate-limiting
     config:
