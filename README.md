@@ -33,10 +33,15 @@ Switch to your branch before starting to code <br>
 ```
 
 ## Technical Architecture Diagram
-<img width="894" alt="Screenshot 2025-04-18 at 2 02 30 AM" src="https://github.com/user-attachments/assets/5ff8352a-3db9-4bf0-b106-f57adeec5f03" />
+<img width="912" alt="Screenshot 2025-04-27 at 2 16 34 AM" src="https://github.com/user-attachments/assets/396d54b6-ea5e-4ae7-a3b2-cda9e9aac1e6" />
 
 ## Cloud Architecture Diagram
+### Website on GCP
 <img width="1146" alt="Screenshot 2025-04-04 at 11 18 18 PM" src="https://github.com/user-attachments/assets/a0ca9c10-a321-432b-b6c4-0cf608cfdc0c" />
+
+### Website and Telegram on GCP + Vercel
+<img width="1119" alt="Screenshot 2025-04-27 at 3 44 18 PM" src="https://github.com/user-attachments/assets/81b5c9e0-4dd0-464d-b841-a38d8b6baf48" />
+
 
 ## Kubernetes Architecture Diagram
 <img width="1000" alt="Screenshot 2025-04-01 at 2 38 43 PM" src="https://github.com/user-attachments/assets/5ed8cf54-6960-48b1-91a3-099e6fcc792f" />
@@ -66,6 +71,7 @@ Switch to your branch before starting to code <br>
 - Google Cloud Services provisioned via Terraform
 - Backend microservices are deployed onto Google Kubernetes Engine
 - Frontend deployed as static asset on Google Cloud Storage and accessed via Google CDN
+- Telegram Backend deployed on Vercel Serverless Function and interacts with GCP GKE
 
 ### Frontend
 - React + Tailwind + TypeScript + ShadCN Web UI
@@ -142,7 +148,7 @@ Switch to your branch before starting to code <br>
 <p align="center">
 <a href="https://www.rabbitmq.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/2560px-RabbitMQ_logo.svg.png" alt="RabbitMQ" width="100"/></a>
 <br>
-<i>rabbitMQ</i>
+<i>RabbitMQ</i>
 </p>
 <br> 
 
@@ -150,9 +156,18 @@ Switch to your branch before starting to code <br>
 <p align="center">
 <a href="https://www.outsystems.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/8/82/OS-logo-color_500x108.png" alt="outsystems" width="88"/></a>
 <br>
-<i>outsystems</i>
+<iOutsystems</i>
 </p>
 <br> 
+
+<p align="center"><strong>Cloud Services</strong></p>
+<p align="center">
+<a href="https://cloud.google.com/storage/"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="Google Cloud Platform" height="30"/></a>&nbsp;&nbsp;
+<a href="https://vercel.com/"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Vercel_logo_black.svg" alt="Vercel" height="30"/></a>&nbsp;&nbsp;
+<br>
+<i>Google Cloud Platform · Vercel</i>
+</p> 
+<br>
 
 <p align="center"><strong>Inter-service Communications</strong></p>
 <p align="center">

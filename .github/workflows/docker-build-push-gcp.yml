@@ -6,7 +6,7 @@ on:
     paths:
       - 'backend/services/simple/**'
       - 'backend/services/complex/**'
-      - 'socket.io/Dockerfile'
+      - 'socket.io/**'
       - 'rabbitmq/Dockerfile'
       - '.github/workflows/docker-build-push-gcp.yml'
 

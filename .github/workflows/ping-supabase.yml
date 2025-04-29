@@ -10,25 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Use Node.js 18
+          node-version: '18'
 
-      # Step 3: Install Supabase Client
       - name: Install Supabase Client
         run: npm install @supabase/supabase-js --force
 
-      # Step 4: Ping Supabase
       - name: Ping Supabase
         env:
-          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} # Supabase project URL
-          SUPABASE_KEY: ${{ secrets.NEXT_SERVICE_ROLE_KEY }} # Supabase service role key
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.NEXT_SERVICE_ROLE_KEY }}
         run: |
           node -e "
           (async () => {
@@ -41,8 +37,8 @@ jobs:
               const { createClient } = require('@supabase/supabase-js');
               const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-              // Ping Supabase by querying a table (e.g., 'songs')
-              const { data, error } = await supabase.from('your_table').select('*').limit(10);
+              // Ping Supabase by querying from order's table
+              const { data, error } = await supabase.from('orders').select('*').limit(10);
 
               // Handle errors
               if (error) throw error;
