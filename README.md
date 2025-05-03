@@ -126,11 +126,12 @@ Switch to your branch before starting to code <br>
 </p>
 <br>
 
-<p align="center"><strong>API Gateway</strong></p>
+<p align="center"><strong>API Gateway and Reverse Proxy</strong></p>
 <p align="center">
 <a href="https://konghq.com/"><img src="https://konghq.com/wp-content/uploads/2018/08/kong-combination-mark-color-256px.png" alt="Kong API Gateway" width="88"/></a>
+<a href="https://traefik.io/"><img src="https://raw.githubusercontent.com/docker-library/docs/a6cc2c5f4bc6658168f2a0abbb0307acaefff80e/traefik/logo.png" alt="Traefik" width="55"/></a>
 <br>
-<i>CORS · Rate Limit Plugin · Prometheus</i>
+<i>CORS · Rate Limit Plugin · Prometheus · Traefik</i>
 </p>
 <br>  
 
