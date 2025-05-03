@@ -49,18 +49,16 @@ services:
     networks:
       - internal-net
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # For dynamic service discovery
+      - /var/run/docker.sock:/var/run/docker.sock:ro # For dynamic service discovery
     command:
       - --api.insecure=true # Enable Traefik dashboard (for testing)
       - --providers.docker # Enable Docker provider
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.address=:88
+      - --providers.docker.exposedbydefault=false
     ports:
       - "8200:8080" # GUI
-      - "443:443"
-      - "80:80"
-    labels:
-      - "traefik.http.routers.traefik.entrypoints=web"
+      - "88:88"
+
 
   prometheus:
     image: prom/prometheus:latest
@@ -72,9 +70,12 @@ services:
     ports:
       - "9090:9090"
     labels:
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`localhost`) && PathPrefix(`/prometheus`)"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
       - "traefik.http.routers.prometheus.entrypoints=web"
+      - "traefik.http.middlewares.strip-prometheus-path.stripprefix.prefixes=/prometheus"
+      - "traefik.http.routers.prometheus.middlewares=strip-prometheus-path"
 
   grafana:
     image: grafana/grafana:latest
@@ -87,9 +88,12 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/etc/grafana/dashboards
     labels:
-      - "traefik.http.routers.grafana.rule=Host(`grafana.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`localhost`) && PathPrefix(`/grafana`)"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.middlewares.strip-grafana-path.stripprefix.prefixes=/grafana"
+      - "traefik.http.routers.grafana.middlewares=strip-grafana-path"
 
   complete-order:
     build: ./services/complex/complete-order
@@ -101,9 +105,12 @@ services:
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     labels:
-      - "traefik.http.routers.complete-order.rule=Host(`complete.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.complete-order.rule=Host(`localhost`) && PathPrefix(`/complete-order`)"
       - "traefik.http.services.complete-order.loadbalancer.server.port=7070"
       - "traefik.http.routers.complete-order.entrypoints=web"
+      - "traefik.http.middlewares.strip-complete-order-path.stripprefix.prefixes=/complete-order"
+      - "traefik.http.routers.complete-order.middlewares=strip-complete-order-path"
 
   reccomend-food:
     build: ./services/complex/reccomend-food
@@ -116,9 +123,12 @@ services:
       - reccomendation
       - menu
     labels:
-      - "traefik.http.routers.recommend-food.rule=Host(`recommend.internal`)"
-      - "traefik.http.services.recommend-food.loadbalancer.server.port=8080"
-      - "traefik.http.routers.recommend-food.entrypoints=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.reccomend-food.rule=Host(`localhost`) && PathPrefix(`/reccomend-food`)"
+      - "traefik.http.services.reccomend-food.loadbalancer.server.port=8080"
+      - "traefik.http.routers.reccomend-food.entrypoints=web"
+      - "traefik.http.middlewares.strip-reccomend-food-path.stripprefix.prefixes=/reccomend-food"
+      - "traefik.http.routers.reccomend-food.middlewares=strip-reccomend-food-path"
 
   order-food:
     build: ./services/complex/order-food
@@ -130,9 +140,12 @@ services:
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     labels:
-      - "traefik.http.routers.order-food.rule=Host(`order.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.order-food.rule=Host(`localhost`) && PathPrefix(`/order-food`)"
       - "traefik.http.services.order-food.loadbalancer.server.port=8090"
       - "traefik.http.routers.order-food.entrypoints=web"
+      - "traefik.http.middlewares.strip-order-food-path.stripprefix.prefixes=/order-food"
+      - "traefik.http.routers.order-food.middlewares=strip-order-food-path"
 
   chatgpt:
     build: ./services/simple/chatgpt
@@ -144,9 +157,12 @@ services:
     env_file:
       - ./services/simple/chatgpt/.env
     labels:
-      - "traefik.http.routers.chatgpt.rule=Host(`chatgpt.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.chatgpt.rule=Host(`localhost`) && PathPrefix(`/chatgpt`)"
       - "traefik.http.services.chatgpt.loadbalancer.server.port=3000"
       - "traefik.http.routers.chatgpt.entrypoints=web"
+      - "traefik.http.middlewares.strip-chatgpt-path.stripprefix.prefixes=/chatgpt"
+      - "traefik.http.routers.chatgpt.middlewares=strip-chatgpt-path"
 
   menu:
     build: ./services/simple/menu
@@ -158,9 +174,12 @@ services:
     volumes:
       - ./services/simple/menu/firebase_credentials.json:/app/firebase_credentials.json
     labels:
-      - "traefik.http.routers.menu.rule=Host(`menu.internal`)"
+      - "traefik.enable=true" 
+      - "traefik.http.routers.menu.rule=Host(`localhost`) && PathPrefix(`/menu`)"
       - "traefik.http.services.menu.loadbalancer.server.port=5001"
       - "traefik.http.routers.menu.entrypoints=web"
+      - "traefik.http.middlewares.strip-menu-path.stripprefix.prefixes=/menu"
+      - "traefik.http.routers.menu.middlewares=strip-menu-path"
 
   reccomendation:
     build: ./services/simple/reccomendation
@@ -172,9 +191,12 @@ services:
     env_file:
       - ./services/simple/reccomendation/.env
     labels:
-      - "traefik.http.routers.recommendation.rule=Host(`recommendation.internal`)"
-      - "traefik.http.services.recommendation.loadbalancer.server.port=4000"
-      - "traefik.http.routers.recommendation.entrypoints=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.reccomendation.rule=Host(`localhost`) && PathPrefix(`/reccomendation`)"
+      - "traefik.http.services.reccomendation.loadbalancer.server.port=4000"
+      - "traefik.http.routers.reccomendation.entrypoints=web"
+      - "traefik.http.middlewares.strip-reccomendation-path.stripprefix.prefixes=/reccomendation"
+      - "traefik.http.routers.reccomendation.middlewares=strip-reccomendation-path"
 
   payment:
     build: ./services/simple/payment
@@ -186,9 +208,12 @@ services:
     env_file:
       - ./services/simple/payment/.env
     labels:
-      - "traefik.http.routers.payment.rule=Host(`payment.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.payment.rule=Host(`localhost`) && PathPrefix(`/payment`)"
       - "traefik.http.services.payment.loadbalancer.server.port=5002"
       - "traefik.http.routers.payment.entrypoints=web"
+      - "traefik.http.middlewares.strip-payment-path.stripprefix.prefixes=/payment"
+      - "traefik.http.routers.payment.middlewares=strip-payment-path"
 
   order:
     build: ./services/simple/order
@@ -200,9 +225,12 @@ services:
     env_file:
       - ./services/simple/order/.env
     labels:
-      - "traefik.http.routers.order.rule=Host(`order.internal`)"
-      - "traefik.http.services.order"
+      - "traefik.enable=true"
+      - "traefik.http.routers.order.rule=Host(`localhost`) && PathPrefix(`/order`)"
+      - "traefik.http.services.order.loadbalancer.server.port=6369"
       - "traefik.http.routers.order.entrypoints=web"
+      - "traefik.http.middlewares.strip-order-path.stripprefix.prefixes=/order"
+      - "traefik.http.routers.order.middlewares=strip-order-path"
 
   queue:
     build: ./services/simple/queue
@@ -218,9 +246,12 @@ services:
     environment:
       - SOCKET_IO_URL=http://socketio:3300
     labels:
-      - "traefik.http.routers.queue.rule=Host(`queue.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.queue.rule=Host(`localhost`) && PathPrefix(`/queue`)"
       - "traefik.http.services.queue.loadbalancer.server.port=8008"
       - "traefik.http.routers.queue.entrypoints=web"
+      - "traefik.http.middlewares.strip-queue-path.stripprefix.prefixes=/queue"
+      - "traefik.http.routers.queue.middlewares=strip-queue-path"
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -234,7 +265,7 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - internal-net
-    healthcheck:
+    healthcheck: # Good Code
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
       retries: 5
@@ -272,9 +303,12 @@ services:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
       - KONG_URL=http://kong:8000
     labels:
-      - "traefik.http.routers.socketio.rule=Host(`socketio.internal`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.socketio.rule=Host(`localhost`) && PathPrefix(`/socketio`)"
       - "traefik.http.services.socketio.loadbalancer.server.port=3300"
       - "traefik.http.routers.socketio.entrypoints=web"
+      - "traefik.http.middlewares.strip-socketio-path.stripprefix.prefixes=/socketio"
+      - "traefik.http.routers.socketio.middlewares=strip-socketio-path"
 
 # not longer necessary
 #   credit:

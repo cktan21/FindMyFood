@@ -8,63 +8,76 @@ services:
       - name: rabbitmq-management-route
         paths:
           - /rabbitmq
-
-  - name: traefik
-    url: http://traefik:88
+      
+  - name: queue-service
+    url: http://queue:8008
     routes:
-      - name: traefik-all-routes
-        paths:
-          - /api
-        strip_path: false
-      - name: menu-service
-        paths:
-          - /menu
-        strip_path: false
-      - name: recommendation-service
-        paths:
-          - /reccomend-food
-        strip_path: false
-      - name: order-food-service
-        paths:
-          - /order-food
-        strip_path: false
-      - name: complete-order-service
-        paths:
-          - /complete-order
-        strip_path: false
-      - name: payment-service
-        paths:
-          - /payment
-        strip_path: false
-      - name: order-service
-        paths:
-          - /order
-        strip_path: false
-      - name: queue-service
+      - name: queue-route
         paths:
           - /queue
-        strip_path: false
-      - name: chatgpt-service
+
+  - name: chatgpt-service
+    url: http://chatgpt:3000
+    routes:
+      - name: chatgpt-route
         paths:
           - /chatgpt
-        strip_path: false
-      - name: socketio-service
+
+  - name: menu-service
+    url: http://menu:5001
+    routes:
+      - name: menu-route
         paths:
-          - /socketio
-        strip_path: false
-      - name: reccomendation-service
+          - /menu
+
+  - name: credit-service
+    url: http://credit:4040
+    routes:
+      - name: credit-route
+        paths:
+          - /credit
+
+  - name: payment-service
+    url: http://payment:5002
+    routes:
+      - name: payment-route
+        paths:
+          - /payment
+
+  - name: order-service
+    url: http://order:6369
+    routes:
+      - name: order-route
+        paths:
+          - /order
+
+  - name: reccomendation-service
+    url: http://reccomendation:4000
+    routes:
+      - name: reccomendation-route
         paths:
           - /reccomendation
-        strip_path: false
-      
-  # Traefik dashboard
-  - name: traefik-dashboard
-    url: http://traefik:8200
+
+  - name: reccomend-food-service
+    url: http://reccomend-food:8080
     routes:
-      - name: traefik-dashboard-route
+      - name: reccomend-food-route
         paths:
-          - /traefik
-        strip_path: true
+          - /reccomend-food
+
+  - name: order-food-service
+    url: http://order-food:8090
+    routes:
+      - name: order-food-route
+        paths:
+          - /order-food
+
+  - name: complete-order-service
+    url: http://complete-order:7070
+    routes:
+      - name: complete-order-route
+        paths:
+          - /complete-order
 
 plugins:
   - name: rate-limiting
