@@ -1,49 +1,34 @@
-## Kubernetes Setup
+#!/bin/bash
 
-### Automated Deployement (use WSL or Mac)
-
-```bash
-chmod +x script.sh
-./script.sh
-```
-
-### Manual Deployement
-
-```bash
-# 1. Namespace
+# Step 1: Apply Namespace
 kubectl apply -f kubernetes/namespace.yaml
 
-# 2. Secrets + ConfigMaps
+# Step 2: Apply ConfigMaps
 kubectl apply -f kubernetes/configmaps/ -n esd
 
-# 3. PersistentVolumeClaims
+# Step 3: Apply PersistentVolumeClaims
 kubectl apply -f kubernetes/pvcs/ -n esd
 
-# 4. Services
+# Step 4: Apply Services
 kubectl apply -f kubernetes/services/ -n esd
 
-# 5. Deployments
+# Step 5: Apply Deployments
 kubectl apply -f kubernetes/deployments/ -n esd
 
-# 6. Jobs (like rabbitmq setup)
+# Step 6: Apply Jobs (like rabbitmq setup)
 kubectl apply -f kubernetes/jobs/ -n esd
 
-# 7. Install Argo CD
+# Step 7: Install Argo CD
 kubectl apply -n esd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-# 8. Argo CD
+# Step 8: Apply Argo CD configurations
 kubectl apply -f kubernetes/argocd/ -n esd
 
-# Get Secrets => add this to Github Secrets
+# Get Secrets (add this to GitHub Secrets)
+echo "ArgoCD Initial Admin Password:"
 kubectl get secret argocd-initial-admin-secret -n esd -o jsonpath="{.data.password}" | base64 -d && echo
 
 # Expose Ingress
 kubectl expose deployment kong --type=LoadBalancer --name=kong-deployment -n esd
 kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd
 kubectl expose deployment argocd-server --type=LoadBalancer --name=argocd-server -n esd
-
-# Checking
-kubectl get svc -n esd
-kubectl get pods -n esd -o wide
-kubectl get nodes -n esd -o wide
-```
