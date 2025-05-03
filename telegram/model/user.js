@@ -7,8 +7,8 @@ const logger       = require('../util/logger');
 const fs   = require('fs');
 const path = require('path');
 const axios = require('axios');
+const { orderFood, Queue, listenForNotifications, allQueueUpdates } = require('../util/api.js');
 
-// In‐memory session store
 const sessions = new Map();
 function getSession(ctx) {
   const chatId = ctx.chat?.id ?? ctx.from.id;
@@ -17,7 +17,6 @@ function getSession(ctx) {
 }
 
 module.exports = (bot) => {
-  // 1) /start → prompt for email
   bot.start(async ctx => {
     const session = getSession(ctx);
     session.state = 'awaiting_email';
@@ -35,12 +34,9 @@ module.exports = (bot) => {
       caption: "Welcome! Please enter your email to log in:",
       parse_mode: 'HTML',
     });
-  
-    // 2) then send the login prompt
-    // return ctx.reply('👋 Welcome! Please enter your email to log in:');
+
   });
 
-  // 2) Handle email input
   bot.on('text', async ctx => {
     const session = getSession(ctx);
     const text = ctx.message.text.trim();
@@ -51,22 +47,19 @@ module.exports = (bot) => {
       return ctx.reply('🔒 Got it! Now please enter your password:');
     }
 
-    // 3) Handle password input
     if (session.state === 'awaiting_password') {
       session.password = text;
 
       try {
-        // sign in
         const { data, error } = await supabase.auth.signInWithPassword({
           email:    session.email,
           password: session.password
         });
         if (error || !data.user) throw error || new Error('Login failed');
 
-        // store UID for later
         session.uid   = data.user.id;
         session.state = 'logged_in';
-        delete session.password;  // no longer needed
+        delete session.password;
 
         return ctx.reply(
           '✅ You are now logged in!',
@@ -78,7 +71,6 @@ module.exports = (bot) => {
 
       } catch (err) {
         logger.error('Login error:', err);
-        // reset to email step
         session.state = 'awaiting_email';
         delete session.password;
         delete session.uid;
@@ -88,67 +80,63 @@ module.exports = (bot) => {
       }
     }
 
-    // 4) Ignore other texts when logged in
     if (session.state === 'logged_in') {
       return;
     }
   });
 
-  // 5) View Orders
   bot.action('VIEW_ORDERS', async ctx => {
     await ctx.answerCbQuery();
     const session = getSession(ctx);
-    if (!session.uid) {
-      return ctx.reply('⚠️ Please /start and log in first.');
-    }
 
-    // fetch orders by user_id = session.uid
-    const { data: orders, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', session.uid);
-
-    if (error) {
-      logger.error('Orders fetch error:', error);
+    try {
+      const orders = await orderFood.getOrdersByFilter(session.uid, '', '');
+      if (!orders.length) {
+        return ctx.reply('📦 You have no orders yet.');
+      }
+      const list = orders.map(o => `- #${o.id}: ${o.status}`).join('\n');
+      return ctx.reply(`📦 Your orders:\n${list}`);
+    } catch (err) {
+      logger.error('Order fetch error:', err);
       return ctx.reply('❌ Could not load your orders.');
     }
-
-    if (orders.length === 0) {
-      return ctx.reply('📦 You have no orders yet.');
-    }
-
-    const list = orders.map(o => `- Order #${o.id}: ${o.status}`).join('\n');
-    return ctx.reply(`📦 Here are your orders:\n${list}`);
   });
 
-  // 6) View Queue
   bot.action('VIEW_QUEUE', async ctx => {
     await ctx.answerCbQuery();
     const session = getSession(ctx);
-    if (!session.uid) {
-      return ctx.reply('⚠️ Please /start and log in first.');
-    }
 
-    // fetch queue items by user_id = session.uid
-    const { data: queue, error } = await supabase
-      .from('queue')
-      .select('*')
-      .eq('user_id', session.uid);
-
-    if (error) {
-      logger.error('Queue fetch error:', error);
+    try {
+      const queue = await Queue.getAllQueue();
+      if (!queue.length) {
+        return ctx.reply('🎟️ Your queue is empty.');
+      }
+      const list = queue.map((q,i) => `${i+1}. ${q.task_description}`).join('\n');
+      return ctx.reply(`🎟️ Current queue:\n${list}`);
+    } catch (err) {
+      logger.error('Queue fetch error:', err);
       return ctx.reply('❌ Could not load your queue.');
     }
-
-    if (queue.length === 0) {
-      return ctx.reply('🎟️ Your queue is empty.');
-    }
-
-    const list = queue.map((q, i) => `${i+1}. ${q.task_description}`).join('\n');
-    return ctx.reply(`🎟️ Your current queue:\n${list}`);
   });
 
-  // 7) /logout to clear session
+  listenForNotifications().subscribe(data => {
+    sessions.forEach(session => {
+      if (data.userId === session.uid) {
+        bot.telegram.sendMessage(session.chatId, `🔔 New notification:\n${data.message}`);
+      }
+    });
+  });
+
+  allQueueUpdates().subscribe(items => {
+    sessions.forEach(session => {
+      bot.telegram.sendMessage(
+        session.chatId,
+        `🔄 Queue updated! There are now ${items.length} items:\n` +
+        items.map((q,i) => `${i+1}. ${q.task_description}`).join('\n')
+      );
+    });
+  });
+
   bot.command('logout', ctx => {
     const chatId = ctx.chat?.id ?? ctx.from.id;
     sessions.delete(chatId);
