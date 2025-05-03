@@ -120,17 +120,6 @@ services:
     env_file:
       - ./services/simple/reccomendation/.env
 
-# not longer necessary
-#   credit:
-#     build: ./services/simple/credit
-#     container_name: credit
-#     networks:
-#       - esd-net
-#     ports:
-#       - "4040:4040"
-#     env_file:
-#       - ./services/simple/credit/.env
-
   payment:
     build: ./services/simple/payment
     container_name: payment
@@ -209,11 +198,23 @@ services:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
       - KONG_URL=http://kong:8000
 
-  frontend:
-    build: ../frontend
-    container_name: frontend
-    ports:
-      - "3001:80"
-    networks:
-      - esd-net
+
+# not longer necessary
+#   credit:
+#     build: ./services/simple/credit
+#     container_name: credit
+#     networks:
+#       - esd-net
+#     ports:
+#       - "4040:4040"
+#     env_file:
+#       - ./services/simple/credit/.env
+
+#   frontend:
+#     build: ../frontend
+#     container_name: frontend
+#     ports:
+#       - "3001:80"
+#     networks:
+#       - esd-net
 

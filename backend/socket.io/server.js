@@ -13,18 +13,6 @@ const io = new Server(server, {
 
 // Uses env variable from docker if available, otherwise use localhost with guest credentials
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5672";
-const KONG_URL = process.env.KONG_URL || "http://localhost:8000"; // Kong API Gateway URL
-
-async function sendToKong(endpoint, payload) {
-    try {
-        const response = await axios.post(`${KONG_URL}${endpoint}`, payload, {
-            headers: { "Content-Type": "application/json" }
-        });
-        console.log(`✅ Sent to Kong: ${endpoint}`, response.data);
-    } catch (error) {
-        console.error(`❌ Failed to send to Kong: ${endpoint}`, error.response?.data || error.message);
-    }
-}
 
 async function startServer() {
     let connection; // Store the connection globally to close it later

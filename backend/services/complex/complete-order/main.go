@@ -300,6 +300,12 @@ func main() {
 			fmt.Println("OutSystems updated successfully.")
 		}(payloadData, action)
 
+		// intiate response immediately => user doesn't need to wait for all go routines to finish before receiving a response 
+		// makes it async internally(goroutines are aync by nature) and externally
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "Complete Order processing has been initiated.",
+		})
+
 		// Wait for all Goroutines to finish
 		go func() {
 			wg.Wait()
