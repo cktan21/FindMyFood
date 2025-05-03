@@ -79,30 +79,6 @@ data:
             paths:
               - /complete-order
 
-      - name: notification-send
-        url: http://notification-ms:5000
-        routes:
-          - name: notification-route
-            paths:
-              - /notifications
-            methods: [POST]
-
-      - name: queue-send
-        url: http://queue-ms:6000
-        routes:
-          - name: queue-add-route
-            paths:
-              - /queue/add
-            methods: [POST]
-          - name: queue-delete-route
-            paths:
-              - /queue/delete
-            methods: [POST]
-          - name: queue-all
-            paths:
-              - /queue/all
-            methods: [POST]
-
     plugins:
       - name: rate-limiting
         config:

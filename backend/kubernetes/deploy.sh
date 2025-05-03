@@ -29,6 +29,6 @@ echo "ArgoCD Initial Admin Password:"
 kubectl get secret argocd-initial-admin-secret -n esd -o jsonpath="{.data.password}" | base64 -d && echo
 
 # Expose Ingress
-kubectl expose deployment kong --type=LoadBalancer --name=kong-deployment -n esd
-kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd
-kubectl expose deployment argocd-server --type=LoadBalancer --name=argocd-server -n esd
+# kubectl expose deployment kong --type=LoadBalancer --name=kong-deployment -n esd
+# kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd
+# kubectl expose deployment argocd-server --type=LoadBalancer --name=argocd-server -n esd

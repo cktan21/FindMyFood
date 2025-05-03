@@ -1,0 +1,83 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kong-all-services
+  namespace: esd
+  annotations:
+    kubernetes.io/ingress.class: kong
+    konghq.com/strip-path: "true"
+spec:
+  rules:
+    - host: 34-142-174-90.nip.io
+      http:
+        paths:
+          - path: /rabbitmq
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672
+          - path: /queue
+            pathType: Prefix
+            backend:
+              service:
+                name: queue
+                port:
+                  number: 8008
+          - path: /chatgpt
+            pathType: Prefix
+            backend:
+              service:
+                name: chatgpt
+                port:
+                  number: 3000
+          - path: /menu
+            pathType: Prefix
+            backend:
+              service:
+                name: menu
+                port:
+                  number: 5001
+          - path: /credit
+            pathType: Prefix
+            backend:
+              service:
+                name: credit
+                port:
+                  number: 4040
+          - path: /payment
+            pathType: Prefix
+            backend:
+              service:
+                name: payment
+                port:
+                  number: 5002
+          - path: /reccomendation
+            pathType: Prefix
+            backend:
+              service:
+                name: reccomendation
+                port:
+                  number: 4000
+          - path: /reccomend-food
+            pathType: Prefix
+            backend:
+              service:
+                name: reccomend-food
+                port:
+                  number: 8080
+          - path: /order-food
+            pathType: Prefix
+            backend:
+              service:
+                name: order-food
+                port:
+                  number: 8090
+          - path: /complete-order
+            pathType: Prefix
+            backend:
+              service:
+                name: complete-order
+                port:
+                  number: 7070

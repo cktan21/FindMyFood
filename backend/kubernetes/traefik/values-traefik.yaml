@@ -1,0 +1,30 @@
+# Deploy Traefik into the existing 'esd' namespace
+deployment:
+  namespace: esd
+
+service:
+  type: LoadBalancer
+  annotations:
+    # External GCP LB; change to "Internal" if desired
+    cloud.google.com/load-balancer-type: "External"
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  kubernetesIngress:
+    publishedService:
+      namespace: esd
+      name: traefik
+
+# (Optional) enable the dashboard
+dashboard:
+  enabled: true
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: traefik
+    hosts:
+      - traefik-dashboard.local   # update if you want a real host

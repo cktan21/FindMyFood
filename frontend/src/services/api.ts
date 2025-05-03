@@ -6,11 +6,11 @@ import { io } from "socket.io-client";
 // if you ever face an error simply just delete the .data
 
 // Base URL for Kong API Gateway
-const KONG_BASE_URL = import.meta.env.VITE_KONG_BASE_URL || 'http://localhost:8000';
-console.log(import.meta.env.VITE_KONG_BASE_URL);
+const TRAEFIK_BASE_URL = import.meta.env.VITE_TRAEFIK_BASE_URL || 'http://localhost:8000';
+console.log(import.meta.env.VITE_TRAEFIK_BASE_URL);
 // Axios instance for Kong API Gateway
 const api = axios.create({
-    baseURL: KONG_BASE_URL,
+    baseURL: TRAEFIK_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },

@@ -3,7 +3,7 @@
 ### Automated Deployement (use WSL or Mac)
 
 ```bash
-chmod +x script.sh
+chmod +x deploy.sh
 ./script.sh
 ```
 
