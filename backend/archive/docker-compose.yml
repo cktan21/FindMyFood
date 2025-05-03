@@ -5,9 +5,12 @@ volumes:
     name: esd_rabbitmq_data
 
 networks:
-  esd-net:
+  public-net: # Public network for Kong and Cloud CDN integration
     driver: bridge
-    name: esd-net
+    name: public-net
+  internal-net: # Internal network for Traefik and microservices
+    driver: bridge
+    name: internal-net
 
 services:
   kong:
@@ -15,7 +18,8 @@ services:
     container_name: kong-dbless
     restart: always
     networks:
-      - esd-net
+      - public-net
+      - internal-net
     volumes:
       - ./kong:/kong/declarative
     environment:
@@ -29,141 +33,225 @@ services:
       KONG_ADMIN_GUI_URL: "http://localhost:8002"
       KONG_LICENSE_DATA: ""
     ports:
-      - "8000:8000"
-      - "8443:8443"
-      - "8001:8001"
-      - "8444:8444"
-      - "8002:8002"
-      - "8445:8445"
-      - "8003:8003"
+      - "8000:8000" # Public API port
+      - "8443:8443" # Public HTTPS API port
+      - "8001:8001" # Admin API port
+      - "8444:8444" # Admin HTTPS API port
+      - "8002:8002" # Admin GUI port
+      - "8445:8445" # Admin GUI HTTPS port
+      - "8003:8003" # Additional ports if needed
       - "8004:8004"
+
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik-ingress
+    restart: always
+    networks:
+      - internal-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # For dynamic service discovery
+    command:
+      - --api.insecure=true # Enable Traefik dashboard (for testing)
+      - --providers.docker # Enable Docker provider
+      - --entrypoints.web.address=:88
+      - --providers.docker.exposedbydefault=false
+    ports:
+      - "8200:8080" # GUI
+      - "88:88"
+
 
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     networks:
-      - esd-net
+      - internal-net
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`localhost`) && PathPrefix(`/prometheus`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      - "traefik.http.routers.prometheus.entrypoints=web"
+      - "traefik.http.middlewares.strip-prometheus-path.stripprefix.prefixes=/prometheus"
+      - "traefik.http.routers.prometheus.middlewares=strip-prometheus-path"
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "1010:3000"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/etc/grafana/dashboards
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`localhost`) && PathPrefix(`/grafana`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.middlewares.strip-grafana-path.stripprefix.prefixes=/grafana"
+      - "traefik.http.routers.grafana.middlewares=strip-grafana-path"
 
   complete-order:
     build: ./services/complex/complete-order
     container_name: complete-order
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "7070:7070"
     environment:
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.complete-order.rule=Host(`localhost`) && PathPrefix(`/complete-order`)"
+      - "traefik.http.services.complete-order.loadbalancer.server.port=7070"
+      - "traefik.http.routers.complete-order.entrypoints=web"
+      - "traefik.http.middlewares.strip-complete-order-path.stripprefix.prefixes=/complete-order"
+      - "traefik.http.routers.complete-order.middlewares=strip-complete-order-path"
 
   reccomend-food:
     build: ./services/complex/reccomend-food
     container_name: reccomend-food
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "8080:8080"
     depends_on:
       - reccomendation
       - menu
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reccomend-food.rule=Host(`localhost`) && PathPrefix(`/reccomend-food`)"
+      - "traefik.http.services.reccomend-food.loadbalancer.server.port=8080"
+      - "traefik.http.routers.reccomend-food.entrypoints=web"
+      - "traefik.http.middlewares.strip-reccomend-food-path.stripprefix.prefixes=/reccomend-food"
+      - "traefik.http.routers.reccomend-food.middlewares=strip-reccomend-food-path"
 
   order-food:
     build: ./services/complex/order-food
     container_name: order-food
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "8090:8090"
     environment:
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.order-food.rule=Host(`localhost`) && PathPrefix(`/order-food`)"
+      - "traefik.http.services.order-food.loadbalancer.server.port=8090"
+      - "traefik.http.routers.order-food.entrypoints=web"
+      - "traefik.http.middlewares.strip-order-food-path.stripprefix.prefixes=/order-food"
+      - "traefik.http.routers.order-food.middlewares=strip-order-food-path"
 
   chatgpt:
     build: ./services/simple/chatgpt
     container_name: chatgpt
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "3000:3000"
     env_file:
       - ./services/simple/chatgpt/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.chatgpt.rule=Host(`localhost`) && PathPrefix(`/chatgpt`)"
+      - "traefik.http.services.chatgpt.loadbalancer.server.port=3000"
+      - "traefik.http.routers.chatgpt.entrypoints=web"
+      - "traefik.http.middlewares.strip-chatgpt-path.stripprefix.prefixes=/chatgpt"
+      - "traefik.http.routers.chatgpt.middlewares=strip-chatgpt-path"
 
   menu:
     build: ./services/simple/menu
     container_name: menu
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "5001:5001"
     volumes:
       - ./services/simple/menu/firebase_credentials.json:/app/firebase_credentials.json
+    labels:
+      - "traefik.enable=true" 
+      - "traefik.http.routers.menu.rule=Host(`localhost`) && PathPrefix(`/menu`)"
+      - "traefik.http.services.menu.loadbalancer.server.port=5001"
+      - "traefik.http.routers.menu.entrypoints=web"
+      - "traefik.http.middlewares.strip-menu-path.stripprefix.prefixes=/menu"
+      - "traefik.http.routers.menu.middlewares=strip-menu-path"
 
   reccomendation:
     build: ./services/simple/reccomendation
     container_name: reccomendation
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "4000:4000"
     env_file:
       - ./services/simple/reccomendation/.env
-
-# not longer necessary
-#   credit:
-#     build: ./services/simple/credit
-#     container_name: credit
-#     networks:
-#       - esd-net
-#     ports:
-#       - "4040:4040"
-#     env_file:
-#       - ./services/simple/credit/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reccomendation.rule=Host(`localhost`) && PathPrefix(`/reccomendation`)"
+      - "traefik.http.services.reccomendation.loadbalancer.server.port=4000"
+      - "traefik.http.routers.reccomendation.entrypoints=web"
+      - "traefik.http.middlewares.strip-reccomendation-path.stripprefix.prefixes=/reccomendation"
+      - "traefik.http.routers.reccomendation.middlewares=strip-reccomendation-path"
 
   payment:
     build: ./services/simple/payment
     container_name: payment
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "5002:5002"
     env_file:
       - ./services/simple/payment/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.payment.rule=Host(`localhost`) && PathPrefix(`/payment`)"
+      - "traefik.http.services.payment.loadbalancer.server.port=5002"
+      - "traefik.http.routers.payment.entrypoints=web"
+      - "traefik.http.middlewares.strip-payment-path.stripprefix.prefixes=/payment"
+      - "traefik.http.routers.payment.middlewares=strip-payment-path"
 
   order:
     build: ./services/simple/order
     container_name: order
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "6369:6369"
     env_file:
       - ./services/simple/order/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.order.rule=Host(`localhost`) && PathPrefix(`/order`)"
+      - "traefik.http.services.order.loadbalancer.server.port=6369"
+      - "traefik.http.routers.order.entrypoints=web"
+      - "traefik.http.middlewares.strip-order-path.stripprefix.prefixes=/order"
+      - "traefik.http.routers.order.middlewares=strip-order-path"
 
   queue:
     build: ./services/simple/queue
     container_name: queue
     networks:
-      - esd-net
+      - internal-net
     ports:
-      - "8008:8008" #Make sure your ports are the same future self => if you serve it on 8008 it will serve on the :8008
+      - "8008:8008"
     depends_on:
       - socketio
     env_file:
       - ./services/simple/queue/.env
     environment:
       - SOCKET_IO_URL=http://socketio:3300
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.queue.rule=Host(`localhost`) && PathPrefix(`/queue`)"
+      - "traefik.http.services.queue.loadbalancer.server.port=8008"
+      - "traefik.http.routers.queue.entrypoints=web"
+      - "traefik.http.middlewares.strip-queue-path.stripprefix.prefixes=/queue"
+      - "traefik.http.routers.queue.middlewares=strip-queue-path"
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -176,13 +264,17 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - esd-net
+      - internal-net
     healthcheck: # Good Code
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
       retries: 5
       start_period: 20s
       timeout: 5s
+    labels:
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.internal`)"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
+      - "traefik.http.routers.rabbitmq.entrypoints=web"
 
   rabbitmq-setup:
     build: ./rabbitmq-setup
@@ -191,13 +283,15 @@ services:
       rabbitmq:
         condition: service_healthy
     networks:
-      - esd-net
+      - internal-net
+    labels:
+      - traefik.enable=false
 
   socketio:
     build: ./socket.io
     container_name: socket.io
     networks:
-      - esd-net
+      - internal-net
     ports:
       - "3300:3300"
     depends_on:
@@ -208,12 +302,30 @@ services:
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672 #connect to rabbitmq at port 5762 with the cred of username: guest and password: guest
       - KONG_URL=http://kong:8000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.socketio.rule=Host(`localhost`) && PathPrefix(`/socketio`)"
+      - "traefik.http.services.socketio.loadbalancer.server.port=3300"
+      - "traefik.http.routers.socketio.entrypoints=web"
+      - "traefik.http.middlewares.strip-socketio-path.stripprefix.prefixes=/socketio"
+      - "traefik.http.routers.socketio.middlewares=strip-socketio-path"
 
-  frontend:
-    build: ../frontend
-    container_name: frontend
-    ports:
-      - "3001:80"
-    networks:
-      - esd-net
+# not longer necessary
+#   credit:
+#     build: ./services/simple/credit
+#     container_name: credit
+#     networks:
+#       - esd-net
+#     ports:
+#       - "4040:4040"
+#     env_file:
+#       - ./services/simple/credit/.env
+
+#   frontend:
+#     build: ../frontend
+#     container_name: frontend
+#     ports:
+#       - "3001:80"
+#     networks:
+#       - esd-net
 
