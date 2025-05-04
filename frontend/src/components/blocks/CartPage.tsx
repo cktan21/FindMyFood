@@ -81,7 +81,7 @@ export default function CartPage() {
     (acc, item) => acc + item.details.price * item.quantity,
     0
   );
-  const serviceFee = parseFloat((0.03*subtotal).toFixed(2));
+  const serviceFee = parseFloat((0.05*subtotal).toFixed(2));
   const totalWithoutCredits = subtotal + serviceFee;
   const totalWithCredits = Math.max(totalWithoutCredits - creditsAmount, 0);
   let filteredCredit = 0;
