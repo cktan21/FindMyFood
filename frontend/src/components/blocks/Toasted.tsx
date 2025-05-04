@@ -20,21 +20,6 @@ export default function RealTimeNotifications() {
             }
         };
 
-        // Request notification permission
-        if ("Notification" in window) {
-            Notification.requestPermission().then(function (permission) {
-                if (permission === "granted") {
-                    console.log("Notification permission granted.");
-                } else if (permission === "denied") {
-                    console.log("Notification permission denied.");
-                } else {
-                    console.log("Notification permission default.");
-                }
-            });
-        } else {
-            console.log("This browser does not support desktop notification");
-        }
-
         // Start listening for notifications
         const setupNotifications = async () => {
             const currentUserId = await getCurrentUserId();
@@ -62,16 +47,6 @@ export default function RealTimeNotifications() {
                         description: notification.message || "No details available.",
                         action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
                     });
-
-                    // Optionally, display a desktop notification
-                    if (Notification.permission === "granted") {
-                        const PushNotif = new Notification("You Got a New Notification!", {
-                            body: notification.message || "No details available.",
-                        });
-                        PushNotif.addEventListener('click', () => {
-                            console.log('clicky')
-                        })
-                    }
                 }
             });
 
