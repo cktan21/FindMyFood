@@ -385,7 +385,7 @@ export default function CartPage() {
                     <span className="font-medium">${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Service Fee</span>
+                    <span className="text-muted-foreground">Service Fee(5%)</span>
                     <span className="font-medium">${serviceFee}</span>
                   </div>
                   {/* Dropdown for Using Credits */}
