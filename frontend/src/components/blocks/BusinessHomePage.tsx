@@ -165,7 +165,7 @@ export default function BusinessHomePage() {
       // Build the payload as expected by the API.
       const payload = {
         restaurant: currentOrder.restaurant,
-        total: parseFloat((currentOrder.total* 1.03).toFixed(2)) ,
+        total: parseFloat((currentOrder.total* 1.05).toFixed(2)) ,
         user_id: currentOrder.user_id,
         reason: reasonInput
       };
