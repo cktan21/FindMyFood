@@ -33,7 +33,7 @@ Switch to your branch before starting to code <br>
 ```
 
 ## Technical Architecture Diagram
-<img width="912" alt="Screenshot 2025-04-27 at 2 16 34 AM" src="https://github.com/user-attachments/assets/396d54b6-ea5e-4ae7-a3b2-cda9e9aac1e6" />
+<img width="1103" alt="Screenshot 2025-05-04 at 12 38 52 AM" src="https://github.com/user-attachments/assets/68f162c4-e679-43a6-a712-dda2cb9f32ea" />
 
 ## Cloud Architecture Diagram
 ### Website on GCP
