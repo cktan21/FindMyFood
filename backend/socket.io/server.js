@@ -13,6 +13,7 @@ const io = new Server(server, {
 
 // Uses env variable from docker if available, otherwise use localhost with guest credentials
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5672";
+const TELEGRAM_URL = process.env.TELEGRAM_URL || "http://localhost:6969/notif";
 
 async function startServer() {
     let connection; // Store the connection globally to close it later
@@ -33,14 +34,21 @@ async function startServer() {
                     channel.ack(msg); // Acknowledge the message even if parsing fails
                     return;
                 }
-
                 console.log("📥 Received from RabbitMQ:", messageData);
+
+                // send to TELEGRAM
+                axios.post(TELEGRAM_URL, messageData)
+                .then(res => {
+                    console.log(res)
+                })
+                .catch(err => {
+                    console.error(err); 
+                })
+
                 io.emit("notification", messageData); // Broadcast to all clients
                 channel.ack(msg); // Acknowledge the message
             }
         });
-
-
 
         io.on("connection", (socket) => {
             console.log("⚡ Client connected:", socket.id);

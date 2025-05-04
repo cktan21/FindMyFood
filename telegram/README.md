@@ -1,6 +1,14 @@
 ## Local Ngrok Deployment
 ```bash
 ngrok http 6969
+
+```
+
+## Vercel Prod
+```bash
+vercel login
+
+vercel --prod #push to vercel prod
 ```
 
 ## Production Webhook setting

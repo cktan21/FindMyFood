@@ -1,12 +1,15 @@
-const express = require('express');
-const path = require('path');
-require('dotenv').config();
-const { FE_ENDPOINT } = process.env;
-const client = require('prom-client');
-const PORT = process.env.PORT || 6969;
-const cors = require('cors');
+import express from 'express';
+import path from 'path';
+import * as dotenv from 'dotenv';
+import { FE_ENDPOINT } from './env.js'; // Create this file to store environment variables
+import client from 'prom-client';
+import cors from 'cors';
+import logger from './util/logger.js';
+
+// Load environment variables from .env file
+dotenv.config();
+
 const app = express();
-const logger = require('./util/logger');
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
@@ -24,11 +27,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json()); 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.static(path.join(import.meta.dirname, 'public')));
 app.use(
   cors({
-    origin: ['http://localhost:5173', FE_ENDPOINT],
+    origin: '*',
     credentials: true
   })
 );
@@ -37,14 +40,14 @@ app.get('/', (req, res) => {
   res.status(200).send('ok');
 });
 
-let apiRouter = require('./api/index');
+import apiRouter from './api/index.js';
 app.use('/', apiRouter);
 
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   logger.error(err);
   res.status(err.status || 500);
   res.json({
-      message: err.message
+    message: err.message
   });
 });
 
@@ -53,8 +56,10 @@ app.get('/metrics', async (req, res) => {
   res.end(await client.register.metrics());
 });
 
+const PORT = process.env.PORT || 6969;
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = app;
+export default app;
