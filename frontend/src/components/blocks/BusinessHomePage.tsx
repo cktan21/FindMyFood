@@ -51,8 +51,17 @@ export default function BusinessHomePage() {
   const [reasonInput, setReasonInput] = useState("");
   const [currentOrder, setCurrentOrder] = useState<any>(null);
 
+  const [triggerComplete, setTriggerComplete] = useState(false);
   // State to track which order is expanded
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+
+  // useEffect to watch for the trigger and required state
+  useEffect(() => {
+    if ( triggerComplete && reasonInput) {
+      handleModalConfirm();
+      setTriggerComplete(false); // reset trigger after handling
+    }
+  }, [triggerComplete]);
 
   // Fetch orders and queue from API on mount, filtering by the restaurant associated with the user.
   useEffect(() => {
@@ -144,15 +153,19 @@ export default function BusinessHomePage() {
 
   // Function to handle confirmation from the modal
   const handleModalConfirm = async () => {
-    if (!reasonInput) {
-      alert("Reason is required.");
-      return;
+    // if (modalStatus == "completed" ){
+    //     setReasonInput("Thank you for Choosing us!")
+    // }
+    
+    if (modalStatus !== "completed" && !reasonInput) {
+        alert("Reason is required.");
+        return;
     }
     if (currentOrder && modalStatus) {
       // Build the payload as expected by the API.
       const payload = {
         restaurant: currentOrder.restaurant,
-        total: parseFloat(currentOrder.total) + 1.5,
+        total: parseFloat((currentOrder.total* 1.03).toFixed(2)) ,
         user_id: currentOrder.user_id,
         reason: reasonInput
       };
@@ -301,9 +314,10 @@ export default function BusinessHomePage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => {
-                                  setCurrentOrder(order);
-                                  setModalStatus("completed");
-                                  setReasonModalOpen(true);
+                                    setCurrentOrder(order); // assuming `order` is in scope (from map or parent)
+                                    setModalStatus("completed");
+                                    setReasonInput("Thank you for Choosing us!");
+                                    setTriggerComplete(true);
                                 }}
                               >
                                 Completed
