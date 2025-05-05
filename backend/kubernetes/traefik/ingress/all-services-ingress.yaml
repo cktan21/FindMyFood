@@ -8,7 +8,7 @@ metadata:
     konghq.com/strip-path: "true"
 spec:
   rules:
-    - host: 34-142-174-90.nip.io
+    - host: 34-142-174-90.nip.io # NEED TO CHANGE FOR EVERY DEPLOYEMENT
       http:
         paths:
           - path: /rabbitmq

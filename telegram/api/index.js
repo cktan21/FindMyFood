@@ -1,9 +1,10 @@
-const express = require('express');
-
-const user = require('./user');
+import express from 'express';
+import user from './user.js';
+import notif from './notif.js'
 
 const router = express.Router();
 
 router.use('/user', user);
+router.use('/notif', notif);
 
-module.exports = router;
+export default router;

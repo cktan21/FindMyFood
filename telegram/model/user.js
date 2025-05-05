@@ -1,29 +1,28 @@
-// model/user.js
-'use strict';
+import { Markup } from 'telegraf';
+import { supabase } from '../util/db.js';
+import logger from '../util/logger.js';
+import axios from 'axios';
+import 'dotenv/config';
 
-const { Markup }   = require('telegraf');
-const { supabase } = require('../util/db');
-const logger       = require('../util/logger');
-const fs   = require('fs');
-const path = require('path');
-const axios = require('axios');
-const { orderFood, Queue, listenForNotifications, allQueueUpdates } = require('../util/api.js');
+const TRAEFIK_BASE_URL =  process.env.TRAEFIK_BASE_URL
 
 const sessions = new Map();
+
+
 function getSession(ctx) {
   const chatId = ctx.chat?.id ?? ctx.from.id;
   if (!sessions.has(chatId)) sessions.set(chatId, {});
   return sessions.get(chatId);
 }
 
-module.exports = (bot) => {
-  bot.start(async ctx => {
+export default (bot) => {
+  bot.start(async (ctx) => {
     const session = getSession(ctx);
     session.state = 'awaiting_email';
     delete session.email;
     delete session.password;
     delete session.uid;
-  
+
     const response = await axios.get('https://findmyfood-telegram.vercel.app/FindMyFood.png', {
       responseType: 'stream'
     });
@@ -31,13 +30,13 @@ module.exports = (bot) => {
     await ctx.replyWithPhoto(
       { source: response.data },
       {
-      caption: "Welcome! Please enter your email to log in:",
-      parse_mode: 'HTML',
-    });
-
+        caption: "Welcome! Please enter your email to log in:",
+        parse_mode: 'HTML',
+      }
+    );
   });
 
-  bot.on('text', async ctx => {
+  bot.on('text', async (ctx) => {
     const session = getSession(ctx);
     const text = ctx.message.text.trim();
 
@@ -52,20 +51,20 @@ module.exports = (bot) => {
 
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email:    session.email,
+          email: session.email,
           password: session.password
         });
         if (error || !data.user) throw error || new Error('Login failed');
-
-        session.uid   = data.user.id;
+        
+        session.uid = data.user.id;
         session.state = 'logged_in';
         delete session.password;
 
         return ctx.reply(
-          '✅ You are now logged in!',
+          `You are now logged in! ${session.uid}`,
           Markup.inlineKeyboard([
             Markup.button.callback('View Orders', 'VIEW_ORDERS'),
-            Markup.button.callback('View Queue',  'VIEW_QUEUE'),
+            // Markup.button.callback('View Queue', 'VIEW_QUEUE'),
           ])
         );
 
@@ -85,61 +84,36 @@ module.exports = (bot) => {
     }
   });
 
-  bot.action('VIEW_ORDERS', async ctx => {
+  bot.action('VIEW_ORDERS', async (ctx) => {
     await ctx.answerCbQuery();
     const session = getSession(ctx);
-
+    console.log(session.uid);
+  
     try {
-      const orders = await orderFood.getOrdersByFilter(session.uid, '', '');
+      // Fetch orders from the backend
+      const response = await axios.get(`${TRAEFIK_BASE_URL}/orders?uid=${session.uid}`);
+      const orders = response.data;
+  
       if (!orders.length) {
         return ctx.reply('📦 You have no orders yet.');
       }
-      const list = orders.map(o => `- #${o.id}: ${o.status}`).join('\n');
-      return ctx.reply(`📦 Your orders:\n${list}`);
+  
+      // Format the orders into a readable message
+      const orderList = orders.map((order) => {
+        const items = order.info.items
+          .map(
+            (item) =>
+              `- ${item.qty} x ${item.dish} (€${item.price})`
+          )
+          .join('\n');
+  
+        return `📦 Order ID: ${order.order_id}\n📍 Restaurant: ${order.restaurant}\n📝 Status: ${order.status}\n\nItems:\n${items}\n\n------------------------`;
+      }).join('\n');
+  
+      return ctx.reply(`👇 Your orders:\n\n${orderList}`);
     } catch (err) {
       logger.error('Order fetch error:', err);
       return ctx.reply('❌ Could not load your orders.');
     }
-  });
-
-  bot.action('VIEW_QUEUE', async ctx => {
-    await ctx.answerCbQuery();
-    const session = getSession(ctx);
-
-    try {
-      const queue = await Queue.getAllQueue();
-      if (!queue.length) {
-        return ctx.reply('🎟️ Your queue is empty.');
-      }
-      const list = queue.map((q,i) => `${i+1}. ${q.task_description}`).join('\n');
-      return ctx.reply(`🎟️ Current queue:\n${list}`);
-    } catch (err) {
-      logger.error('Queue fetch error:', err);
-      return ctx.reply('❌ Could not load your queue.');
-    }
-  });
-
-  listenForNotifications().subscribe(data => {
-    sessions.forEach(session => {
-      if (data.userId === session.uid) {
-        bot.telegram.sendMessage(session.chatId, `🔔 New notification:\n${data.message}`);
-      }
-    });
-  });
-
-  allQueueUpdates().subscribe(items => {
-    sessions.forEach(session => {
-      bot.telegram.sendMessage(
-        session.chatId,
-        `🔄 Queue updated! There are now ${items.length} items:\n` +
-        items.map((q,i) => `${i+1}. ${q.task_description}`).join('\n')
-      );
-    });
-  });
-
-  bot.command('logout', ctx => {
-    const chatId = ctx.chat?.id ?? ctx.from.id;
-    sessions.delete(chatId);
-    return ctx.reply('🔒 You have been logged out. Type /start to log in again.');
   });
 };
