@@ -42,8 +42,9 @@ helm repo add traefik https://helm.traefik.io/traefik
 helm repo update
 helm install traefik traefik/traefik --namespace esd -f kubernetes/traefik/values-traefik.yaml
 
-kubectl apply -f kubernetes/traefik/kong-ingress.yaml
-kubectl apply -f kubernetes/traefik/ingress/ingress-all-services.yaml
+# MAKE SURE TO CHANGE THE HOST IN THE BELLOW TWO FILES TO THE IP ADDRESS FOR TRAEFIK
+kubectl apply -f kubernetes/traefik/ingress/kong-ingress.yaml
+kubectl apply -f kubernetes/traefik/ingress/all-services-ingress.yaml
 
 # Expose Remaining Ingress
 kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd

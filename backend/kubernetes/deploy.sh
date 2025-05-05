@@ -32,10 +32,3 @@ kubectl get secret argocd-initial-admin-secret -n esd -o jsonpath="{.data.passwo
 helm repo add traefik https://helm.traefik.io/traefik
 helm repo update
 helm install traefik traefik/traefik --namespace esd -f kubernetes/traefik/values-traefik.yaml
-
-kubectl apply -f kubernetes/traefik/kong-ingress.yaml
-kubectl apply -f kubernetes/traefik/ingress/ingress-all-services.yaml
-
-# Expose Ingress
-kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd
-kubectl expose deployment argocd-server --type=LoadBalancer --name=argocd-server -n esd

@@ -22,5 +22,5 @@ spec:
         env:
         - name: RABBITMQ_URL
           value: "amqp://guest:guest@rabbitmq.esd.svc.cluster.local:5672"
-        - name: KONG_URL
+        - name: TELEGRAM_URL #kevin remeber to change value here to the vercel url
           value: "http://kong:8000"

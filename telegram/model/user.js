@@ -56,28 +56,15 @@ export default (bot) => {
         });
         if (error || !data.user) throw error || new Error('Login failed');
         
-        // Query the 'user' table for the current user
-        const { data: userData, error: userError } = await supabase
-        .from('user')
-        .select('id')
-        .eq('email', session.email);
-
-        console.log(userData)
-
-        if (userError) {
-            throw userError;
-        }
-        
-        session.uuid = userData
         session.uid = data.user.id;
         session.state = 'logged_in';
         delete session.password;
 
         return ctx.reply(
-          '✅ You are now logged in!',
+          `You are now logged in! ${session.uid}`,
           Markup.inlineKeyboard([
             Markup.button.callback('View Orders', 'VIEW_ORDERS'),
-            Markup.button.callback('View Queue', 'VIEW_QUEUE'),
+            // Markup.button.callback('View Queue', 'VIEW_QUEUE'),
           ])
         );
 
@@ -100,27 +87,33 @@ export default (bot) => {
   bot.action('VIEW_ORDERS', async (ctx) => {
     await ctx.answerCbQuery();
     const session = getSession(ctx);
-    console.log(session.uuid)
-
+    console.log(session.uid);
+  
     try {
-        const orders = axios.get(`${TRAEFIK_BASE_URL}/orders?uid=${session.uuid}`)
-        .then(res => {
-            console.log(res)
-        })
+      // Fetch orders from the backend
+      const response = await axios.get(`${TRAEFIK_BASE_URL}/orders?uid=${session.uid}`);
+      const orders = response.data;
+  
       if (!orders.length) {
         return ctx.reply('📦 You have no orders yet.');
       }
-      const list = orders.map(o => `- #${o.id}: ${o.status}`).join('\n');
-      return ctx.reply(`📦 Your orders:\n${list}`);
+  
+      // Format the orders into a readable message
+      const orderList = orders.map((order) => {
+        const items = order.info.items
+          .map(
+            (item) =>
+              `- ${item.qty} x ${item.dish} (€${item.price})`
+          )
+          .join('\n');
+  
+        return `📦 Order ID: ${order.order_id}\n📍 Restaurant: ${order.restaurant}\n📝 Status: ${order.status}\n\nItems:\n${items}\n\n------------------------`;
+      }).join('\n');
+  
+      return ctx.reply(`👇 Your orders:\n\n${orderList}`);
     } catch (err) {
       logger.error('Order fetch error:', err);
       return ctx.reply('❌ Could not load your orders.');
     }
-  });
-
-  bot.command('logout', (ctx) => {
-    const chatId = ctx.chat?.id ?? ctx.from.id;
-    sessions.delete(chatId);
-    return ctx.reply('🔒 You have been logged out. Type /start to log in again.');
   });
 };
