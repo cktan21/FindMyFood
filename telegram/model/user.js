@@ -61,7 +61,7 @@ export default (bot) => {
         delete session.password;
 
         return ctx.reply(
-          `You are now logged in! ${session.uid}`,
+          `You are now logged in!`,
           Markup.inlineKeyboard([
             Markup.button.callback('View Orders', 'VIEW_ORDERS'),
             // Markup.button.callback('View Queue', 'VIEW_QUEUE'),
