@@ -1,6 +1,7 @@
 {
     "version": 2,
     "builds": [
+      { "src": "api/server.js",     "use": "@vercel/node" },
       { "src": "api/telegram.js", "use": "@vercel/node" },
       {
         "src": "public/**",
@@ -8,6 +9,7 @@
     }
     ],
     "routes": [
+      { "src": "/FindMyFood.png", "dest": "public/FindMyFood.png" },
       {
         "src": "/user/webhook/([0-9a-f-]+)$",
         "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -15,6 +17,10 @@
           "Access-Control-Allow-Origin": "*"
         },
         "dest": "api/telegram.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "api/server.js"
       },
       {
         "src": "/(.+\\.[a-z]+)$",

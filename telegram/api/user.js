@@ -1,6 +1,6 @@
 import express from 'express';
 import { Telegraf } from 'telegraf';
-import configureBot from '../model/user.js';
+import { bot, getSession, sessions } from '../model/user.js';
 import 'dotenv/config';
 
 const router = express.Router();

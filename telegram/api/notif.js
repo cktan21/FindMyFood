@@ -1,32 +1,44 @@
+// api/notif.js
 import express from 'express';
+import { bot }       from '../model/user.js';
+import { supabase }  from '../util/db.js';
+
 const router = express.Router();
 
-// Import the bot instance and getSession function
-import { bot, sessions } from '../model/user.js'; // Assuming bot is exported from user.js// Assuming getSession is defined in user.js
-
 router.post('/', async (req, res) => {
-    try {
-        console.log('Received notification request:', req.body);
+  const { message, order_id, type, user_id } = req.body;
 
-        const { message, order_id, type, user_id } = req.body;
+  // 1) Try in-memory (optional)
+  // const session = Array.from(sessions.values()).find(s => s.uid === user_id);
+  // let chatId = session?.chatId;
 
-        // // Fetch user's session data
-        // const session = getSession(user_id);
+  // 2) Always load from Supabase
+  const { data, error } = await supabase
+    .from('user_sessions')
+    .select('chat_id')
+    .eq('uid', user_id)
+    .maybeSingle();
 
-        // if (!session || !session.chatId) {
-        //     return res.status(404).json({ error: 'User not found or chat ID not set' });
-        // }
+  if (error || !data) {
+    return res
+      .status(404)
+      .json({ error: 'No Telegram session found for that user' });
+  }
 
-        if (sessions.uid == user_id){
-            // Send the message via Telegram
-            await bot.telegram.sendMessage(chatId, `You have a new Notification 🔔 for order: ${order_id} \n\n ${message}`);
-        }
+  const chatId = data.chat_id;
 
-        return res.status(200).json({ message: 'Notification sent successfully' });
-    } catch (error) {
-        console.error('Error sending notification:', error);
-        return res.status(500).json({ error: error.message });
-    }
+  try {
+    await bot.telegram.sendMessage(
+      chatId,
+      `🔔 You have a new ${type} for order ${order_id}:\n\n${message}`
+    );
+    return res.json({ message: 'Notification sent successfully' });
+  } catch (err) {
+    console.error('Error sending Telegram message:', err);
+    return res
+      .status(500)
+      .json({ error: 'Failed to send Telegram message' });
+  }
 });
 
 export default router;
