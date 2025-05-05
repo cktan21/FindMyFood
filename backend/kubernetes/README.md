@@ -5,6 +5,8 @@
 ```bash
 chmod +x deploy.sh
 ./deploy.sh
+# MAKE SURE TO CHANGE THE HOST IN THE BELLOW TWO FILES TO THE IP ADDRESS FOR TRAEFIK
+./ingress.sh
 ```
 
 ### Manual Deployement

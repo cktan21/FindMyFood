@@ -27,9 +27,29 @@ kubectl apply -f kubernetes/deployments/ -n esd
 # 6. Jobs (like rabbitmq setup)
 kubectl apply -f kubernetes/jobs/ -n esd
 
-# 7. Argo CD
+# 7. Install Argo CD
+kubectl apply -n esd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# 8. Argo CD
 kubectl apply -f kubernetes/argocd/ -n esd
 
+# Get Secrets => add this to Github Secrets
+kubectl get secret argocd-initial-admin-secret -n esd -o jsonpath="{.data.password}" | base64 -d && echo
+
+# 9. Installing traefik (via Helm)
+helm repo add traefik https://helm.traefik.io/traefik
+helm repo update
+helm install traefik traefik/traefik --namespace esd -f kubernetes/traefik/values-traefik.yaml
+
+# MAKE SURE TO CHANGE THE HOST IN THE BELLOW TWO FILES TO THE IP ADDRESS FOR TRAEFIK
+kubectl apply -f kubernetes/traefik/ingress/kong-ingress.yaml
+kubectl apply -f kubernetes/traefik/ingress/all-services-ingress.yaml
+
+# Expose Remaining Ingress
+kubectl expose deployment socketio --type=LoadBalancer --name=socketio-deployment -n esd
+kubectl expose deployment argocd-server --type=LoadBalancer --name=argocd-server -n esd
+
+# Checking
 kubectl get svc -n esd
 kubectl get pods -n esd -o wide
 kubectl get nodes -n esd -o wide
