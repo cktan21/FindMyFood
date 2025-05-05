@@ -23,4 +23,4 @@ spec:
         - name: RABBITMQ_URL
           value: "amqp://guest:guest@rabbitmq.esd.svc.cluster.local:5672"
         - name: TELEGRAM_URL #kevin remeber to change value here to the vercel url
-          value: "http://kong:8000"
+          value: "https://findmyfood-telegram.vercel.app/notif"

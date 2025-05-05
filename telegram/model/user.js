@@ -117,3 +117,5 @@ export default (bot) => {
     }
   });
 };
+
+export { sessions };
