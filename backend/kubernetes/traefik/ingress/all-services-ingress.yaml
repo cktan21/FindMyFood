@@ -81,3 +81,10 @@ spec:
                 name: complete-order
                 port:
                   number: 7070
+          - path: /order
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 6369

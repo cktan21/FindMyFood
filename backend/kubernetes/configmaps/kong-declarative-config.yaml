@@ -78,6 +78,13 @@ data:
           - name: complete-order-route
             paths:
               - /complete-order
+      
+      - name: order-service
+        url: http://order:6369
+        routes:
+          - name: order
+            paths:
+              - /order
 
     plugins:
       - name: rate-limiting
