@@ -91,7 +91,7 @@ export default (bot) => {
   
     try {
       // Fetch orders from the backend
-      const response = await axios.get(`${TRAEFIK_BASE_URL}/orders?uid=${session.uid}`);
+      const response = await axios.get(`${TRAEFIK_BASE_URL}/order/orders?uid=${session.uid}`);
       const orders = response.data;
   
       if (!orders.length) {

@@ -9,7 +9,7 @@ metadata:
 
 spec:
   rules:
-    - host: 34-126-147-213.nip.io # NEED TO CHANGE FOR EVERY DEPLLOYEMENT
+    - host: 34-124-205-246.nip.io # NEED TO CHANGE FOR EVERY DEPLLOYEMENT
       http:
         paths:
           - path: /
