@@ -36,9 +36,9 @@ http://127.0.0.1:7070/909fff87-e51c-4ecf-aa18-0dba89e0c54f/cancelled
     "total" : 7,
     "user_id" : "Ewan",
 
-    "reason": "Lack of Ingredient", //Cancelled Order
+    "message": "Lack of Ingredient", //Cancelled Order
     //OR
-    "reason": "Thank you for Choosing us!" //Completed order
+    "message": "Thank you for Choosing us!" //Completed order
 }
 ```
 

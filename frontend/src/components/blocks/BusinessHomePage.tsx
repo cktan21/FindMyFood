@@ -167,7 +167,7 @@ export default function BusinessHomePage() {
         restaurant: currentOrder.restaurant,
         total: parseFloat((currentOrder.total* 1.05).toFixed(2)) ,
         user_id: currentOrder.user_id,
-        reason: reasonInput
+        message: reasonInput
       };
       // Optimistically update the UI for orders
       updateOrderStatusLocally(currentOrder.order_id, modalStatus);
