@@ -1,7 +1,7 @@
 # FindMyFood 🧇
 <img width="1710" alt="Screenshot 2025-03-24 at 3 03 06 PM" src="https://github.com/user-attachments/assets/db93c561-8024-4827-abeb-1718294aa09e" />
 
-## 🏆 2025 DELL-VMWare Tanzu Award Winner 🏆 
+## 🏆 2025 DELL Best Cloud Native Award Winner 🏆 
 Thank you Professor Swetha Gottipati for all your guidance throughout our time in ESD G10 and Instructor Layfoo for tolerating our consultations every single week, shoutout the GOATs
 
 ## Presentation Documents
