@@ -23,7 +23,7 @@ COPY . .
 RUN go build -o reccomend-food .
 
 # Use a minimal image for the final container
-FROM alpine:latest
+FROM alpine:3.23.3
 
 # Install CA certificates for TLS
 RUN apk --no-cache add ca-certificates
